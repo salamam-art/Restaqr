@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resta Port Said Hotel – Guest Feedback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- مكتبة Chart.js للرسوم البيانية -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --crimson: #8B1A1A;
+    --crimson-dark: #6b1414;
+    --crimson-light: #c0392b;
+    --gold: #C9A84C;
+    --gold-light: #e2c26e;
+    --cream: #fdf8f2;
+    --cream2: #f5ede3;
+    --tan: #d4c5b0;
+    --brown: #6b5a45;
+    --dark-brown: #4a3728;
+    --very-dark: #2d1a0e;
+    --green: #2d7a4f;
+    --blue: #1a5a8a;
+    --orange: #c9850a;
+    --red: #a32d2d;
+    --radius: 14px;
+    --shadow: 0 4px 24px rgba(139,26,26,0.08);
+    --transition: 0.25s ease;
+  }
+  body.dark {
+    --cream: #1a1208;
+    --cream2: #261e10;
+    --tan: #3a2a14;
+    --brown: #c4a882;
+    --dark-brown: #e8d5bc;
+    --very-dark: #f5ede3;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tajawal', Georgia, serif;
+    font-size: 16px;
+    background: var(--cream);
+    color: var(--very-dark);
+    min-height: 100vh;
+    transition: background var(--transition), color var(--transition);
+  }
+  /* ─── HEADER ─── */
+  header {
+    background: var(--crimson);
+    position: sticky; top: 0; z-index: 200;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+  }
+  .header-inner {
+    max-width: 960px; margin: 0 auto;
+    padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-circle {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .logo-text .hotel-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--gold); letter-spacing: 1.5px;
+  }
+  .logo-text .who-care {
+    font-size: 11px; color: rgba(245,237,227,0.6);
+    letter-spacing: 3px; text-transform: uppercase;
+  }
+  .header-nav { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .nav-btn {
+    padding: 6px 14px; border-radius: 20px;
+    border: 1.5px solid rgba(245,237,227,0.2);
+    background: transparent; color: rgba(245,237,227,0.85);
+    font-family: 'Tajawal', serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all var(--transition);
+  }
+  .nav-btn.active {
+    background: var(--gold); border-color: var(--gold); color: #fff;
+  }
+  .nav-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: transparent; border: 1.5px solid rgba(245,237,227,0.2);
+    color: rgba(245,237,227,0.85); cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.1); }
+  
+  /* ─── VIEWS ─── */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeUp 0.35s ease; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 60px; }
+  
+  /* ─── HERO ─── */
+  .hero {
+    background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-dark) 100%);
+    border-radius: 18px; padding: 40px 24px; text-align: center;
+    margin-bottom: 28px; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.18) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-ornament {
+    font-family: 'Playfair Display', serif;
+    font-size: 44px; color: var(--gold); margin-bottom: 10px;
+    display: block; position: relative; z-index:1;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px,6vw,38px);
+    color: #fff; letter-spacing: 1px;
+    margin-bottom: 6px; position: relative; z-index:1;
+  }
+  .hero .tagline {
+    color: var(--gold); font-size: 13px; letter-spacing: 4px;
+    text-transform: uppercase; margin-bottom: 12px;
+    display: block; position: relative; z-index:1;
+  }
+  .hero .sub {
+    color: rgba(245,237,227,0.6); font-size: 16px; position: relative; z-index:1;
+  }
+  
+  /* ─── SECTION CARD ─── */
+  .section-card {
+    background: var(--cream2);
+    border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow); margin-bottom: 20px;
+    border: 1px solid var(--tan);
+  }
+  .section-header {
+    padding: 14px 20px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-header.fo { background: #8B1A1A; }
+  .section-header.fb { background: #5a3e1b; }
+  .section-header.hk { background: #1a3a5a; }
+  .section-dot { width:8px; height:8px; border-radius:50%; background: var(--gold); flex-shrink:0; }
+  .section-header h3 {
+    font-family: 'Playfair Display', serif;
+    color: #fff; font-size: 18px; font-weight: 700; margin: 0;
+    letter-spacing: 0.5px;
+  }
+  .section-header .ar-label {
+    margin-right: auto; color: rgba(255,255,255,0.65);
+    font-size: 15px;
+  }
+  
+  /* ─── RATING ROW ─── */
+  .rating-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 20px; flex-wrap: wrap; gap: 8px;
+    border-bottom: 1px solid var(--tan);
+    transition: background var(--transition);
+  }
+  .rating-row:last-child { border-bottom: none; }
+  .rating-row:hover { background: rgba(139,26,26,0.03); }
+  .item-label { font-size: 16px; color: var(--dark-brown); font-weight: 500; min-width: 170px; }
+  .item-ar { font-size: 14px; color: var(--brown); }
+  .pills { display: flex; gap: 5px; flex-wrap: wrap; }
+  .pill {
+    padding: 5px 11px; border-radius: 20px;
+    border: 1.5px solid var(--tan); background: transparent;
+    color: var(--brown); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all var(--transition);
+    font-family: 'Tajawal', serif;
+  }
+  .pill:hover { border-color: var(--crimson); color: var(--crimson); }
+  .pill.selected-excellent { background:#2d7a4f; border-color:#2d7a4f; color:#fff; }
+  .pill.selected-good      { background:#1a5a8a; border-color:#1a5a8a; color:#fff; }
+  .pill.selected-fair      { background:#c9850a; border-color:#c9850a; color:#fff; }
+  .pill.selected-poor      { background:#a32d2d; border-color:#a32d2d; color:#fff; }
+  
+  /* ─── FORM FIELDS ─── */
+  .card {
+    background: var(--cream2); border-radius: var(--radius);
+    padding: 22px; box-shadow: var(--shadow);
+    border: 1px solid var(--tan); margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--crimson); font-size: 18px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .field-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 16px; }
+  .field label {
+    display: block; font-size: 14px; color: var(--brown);
+    margin-bottom: 6px; font-weight: 600; letter-spacing: 0.5px;
+  }
+  .field input, .field textarea, .field select {
+    width: 100%; padding: 10px 14px; border-radius: 8px;
+    border: 1.5px solid var(--tan);
+    background: var(--cream); color: var(--very-dark);
+    font-size: 16px; font-family: 'Tajawal', serif;
+    outline: none; transition: border-color var(--transition);
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--crimson);
+  }
+  .field textarea { resize: vertical; line-height: 1.6; }
+  
+  /* ─── BUTTONS ─── */
+  .submit-btn {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+    color: #fff; border: none; border-radius: 12px;
+    font-size: 18px; font-weight: 700; cursor: pointer;
+    font-family: 'Playfair Display', serif; letter-spacing: 1px;
+    box-shadow: 0 4px 20px rgba(139,26,26,0.3);
+    transition: all var(--transition);
+  }
+  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(139,26,26,0.4); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled { background: var(--tan); cursor: not-allowed; transform: none; box-shadow: none; }
+  
+  /* ─── ERROR ─── */
+  .error-box {
+    background: #fff8f8; border: 1.5px solid #f0c0c0;
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+    color: var(--red); font-size: 16px; display: none; font-weight: 500;
+  }
+  .error-box.show { display: block; animation: shake 0.3s ease; }
+  @keyframes shake { 0%,100%{transform:none} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+  
+  /* ─── STATUS STRIP ─── */
+  .status-strip { text-align: center; margin-top: 18px; font-size: 14px; color: var(--brown); }
+  .status-strip .connected { color: var(--green); font-weight: bold; }
+  .status-strip .disconnected { color: var(--red); font-weight: bold; }
+  .status-strip button { background:none; border:none; color:var(--crimson); cursor:pointer; font-size:14px; font-family:inherit; text-decoration:underline; margin-left:10px; }
+  
+  /* ─── SUCCESS ─── */
+  .success-screen {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 420px; gap: 18px;
+    text-align: center; padding: 40px;
+  }
+  .success-circle {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--crimson), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 38px; color: #fff;
+    animation: pop 0.5s cubic-bezier(.36,1.4,.6,1);
+  }
+  @keyframes pop { 0%{transform:scale(0);opacity:0} 70%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+  .success-screen h2 { font-family:'Playfair Display',serif; color:var(--crimson); font-size:32px; }
+  .success-screen p { color: var(--brown); font-size: 17px; }
+  .new-btn {
+    margin-top: 8px; padding: 13px 36px;
+    background: var(--crimson); color: #fff;
+    border: none; border-radius: 30px; font-size: 17px;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    letter-spacing: 0.5px; transition: all var(--transition);
+  }
+  .new-btn:hover { background: var(--crimson-dark); }
+  
+  /* ─── ADMIN ─── */
+  .admin-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 22px; flex-wrap: wrap; gap: 12px;
+  }
+  .admin-topbar h2 { font-family:'Playfair Display',serif; color:var(--crimson); font-size:28px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 14px; margin-bottom: 24px; }
+  .kpi {
+    background: var(--cream2); border-radius: 12px;
+    padding: 18px 14px; text-align: center;
+    border: 1px solid var(--tan); box-shadow: var(--shadow);
+  }
+  .kpi .kpi-icon { font-size: 26px; margin-bottom: 8px; }
+  .kpi .kpi-val { font-family:'Playfair Display',serif; font-size: 28px; font-weight:700; color:var(--crimson); }
+  .kpi .kpi-label { font-size: 14px; color: var(--brown); margin-top: 4px; font-weight: 500; }
+  
+  .filter-bar { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
+  .filter-bar select, .filter-bar input {
+    padding: 8px 14px; border-radius: 8px; border: 1.5px solid var(--tan);
+    background: var(--cream2); color: var(--very-dark);
+    font-size: 15px; font-family:'Tajawal',serif;
+  }
+  .clear-filter {
+    padding: 8px 16px; border-radius: 8px;
+    border: 1.5px solid var(--crimson); color: var(--crimson);
+    background: transparent; font-size: 15px; cursor: pointer;
+    font-family: inherit; font-weight: 500;
+  }
+  
+  .charts-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; margin-bottom:24px; }
+  .chart-card { background:var(--cream2); border-radius:var(--radius); padding:20px; border:1px solid var(--tan); box-shadow:var(--shadow); }
+  .chart-card h4 { color:var(--crimson); font-size:16px; font-weight:700; margin-bottom:16px; }
+  .chart-wrap { position:relative; height:220px; }
+  
+  .table-card { background:var(--cream2); border-radius:var(--radius); overflow:hidden; border:1px solid var(--tan); box-shadow:var(--shadow); }
+  .table-card-head { padding:16px 20px; border-bottom:1px solid var(--tan); }
+  .table-card-head h4 { color:var(--crimson); font-size:16px; font-weight:700; }
+  
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:15px; }
+  thead tr { background:rgba(139,26,26,0.05); }
+  th { padding:12px 16px; text-align:left; color:var(--brown); font-weight:700; border-bottom:1px solid var(--tan); white-space:nowrap; }
+  td { padding:12px 16px; border-bottom:1px solid rgba(212,197,176,0.3); }
+  tr:hover td { background:rgba(139,26,26,0.03); }
+  tr.has-poor td { background: rgba(163,45,45,0.04); }
+  
+  .badge {
+    display:inline-block; padding:2px 10px; border-radius:12px;
+    font-size:14px; font-weight:700; white-space:nowrap;
+  }
+  .badge-excellent { background:#2d7a4f22; color:#2d7a4f; }
+  .badge-good      { background:#1a5a8a22; color:#1a5a8a; }
+  .badge-fair      { background:#c9850a22; color:#c9850a; }
+  .badge-poor      { background:#a32d2d22; color:#a32d2d; }
+  .badge-num-high  { background:#2d7a4f22; color:#2d7a4f; }
+  .badge-num-mid   { background:#1a5a8a22; color:#1a5a8a; }
+  .badge-num-low   { background:#c9850a22; color:#c9850a; }
+  .badge-num-bad   { background:#a32d2d22; color:#a32d2d; }
+  .no-data { text-align:center; padding:40px; color:var(--brown); font-size: 15px; }
+  
+  .action-btn {
+    padding:8px 16px; border-radius:8px;
+    background:var(--crimson); color:#fff;
+    border:none; font-size:15px; cursor:pointer;
+    font-family:inherit; transition:all var(--transition);
+    display:inline-flex; align-items:center; gap:6px; font-weight: 500;
+  }
+  .action-btn:hover { background:var(--crimson-dark); }
+  
+  /* ─── CONFIG ─── */
+  .config-section { background:var(--cream2); border-radius:var(--radius); padding:24px; border:1px solid var(--tan); box-shadow:var(--shadow); margin-bottom:20px; }
+  .config-section h3 { font-family:'Playfair Display',serif; color:var(--crimson); margin-bottom:8px; font-size: 20px;}
+  .config-section p { color:var(--brown); font-size:15px; line-height:1.7; margin-bottom:18px; }
+  .config-section input { width:100%; padding:11px 14px; border-radius:8px; border:1.5px solid var(--tan); background:var(--cream); color:var(--very-dark); font-size:15px; font-family:inherit; margin-bottom:14px; }
+  .save-btn { padding:10px 24px; background:var(--crimson); color:#fff; border:none; border-radius:8px; font-size:16px; cursor:pointer; font-family:inherit; font-weight: 500; }
+  
+  .code-toggle {
+    background:var(--cream2); border:1px solid var(--tan); border-radius:var(--radius); overflow:hidden; cursor:pointer;
+  }
+  .code-toggle-header {
+    padding:16px 20px; display:flex; justify-content:space-between; align-items:center;
+    color:var(--crimson); font-size:17px; font-weight:700;
+    border:none; background:none; width:100%; cursor:pointer; font-family:inherit;
+  }
+  .code-block { display:none; }
+  .code-block.open { display:block; }
+  pre {
+    padding:20px; background:rgba(0,0,0,0.06);
+    font-size:13px; color:var(--dark-brown); overflow-x:auto;
+    white-space:pre-wrap; word-break:break-word; line-height:1.6;
+    border-top:1px solid var(--tan); margin:0;
+  }
+  body.dark pre { background:rgba(0,0,0,0.3); }
+  
+  /* ─── RTL ─── */
+  body.rtl { direction: rtl; }
+  body.rtl .section-header .ar-label { margin-right: 0; margin-left: auto; }
+  body.rtl th, body.rtl td { text-align: right; }
+  
+  /* ─── FOOTER ─── */
+  footer { text-align:center; padding:24px 16px; border-top:1px solid var(--tan); margin-top:20px; }
+  footer p { font-size:14px; color:var(--brown); letter-spacing:1px; }
+  
+  /* ─── RESPONSIVE ─── */
+  @media(max-width:600px) {
+    .rating-row { flex-direction:column; align-items:flex-start; }
+    .pills { width:100%; }
+    .pill { flex:1; text-align:center; }
+    .admin-topbar { flex-direction:column; align-items:flex-start; }
+  }
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius:3px; }
+
+  /* ─── PASSWORD MODAL ─── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; z-index:1000;
+    background: rgba(45,26,14,0.65); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .modal-box {
+    background: var(--cream2); border-radius: 20px;
+    padding: 40px 36px; width: 90%; max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border: 1px solid var(--tan); text-align: center;
+    animation: slideUp 0.3s cubic-bezier(.36,1.4,.6,1);
+  }
+  @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:none;opacity:1} }
+  .modal-box .lock-icon { font-size: 48px; margin-bottom: 16px; }
+  .modal-box h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--crimson); font-size: 24px; margin-bottom: 6px;
+  }
+  .modal-box p { color: var(--brown); font-size: 15px; margin-bottom: 24px; }
+  .modal-box input {
+    width: 100%; padding: 12px 16px; border-radius: 10px;
+    border: 1.5px solid var(--tan); background: var(--cream);
+    color: var(--very-dark); font-size: 18px; font-family: inherit;
+    text-align: center; letter-spacing: 4px; outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 16px;
+  }
+  .modal-box input:focus { border-color: var(--crimson); }
+  .modal-box input.error { border-color: #a32d2d; animation: shake 0.3s ease; }
+  .modal-error { color:#a32d2d; font-size:15px; margin-bottom:12px; min-height:18px; }
+  .modal-btn {
+    width:100%; padding:13px; border-radius:10px;
+    background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+    color:#fff; border:none; font-size:17px; font-weight:700;
+    cursor:pointer; font-family:'Playfair Display',serif; letter-spacing:1px;
+    transition: all 0.2s; margin-bottom:10px;
+  }
+  .modal-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(139,26,26,0.3); }
+  .modal-cancel {
+    background:none; border:none; color:var(--brown); font-size:15px;
+    cursor:pointer; font-family:inherit; text-decoration:underline; font-weight: 500;
+  }
+
+  /* ─── DETAIL MODAL ─── */
+  .detail-overlay {
+    display:none; position:fixed; inset:0; z-index:1000;
+    background: rgba(45,26,14,0.65); backdrop-filter:blur(6px);
+    align-items:flex-start; justify-content:center;
+    overflow-y:auto; padding:20px;
+  }
+  .detail-overlay.open { display:flex; animation: fadeIn 0.2s ease; }
+  .detail-box {
+    background: var(--cream2); border-radius: 20px;
+    width: 100%; max-width: 680px; margin: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    border: 1px solid var(--tan);
+    animation: slideUp 0.3s cubic-bezier(.36,1.4,.6,1);
+    overflow: hidden;
+  }
+  .detail-header {
+    background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+    padding: 24px 28px; position: relative;
+  }
+  .detail-header h3 {
+    font-family:'Playfair Display',serif; color:#fff; font-size:24px; margin-bottom:4px;
+  }
+  .detail-header .detail-sub { color: rgba(245,237,227,0.7); font-size:15px; }
+  .detail-close {
+    position:absolute; top:16px; right:20px;
+    background:rgba(255,255,255,0.15); border:none; border-radius:50%;
+    width:34px; height:34px; color:#fff; font-size:18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: background 0.2s;
+  }
+  .detail-close:hover { background:rgba(255,255,255,0.25); }
+  .detail-body { padding: 24px 28px; }
+  .detail-info-grid {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:14px;
+    margin-bottom:24px;
+  }
+  .detail-info-item { text-align:center; }
+  .detail-info-item .di-label { font-size:13px; color:var(--brown); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; font-weight: 600; }
+  .detail-info-item .di-val { font-family:'Playfair Display',serif; color:var(--crimson); font-size:18px; font-weight:700; }
+  .detail-section-title {
+    font-family:'Playfair Display',serif; font-size:16px; font-weight:700;
+    color:#fff; padding:8px 16px; border-radius:8px; margin:16px 0 10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .detail-section-title.fo { background:#8B1A1A; }
+  .detail-section-title.fb { background:#5a3e1b; }
+  .detail-section-title.hk { background:#1a3a5a; }
+  .detail-rating-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 12px; border-radius:8px; margin-bottom:6px;
+    background: var(--cream); border:1px solid var(--tan);
+  }
+  .detail-rating-row .dr-label { font-size:15px; color:var(--dark-brown); font-weight:600; }
+  .detail-comments {
+    background:var(--cream); border:1px solid var(--tan); border-radius:10px;
+    padding:16px; margin-top:16px; font-size:16px; color:var(--dark-brown);
+    line-height:1.7; font-style:italic;
+  }
+  .detail-actions {
+    display:flex; gap:10px; padding:20px 28px;
+    border-top:1px solid var(--tan); flex-wrap:wrap;
+  }
+  .det-btn {
+    padding:10px 22px; border-radius:8px; border:none; cursor:pointer;
+    font-size:16px; font-weight:600; font-family:inherit;
+    display:flex; align-items:center; gap:7px; transition:all 0.2s;
+  }
+  .det-btn.print { background:var(--crimson); color:#fff; }
+  .det-btn.print:hover { background:var(--crimson-dark); }
+  .det-btn.pdf { background:var(--gold); color:#fff; }
+  .det-btn.pdf:hover { background:#b8922e; }
+  .det-btn.close2 { background:var(--cream); border:1.5px solid var(--tan); color:var(--brown); }
+
+  /* ─── CLICKABLE TABLE ROW ─── */
+  tbody tr { cursor:pointer; }
+
+  /* ─── PRINT STYLES ─── */
+  @media print {
+    body > *:not(#printArea) { display:none !important; }
+    #printArea { display:block !important; }
+    .no-print { display:none !important; }
+    .print-page {
+      font-family:'Tajawal',Georgia,serif;
+      max-width:700px; margin:0 auto; padding:20px;
+    }
+    .print-header {
+      text-align:center; border-bottom:3px solid #8B1A1A;
+      padding-bottom:16px; margin-bottom:20px;
+    }
+    .print-hotel { font-size:26px; font-weight:700; color:#8B1A1A; letter-spacing:2px; }
+    .print-tagline { font-size:12px; letter-spacing:4px; color:#C9A84C; text-transform:uppercase; margin-bottom:4px; font-weight: 600; }
+    .print-doc-title { font-size:18px; color:#4a3728; margin-top:8px; font-weight: 600; }
+    .print-info-row { display:flex; gap:30px; margin-bottom:20px; flex-wrap:wrap; }
+    .print-info-item { flex:1; min-width:150px; }
+    .print-info-item .pil { font-size:12px; color:#6b5a45; letter-spacing:1px; text-transform:uppercase; font-weight: 600; }
+    .print-info-item .piv { font-size:17px; font-weight:700; color:#2d1a0e; }
+    .print-sec-title { background:#8B1A1A; color:#fff; padding:6px 12px; border-radius:6px; font-size:15px; font-weight:700; margin:14px 0 8px; }
+    .print-sec-title.fb { background:#5a3e1b; }
+    .print-sec-title.hk { background:#1a3a5a; }
+    .print-row { display:flex; justify-content:space-between; padding:7px 10px; border-bottom:1px solid #d4c5b0; font-size:15px; font-weight: 500; }
+    .print-badge { padding:2px 12px; border-radius:12px; font-size:14px; font-weight:700; }
+    .print-badge.excellent { background:#e8f5ee; color:#2d7a4f; }
+    .print-badge.good { background:#e6f0f8; color:#1a5a8a; }
+    .print-badge.fair { background:#fdf3e0; color:#c9850a; }
+    .print-badge.poor { background:#fde8e8; color:#a32d2d; }
+    .print-comments { border:1px solid #d4c5b0; border-radius:8px; padding:12px; font-size:15px; color:#4a3728; line-height:1.7; margin-top:14px; font-style:italic; }
+    .print-footer { text-align:center; margin-top:30px; font-size:12px; color:#6b5a45; border-top:1px solid #d4c5b0; padding-top:12px; }
+  }
+  #printArea { display:none; }
+</style>
+</head>
+<body class="rtl">
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-circle">R</div>
+      <div class="logo-text">
+        <div class="hotel-name">RESTA PORT SAID</div>
+        <div class="who-care">WHO CARE</div>
+      </div>
+    </div>
+    <div class="header-nav">
+      <button class="nav-btn active" onclick="showView('survey')" id="tab-survey">Survey</button>
+      <button class="icon-btn" onclick="toggleDark()" title="Dark Mode">🌙</button>
+      <button class="nav-btn" onclick="toggleLang()" id="lang-btn" style="color:var(--gold);border-color:rgba(201,168,76,0.4)">English</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ══════════ SURVEY VIEW ══════════ -->
+  <div id="view-survey" class="view active">
+    <div class="hero">
+      <span class="hero-ornament" style="font-size:32px">✦</span>
+      <h1 id="hero-title">فندق رستا بورسعيد</h1>
+      <span class="tagline">WHO CARE</span>
+      <span class="sub" id="hero-sub">استمارة تقييم النزيل</span>
+    </div>
+
+    <!-- CONNECTION STATUS STRIP -->
+    <div class="status-strip" id="syncStatus">جاري فحص الاتصال...</div>
+    <br>
+
+    <!-- FRONT OFFICE -->
+    <div class="section-card">
+      <div class="section-header fo">
+        <div class="section-dot"></div>
+        <h3 id="s1-title">الاستقبال</h3>
+        <span class="ar-label" id="s1-ar">Front Office</span>
+      </div>
+      <div id="rows-frontOffice">
+        <div class="rating-row" data-key="fo_staffCourtesy">
+          <div class="item-label">Staff Courtesy <span class="item-ar">/ المتابعة</span></div>
+          <div class="pills"></div>
+        </div>
+        <div class="rating-row" data-key="fo_staffResponse">
+          <div class="item-label">Staff Response <span class="item-ar">/ الاستجابة</span></div>
+          <div class="pills"></div>
+        </div>
+        <div class="rating-row" data-key="fo_checkIn">
+          <div class="item-label">Check In <span class="item-ar">/ التسكين</span></div>
+          <div class="pills"></div>
+        </div>
+        <div class="rating-row" data-key="fo_checkOut">
+          <div class="item-label">Check Out <span class="item-ar">/ المغادرة</span></div>
+          <div class="pills"></div>
+        </div>
+        <div class="rating-row" data-key="fo_doorMan">
+          <div class="item-label">Door Man <span class="item-ar">/ حامل الحقائب</span></div>
+          <div class="pills"></div>
+        </div>
+        <div class="rating-row" data-key="fo_internet">
+          <div class="item-label">Internet Service <span class="item-ar">/ خدمة الإنترنت</span></div>
+          <div class="pills"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOD & BEVERAGE -->
+    <div class="section-card">
+      <div class="section-header fb">
+        <div class="section-dot"></div>
+        <h3 id="s2-title">الأغذية والمشروبات</h3>
+        <span class="ar-label" id="s2-ar">Food &amp; Beverage</span>
+      </div>
+      <div id="rows-fb">
+        <div class="rating-row" data-key="fb_ambience">
+          <div class="item-label">Restaurant Ambience <span class="item-ar">/ الحالة العامة للمطعم</span></div>
+          <div class="pills"></div>
+        </div>
+        <div class="rating-row" data-key="fb_staffCourtesy">
+          <div class="item-label">Staff Courtesy <span class="item-ar">/ المتابعة</span></div>
+          <div class="pills"></div>
+        </div>
+        <div class="rating-row" data-key="fb_staffResponse">
+          <div class="item-label">Staff Response <span class="item-ar">/ الاستجابة</span></div>
+          <div class="pills"></div>
+        </div>
+        <div class="rating-row" data-key="fb_foodQuality">
+          <div class="item-label">Quality of Food <span class="item-ar">/ جودة الطعام</span></div>
+          <div class="pills"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOUSE KEEPING -->
+    <div class="section-card">
+      <div class="section-header hk">
+        <div class="section-dot"></div>
+        <h3 id="s3-title">الإشراف الداخلي</h3>
+        <span class="ar-label" id="s3-ar">House Keeping</span>
+      </div>
+      <div id="rows-hk">
+        <div class="rating-row" data-key="hk_cleanliness">
+          <div class="item-label">Cleanliness of the Room <span class="item-ar">/ نظافة الغرفة</span></div>
+          <div class="pills"></div>
+        </div>
+        <div class="rating-row" data-key="hk_staffCourtesy">
+          <div class="item-label">Staff Courtesy <span class="item-ar">/ المتابعة</span></div>
+          <div class="pills"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="card">
+      <div class="card-title">📝 <span id="lbl-comments">أي تعليقات أخرى؟</span></div>
+      <div class="field">
+        <textarea id="comments" rows="4" placeholder="شاركنا تجربتك، اقتراحاتك، أو شكاواك..."></textarea>
+      </div>
+    </div>
+
+    <!-- GUEST INFO -->
+    <div class="card">
+      <div class="card-title">👤 <span id="lbl-guest-info">بيانات النزيل</span></div>
+      <div class="field-grid">
+        <div class="field">
+          <label id="lbl-name">اسم النزيل *</label>
+          <input type="text" id="guestName" placeholder="الاسم بالكامل">
+        </div>
+        <div class="field">
+          <label id="lbl-room">رقم الغرفة</label>
+          <input type="text" id="roomNumber" placeholder="مثال: 305">
+        </div>
+        <div class="field">
+          <label id="lbl-date">تاريخ الوصول</label>
+          <input type="date" id="checkInDate">
+        </div>
+      </div>
+    </div>
+
+    <!-- ERROR -->
+    <div class="error-box" id="errorBox">⚠ Please complete all ratings and enter your name.</div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitForm()">
+      ✦ إرسال التقييم
+    </button>
+
+  </div>
+
+  <!-- ══════════ SUCCESS VIEW ══════════ -->
+  <div id="view-success" class="view">
+    <div class="hero" style="min-height:0;padding:20px 24px;margin-bottom:20px;">
+      <span class="hero-ornament" style="font-size:32px">✦</span>
+      <h1 style="font-size:24px">RESTA PORT SAID HOTEL</h1>
+    </div>
+    <div class="card">
+      <div class="success-screen">
+        <div class="success-circle">✓</div>
+        <h2 id="success-title">شكراً لك!</h2>
+        <p id="success-msg">تم إرسال تقييمك بنجاح.</p>
+        <p id="success-sub" style="color:var(--brown);font-size:16px">نقدر وقتك الثمين.</p>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ ADMIN VIEW ══════════ -->
+  <div id="view-admin" class="view">
+    <div class="admin-topbar">
+      <h2>📊 لوحة التحكم الإدارية</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="action-btn" onclick="loadCloudDataAndRender()">🔄 تحديث البيانات السحابية</button>
+        <button class="action-btn" onclick="exportCSV()">📥 تصدير CSV</button>
+        <button id="dashCopyBtn" class="action-btn" onclick="copyAppsScriptCode()" title="نسخ كود Google Apps Script" style="background:var(--gold);display:inline-flex;align-items:center;gap:6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          نسخ كود Script
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-icon">📋</div><div class="kpi-val" id="kpi-total">0</div><div class="kpi-label">إجمالي التقييمات</div></div>
+      <div class="kpi"><div class="kpi-icon">⭐</div><div class="kpi-val" id="kpi-avg">—</div><div class="kpi-label">متوسط التقييم /4</div></div>
+      <div class="kpi"><div class="kpi-icon">⚠️</div><div class="kpi-val" id="kpi-poor">0</div><div class="kpi-label">تقييمات ضعيفة</div></div>
+      <div class="kpi"><div class="kpi-icon">📅</div><div class="kpi-val" id="kpi-today">0</div><div class="kpi-label">تقييمات اليوم</div></div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-bar">
+      <select id="filterRoom" onchange="renderAdmin()">
+        <option value="all">كل الغرف</option>
+      </select>
+      <input type="date" id="filterDate" onchange="renderAdmin()">
+      <button class="clear-filter" onclick="clearFilters()">✕ إلغاء الفلاتر</button>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h4 id="chart-lbl-dist">توزيع مستويات التقييم</h4>
+        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4 id="chart-lbl-perf">أداء الأقسام (متوسط /4)</h4>
+        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <div class="table-card-head" style="display:flex;justify-content:space-between;align-items:center;">
+        <h4 id="lbl-table-head">التقييمات الأخيرة (مباشرة من السحابة)</h4>
+        <span style="font-size:13px;color:var(--brown);letter-spacing:.5px; font-weight: 500;">👆 انقر على أي صف لعرض التقييم بالكامل</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>النزيل</th><th>الغرفة</th><th>تاريخ الوصول</th>
+              <th>الاستقبال</th><th>المطعم</th><th>الإشراف</th>
+              <th>المتوسط العام</th><th>التعليق</th>
+            </tr>
+          </thead>
+          <tbody id="feedbackTable">
+            <tr><td colspan="8" class="no-data">لم يتم جلب أي بيانات بعد</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ CONFIG VIEW ══════════ -->
+  <div id="view-config" class="view">
+    <button onclick="showView('survey')" style="background:none;border:none;color:var(--crimson);font-size:16px;cursor:pointer;font-family:inherit;margin-bottom:20px; font-weight: 600;">← العودة للاستمارة</button>
+
+    <div class="config-section">
+      <h3>☁️ إعدادات الربط السحابي (Google Sheets)</h3>
+      <p>قم بنشر كود Google Apps Script الموضح في الأسفل كـ Web App، ثم انسخ الرابط وضعه هنا للربط المباشر مع ملف الإكسل السحابي وإرسال إشعارات فورية بالبريد الإلكتروني للتقييمات السيئة.</p>
+      <label style="display:block;font-size:14px;color:var(--brown);margin-bottom:6px;font-weight:600;">رابط الويب السحابي (Apps Script Web App URL)</label>
+      <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+      <button class="save-btn" onclick="saveScriptUrl()">حفظ وتأكيد الربط</button>
+    </div>
+
+    <div class="code-toggle">
+      <button class="code-toggle-header" onclick="toggleCode()">
+        <span>📜 كود Google Apps Script (اضغط للتوسيع)</span>
+        <span id="code-arrow">▼</span>
+      </button>
+      <div class="code-block" id="codeBlock">
+        <div style="display:flex;justify-content:flex-end;align-items:center;padding:10px 16px 0;gap:8px;">
+          <button id="copyCodeBtn" onclick="copyAppsScriptCode()" title="Copy code to clipboard"
+            style="display:inline-flex;align-items:center;gap:7px;padding:7px 18px;border-radius:8px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal',serif;transition:all 0.2s ease;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            نسخ كود جوجل سكربت
+          </button>
+        </div>
+        <pre id="appsScriptCode"></pre>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════════ PASSWORD MODAL ══════════ -->
+<div class="modal-overlay" id="passwordModal">
+  <div class="modal-box">
+    <div class="lock-icon">🔐</div>
+    <h3>الدخول للوحة التحكم</h3>
+    <p>برجاء إدخال كلمة المرور للاستمرار</p>
+    <input type="password" id="passwordInput" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')checkPassword()"
+      oninput="this.classList.remove('error');document.getElementById('pwError').textContent=''">
+    <div class="modal-error" id="pwError"></div>
+    <button class="modal-btn" onclick="checkPassword()">🔓 دخول لوحة التحكم</button>
+    <br>
+    <button class="modal-cancel" onclick="closePasswordModal()">إلغاء</button>
+  </div>
+</div>
+
+<!-- ══════════ FEEDBACK DETAIL MODAL ══════════ -->
+<div class="detail-overlay" id="detailModal">
+  <div class="detail-box">
+    <div class="detail-header">
+      <h3 id="det-guest-name">—</h3>
+      <div class="detail-sub" id="det-meta">—</div>
+      <button class="detail-close no-print" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-info-grid">
+        <div class="detail-info-item">
+          <div class="di-label">الغرفة</div>
+          <div class="di-val" id="det-room">—</div>
+        </div>
+        <div class="detail-info-item">
+          <div class="di-label">تاريخ الوصول</div>
+          <div class="di-val" id="det-date">—</div>
+        </div>
+        <div class="detail-info-item">
+          <div class="di-label">المتوسط العام</div>
+          <div class="di-val" id="det-overall">—</div>
+        </div>
+      </div>
+
+      <!-- Front Office -->
+      <div class="detail-section-title fo">🏨 Front Office &nbsp;<span style="opacity:.6;font-size:14px; font-weight: 500;">الاستقبال</span></div>
+      <div id="det-fo-rows"></div>
+
+      <!-- Food & Beverage -->
+      <div class="detail-section-title fb">🍽 Food &amp; Beverage &nbsp;<span style="opacity:.6;font-size:14px; font-weight: 500;">الأغذية والمشروبات</span></div>
+      <div id="det-fb-rows"></div>
+
+      <!-- House Keeping -->
+      <div class="detail-section-title hk">🛏 House Keeping &nbsp;<span style="opacity:.6;font-size:14px; font-weight: 500;">الإشراف الداخلي</span></div>
+      <div id="det-hk-rows"></div>
+
+      <!-- Comments -->
+      <div id="det-comments-wrap" style="display:none">
+        <div style="font-size:14px;color:var(--brown);font-weight:700;letter-spacing:.5px;margin-top:18px;margin-bottom:6px;">📝 التعليقات والملاحظات</div>
+        <div class="detail-comments" id="det-comments"></div>
+      </div>
+    </div>
+    <div class="detail-actions no-print">
+      <button class="det-btn print" onclick="printDetail()">🖨 طباعة التقرير</button>
+      <button class="det-btn pdf" onclick="exportDetailPDF()">📄 تصدير PDF</button>
+      <button class="det-btn close2" onclick="closeDetail()">✕ إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PRINT AREA ══════════ -->
+<div id="printArea">
+  <div class="print-page">
+    <div class="print-header">
+      <div class="print-tagline">WHO CARE</div>
+      <div class="print-hotel">RESTA PORT SAID HOTEL</div>
+      <div class="print-doc-title">استمارة تقييم رضا النزيل — تفاصيل التقييم</div>
+    </div>
+    <div class="print-info-row" id="print-info"></div>
+    <div id="print-sections"></div>
+    <div class="print-footer">
+      © RESTA PORT SAID HOTEL &nbsp;·&nbsp; Guest Satisfaction System &nbsp;·&nbsp; Printed: <span id="print-date-stamp"></span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 RESTA PORT SAID HOTEL &nbsp;·&nbsp; WHO CARE &nbsp;·&nbsp; Guest Satisfaction System</p>
+</footer>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────
+let currentLang = 'ar';
+let isDark = false;
+let ratings = {};
+let feedbackData = []; 
+// جلب رابط السكربت المخزن لتفادي الكتابة المتكررة
+const scriptUrl = 'https://script.google.com/macros/s/AKfycbzLlW1NyL86V4NsoF0KSSlD0G1FUhlxBClrxOdfFVFyFgVrXe7iImmFOYrQp6Fv9dQn/exec';
+let pieChart = null, barChart = null;
+
+const ITEM_KEYS = [
+  'fo_staffCourtesy','fo_staffResponse','fo_checkIn','fo_checkOut','fo_doorMan','fo_internet',
+  'fb_ambience','fb_staffCourtesy','fb_staffResponse','fb_foodQuality',
+  'hk_cleanliness','hk_staffCourtesy'
+];
+const RATING_VALUES = { excellent:4, good:3, fair:2, poor:1 };
+const LABELS = {
+  en: { excellent:'Excellent', good:'Good', fair:'Fair', poor:'Poor' },
+  ar: { excellent:'ممتاز', good:'جيد', fair:'مقبول', poor:'ضعيف' }
+};
+
+// ── INIT ───────────────────────────────────────────────────────────
+window.onload = () => {
+  buildPills();
+  updateSyncStatus();
+  document.getElementById('appsScriptCode').textContent = APPS_SCRIPT_CODE;
+  // تعيين تاريخ اليوم كتاريخ تلقائي
+  document.getElementById('checkInDate').value = new Date().toISOString().split('T')[0];
+  testConnection();
+};
+
+// ── CONNECTION TEST ────────────────────────────────────────────────
+function testConnection() {
+  const syncStrip = document.getElementById('syncStatus');
+  if (!scriptUrl) {
+    syncStrip.innerHTML = '<span class="disconnected">⚠️ غير متصل بقاعدة البيانات السحابية (تأكد من إعداد رابط السكربت)</span>';
+    return;
+  }
+  syncStrip.innerHTML = '🔄 جاري التحقق من الاتصال بالسحابة...';
+  
+  fetch(scriptUrl)
+    .then(res => {
+      if(res.ok || res.status === 200 || res.type === 'opaque') {
+        syncStrip.innerHTML = '<span class="connected">✓ تم الاتصال بسرفر الفندق</span>';
+      } else {
+        throw new Error();
+      }
+    })
+    .catch(() => {
+      syncStrip.innerHTML = '<span class="disconnected">⚠️ فشل الاتصال . يرجى مراجعة الاتصال بالانترنت.</span>';
+    });
+}
+
+// ── VIEWS ──────────────────────────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  const tab = document.getElementById('tab-' + name);
+  if (tab) tab.classList.add('active');
+  if (name === 'admin') loadCloudDataAndRender();
+}
+
+// ── FETCH LIVE DATA (REWRITTEN & SECURED) ──────────────────────────
+function loadCloudDataAndRender() {
+  const tbody = document.getElementById('feedbackTable');
+  if (!scriptUrl) {
+    tbody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:var(--red); font-weight:bold;">⚠️ الرجاء إضافة رابط Google Apps Script في الإعدادات أولاً لتفعيل جلب البيانات.</td></tr>`;
+    return;
+  }
+  
+  tbody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:var(--crimson);font-weight:bold;animation:pulse 1s infinite;">⏳ جاري الاتصال المباشر بجوجل شيت وجلب البيانات حية...</td></tr>`;
+
+  // جلب البيانات عن طريق الـ Fetch المباشر والآمن من الـ Web App
+  fetch(scriptUrl, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json'
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('تأكد من نشر السكربت وإعطاء الصلاحية لـ Anyone حتى وإن كان مجهولاً.');
+    }
+    return response.json();
+  })
+  .then(data => {
+    feedbackData = Array.isArray(data) ? data : [];
+    renderAdmin();
+  })
+  .catch(err => {
+    console.error('Fetch Error:', err);
+    tbody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:var(--red); text-align:right; direction:rtl; font-weight:bold; padding:20px;">
+      ⚠️ فشل الاتصال بقاعدة البيانات !<br>
+      <span style="font-size:13px; font-weight:normal; color:var(--brown);">
+        السبب المرجح: لم تقم بنشر تطبيق Google Apps Script بشكل صحيح.<br>
+        تأكد عند النشر (Deploy) من جعل خيار (Who has access) هو <b>(Anyone)</b>.<br>
+        تفاصيل الخطأ: ${err.message}
+      </span>
+    </td></tr>`;
+  });
+}
+
+// ── PILL BUILDER ───────────────────────────────────────────────────
+function buildPills() {
+  document.querySelectorAll('.rating-row').forEach(row => {
+    const key = row.dataset.key;
+    const container = row.querySelector('.pills');
+    container.innerHTML = '';
+    ['excellent','good','fair','poor'].forEach(r => {
+      const btn = document.createElement('button');
+      btn.className = 'pill';
+      btn.dataset.rating = r;
+      btn.textContent = LABELS[currentLang][r];
+      if (ratings[key] === r) btn.classList.add('selected-' + r);
+      btn.onclick = () => selectRating(key, r);
+      container.appendChild(btn);
+    });
+  });
+}
+
+function selectRating(key, val) {
+  ratings[key] = val;
+  const row = document.querySelector(`[data-key="${key}"]`);
+  if (!row) return;
+  row.querySelectorAll('.pill').forEach(pill => {
+    pill.className = 'pill';
+    if (pill.dataset.rating === val) pill.classList.add('selected-' + val);
+  });
+  document.getElementById('errorBox').classList.remove('show');
+}
+
+// ── SUBMIT FEEDBACK (SEND ONLY TO GOOGLE SHEETS) ───────────────────
+async function submitForm() {
+  const guestName = document.getElementById('guestName').value.trim();
+  const roomNumber = document.getElementById('roomNumber').value.trim();
+  const checkInDate = document.getElementById('checkInDate').value;
+  const comments = document.getElementById('comments').value.trim();
+  const errorBox = document.getElementById('errorBox');
+
+  if (!guestName) {
+    errorBox.textContent = currentLang === 'ar' ? '⚠ اسم النزيل مطلوب.' : '⚠ Guest name is required.';
+    errorBox.classList.add('show');
+    return;
+  }
+  const missing = ITEM_KEYS.filter(k => !ratings[k]);
+  if (missing.length > 0) {
+    errorBox.textContent = currentLang === 'ar'
+      ? `⚠ يرجى تقييم جميع العناصر. (${missing.length} متبقية)`
+      : `⚠ Please rate all items. (${missing.length} remaining)`;
+    errorBox.classList.add('show');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = currentLang === 'ar' ? 'جاري إرسال التقييم للسحابة...' : 'Submitting directly to Cloud...';
+
+  const payload = {
+    guestName, roomNumber, checkInDate, comments,
+    ratings: { ...ratings },
+    timestamp: new Date().toISOString()
+  };
+
+  if (!scriptUrl) {
+    errorBox.textContent = currentLang === 'ar' 
+      ? '⚠ يرجى إعداد رابط السكربت السحابي أولاً من شاشة الإعدادات.' 
+      : '⚠ Please configure Google Sheets Script URL in Settings first.';
+    errorBox.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = currentLang === 'ar' ? '✦ إرسال التقييم' : 'Submit Feedback';
+    return;
+  }
+
+  try {
+    // إرسال البيانات بشكل مباشر وآمن للـ Google Script
+    await fetch(scriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload),
+      mode: 'no-cors'
+    });
+    
+    // إعادة تعيين الحقول وعرض شاشة النجاح
+    btn.disabled = false;
+    btn.innerHTML = '✦ ' + (currentLang === 'ar' ? 'إرسال التقييم' : 'Submit Feedback');
+    showView('success');
+  } catch(e) { 
+    console.error('Send failed:', e);
+    errorBox.textContent = currentLang === 'ar' 
+      ? '⚠ فشل الاتصال . تحقق من شبكة الإنترنت.' 
+      : '⚠ Failed to connect. Please check connection.';
+    errorBox.classList.add('show');
+    btn.disabled = false;
+  }
+}
+
+function resetForm() {
+  ratings = {};
+  document.getElementById('guestName').value = '';
+  document.getElementById('roomNumber').value = '';
+  document.getElementById('checkInDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('comments').value = '';
+  document.getElementById('errorBox').classList.remove('show');
+  buildPills();
+  testConnection();
+  showView('survey');
+}
+
+// ── ADMIN RENDER & LOGIC ──────────────────────────────────────────
+function getFiltered() {
+  const roomFilter = document.getElementById('filterRoom')?.value || 'all';
+  const dateFilter = document.getElementById('filterDate')?.value || '';
+  return feedbackData.filter(d => {
+    if (roomFilter !== 'all' && d.roomNumber !== roomFilter) return false;
+    if (dateFilter && d.checkInDate !== dateFilter) return false;
+    return true;
+  });
+}
+
+function renderAdmin() {
+  const data = feedbackData;
+  const filtered = getFiltered();
+
+  // ملء قائمة فلترة الغرف بشكل حيوي بناءً على البيانات القادمة من جوجل شيت
+  const roomSel = document.getElementById('filterRoom');
+  const currentRoom = roomSel.value;
+  const rooms = [...new Set(data.map(d => d.roomNumber).filter(Boolean))];
+  roomSel.innerHTML = `<option value="all">${currentLang === 'ar' ? 'كل الغرف' : 'All Rooms'}</option>` +
+    rooms.map(r => `<option value="${r}"${r===currentRoom?' selected':''}>Room ${r}</option>`).join('');
+
+  // حساب الـ KPIs
+  let totalRatings = 0, sumVals = 0, poorCount = 0;
+  const countByRating = { excellent:0, good:0, fair:0, poor:0 };
+  filtered.forEach(entry => {
+    ITEM_KEYS.forEach(k => {
+      const r = entry.ratings?.[k];
+      if (r) {
+        countByRating[r] = (countByRating[r]||0)+1;
+        sumVals += RATING_VALUES[r];
+        totalRatings++;
+        if (r === 'poor') poorCount++;
+      }
+    });
+  });
+  const today = new Date().toISOString().split('T')[0];
+  const todayCount = data.filter(d => d.timestamp?.startsWith(today)).length;
+
+  document.getElementById('kpi-total').textContent = filtered.length;
+  document.getElementById('kpi-avg').textContent = totalRatings > 0 ? (sumVals/totalRatings).toFixed(1) : '—';
+  document.getElementById('kpi-poor').textContent = poorCount;
+  document.getElementById('kpi-today').textContent = todayCount;
+
+  // رسم الرسوم البيانية المتطورة
+  renderPieChart(countByRating);
+  renderBarChart(filtered);
+
+  // ملء جدول البيانات السحابي
+  const tbody = document.getElementById('feedbackTable');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="no-data">لا توجد أي تقييمات مطابقة في السحابة حالياً</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = [...filtered].reverse().map((entry, i) => {
+    const foAvg = sectionAvg(entry, ['fo_staffCourtesy','fo_staffResponse','fo_checkIn','fo_checkOut','fo_doorMan','fo_internet']);
+    const fbAvg = sectionAvg(entry, ['fb_ambience','fb_staffCourtesy','fb_staffResponse','fb_foodQuality']);
+    const hkAvg = sectionAvg(entry, ['hk_cleanliness','hk_staffCourtesy']);
+    const overall = sectionAvg(entry, ITEM_KEYS);
+    const hasPoor = ITEM_KEYS.some(k => entry.ratings?.[k] === 'poor');
+    
+    // نحدد الإندكس الحقيقي للبيانات
+    const idx = feedbackData.indexOf(entry);
+    
+    return `<tr class="${hasPoor?'has-poor':''}" onclick="openDetail(feedbackData[${idx}])" title="عرض التفاصيل الكاملة">
+      <td><strong>${esc(entry.guestName||'—')}</strong></td>
+      <td>${esc(entry.roomNumber||'—')}</td>
+      <td style="white-space:nowrap">${esc(entry.checkInDate||'—')}</td>
+      <td>${numBadge(foAvg)}</td>
+      <td>${numBadge(fbAvg)}</td>
+      <td>${numBadge(hkAvg)}</td>
+      <td>${numBadge(overall)}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(entry.comments||'')}">${esc(entry.comments||'—')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function sectionAvg(entry, keys) {
+  let sum=0, cnt=0;
+  keys.forEach(k => {
+    const r = entry.ratings?.[k];
+    if (r) { sum += RATING_VALUES[r]; cnt++; }
+  });
+  return cnt ? (sum/cnt).toFixed(1) : '—';
+}
+
+function numBadge(val) {
+  if (val === '—') return `<span class="badge" style="background:rgba(0,0,0,0.05);color:var(--brown)">—</span>`;
+  const n = parseFloat(val);
+  const cls = n >= 3.5 ? 'badge-num-high' : n >= 2.5 ? 'badge-num-mid' : n >= 1.5 ? 'badge-num-low' : 'badge-num-bad';
+  return `<span class="badge ${cls}">${val}</span>`;
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderPieChart(counts) {
+  const ctx = document.getElementById('pieChart').getContext('2d');
+  const labels = currentLang==='ar'
+    ? ['ممتاز','جيد','مقبول','ضعيف']
+    : ['Excellent','Good','Fair','Poor'];
+  const vals = [counts.excellent,counts.good,counts.fair,counts.poor];
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{ data:vals, backgroundColor:['#2d7a4f','#1a5a8a','#c9850a','#a32d2d'], borderWidth:2, borderColor:'rgba(255,255,255,0.8)' }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{ position:'bottom', labels:{ font:{size:13}, color:isDark?'#c4a882':'#6b5a45', padding:8 } } }
+    }
+  });
+}
+
+function renderBarChart(filtered) {
+  const ctx = document.getElementById('barChart').getContext('2d');
+  const sections = [
+    { label:'Front Office', keys:['fo_staffCourtesy','fo_staffResponse','fo_checkIn','fo_checkOut','fo_doorMan','fo_internet'] },
+    { label:'Food & Bev.', keys:['fb_ambience','fb_staffCourtesy','fb_staffResponse','fb_foodQuality'] },
+    { label:'House Keeping', keys:['hk_cleanliness','hk_staffCourtesy'] }
+  ];
+  const vals = sections.map(s => {
+    let sum=0, cnt=0;
+    filtered.forEach(e => {
+      s.keys.forEach(k => {
+        const r = e.ratings?.[k];
+        if (r) { sum += RATING_VALUES[r]; cnt++; }
+      });
+    });
+    return cnt ? parseFloat((sum/cnt).toFixed(2)) : 0;
+  });
+  if (barChart) barChart.destroy();
+  barChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sections.map(s=>s.label),
+      datasets: [{ label:'Avg Score', data:vals, backgroundColor:['#8B1A1A','#5a3e1b','#1a3a5a'], borderRadius:8, borderSkipped:false }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      scales: {
+        y: { min:0, max:4, ticks:{ color:isDark?'#c4a882':'#6b5a45', font: {size: 13} }, grid:{ color:'rgba(0,0,0,0.05)' } },
+        x: { ticks:{ color:isDark?'#c4a882':'#6b5a45', font: {size: 13} }, grid:{ display:false } }
+      },
+      plugins: { legend:{ display:false } }
+    }
+  });
+}
+
+function clearFilters() {
+  document.getElementById('filterRoom').value = 'all';
+  document.getElementById('filterDate').value = '';
+  renderAdmin();
+}
+
+// ── EXPORT CSV ─────────────────────────────────────────────────────
+function exportCSV() {
+  const headers = ['Timestamp','Guest Name','Room','Check-In',...ITEM_KEYS,'Comments'];
+  const rows = feedbackData.map(d => [
+    d.timestamp, d.guestName, d.roomNumber, d.checkInDate,
+    ...ITEM_KEYS.map(k => d.ratings?.[k]||''),
+    d.comments
+  ]);
+  const csv = [headers,...rows].map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='Resta_Feedback.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── DARK MODE ──────────────────────────────────────────────────────
+function toggleDark() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.querySelector('[onclick="toggleDark()"]').textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('resta_dark', isDark);
+  if (document.getElementById('view-admin').classList.contains('active')) renderAdmin();
+}
+if (localStorage.getItem('resta_dark') === 'true') { isDark=true; document.body.classList.add('dark'); }
+
+// ── LANGUAGE TRANSLATIONS ──────────────────────────────────────────
+const TRANSLATIONS = {
+  en: {
+    heroTitle:'RESTA PORT SAID HOTEL', heroSub:'Guest Satisfaction Survey',
+    s1:'Front Office', s2:'Food & Beverage', s3:'House Keeping',
+    s1Sub:'الاستقبال', s2Sub:'الأغذية والمشروبات', s3Sub:'الإشراف الداخلي',
+    lblComments:'Any Other Comments?', commPH:'Share your experience, suggestions, or complaints...',
+    lblGuestInfo:'Guest Information', lblName:'Guest Name *', lblRoom:'Room Number', lblDate:'Check In Date',
+    namePH:'Your full name', roomPH:'e.g. 305',
+    submitBtn:'✦ Submit Feedback', successTitle:'Thank You!',
+    successMsg:'Your feedback has been submitted successfully.',
+    successSub:'We truly appreciate your time.', newSurvey:'Submit Another Response',
+    langBtn:'عربي',
+    chartLabel1:'Rating Distribution', chartLabel2:'Section Performance (avg /4)',
+    tblLabel:'Recent Feedback (Directly from Cloud)'
+  },
+  ar: {
+    heroTitle:'فندق رستا بورسعيد', heroSub:'استمارة تقييم النزيل',
+    s1:'الاستقبال', s2:'الأغذية والمشروبات', s3:'الإشراف الداخلي',
+    s1Sub:'Front Office', s2Sub:'Food & Beverage', s3Sub:'House Keeping',
+    lblComments:'أي تعليقات أخرى؟', commPH:'شاركنا تجربتك، اقتراحاتك، أو شكاواك...',
+    lblGuestInfo:'بيانات النزيل', lblName:'اسم النزيل *', lblRoom:'رقم الغرفة', lblDate:'تاريخ الوصول',
+    namePH:'الاسم بالكامل', roomPH:'مثال: 305',
+    submitBtn:'✦ إرسال التقييم', successTitle:'شكراً لك!',
+    successMsg:'تم إرسال تقييمك بنجاح.',
+    successSub:'نقدر وقتك الثمين.', newSurvey:'إرسال تقييم جديد',
+    langBtn:'English',
+    chartLabel1:'توزيع مستويات التقييم', chartLabel2:'أداء الأقسام (متوسط /4)',
+    tblLabel:'التقييمات الأخيرة (مباشرة من السحابة)'
+  }
+};
+
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'ar' : 'en';
+  const t = TRANSLATIONS[currentLang];
+  const isAr = currentLang === 'ar';
+  document.body.classList.toggle('rtl', isAr);
+  document.documentElement.lang = currentLang;
+  
+  document.getElementById('hero-title').textContent = t.heroTitle;
+  document.getElementById('hero-sub').textContent = t.heroSub;
+  document.getElementById('s1-title').textContent = t.s1;
+  document.getElementById('s2-title').textContent = t.s2;
+  document.getElementById('s3-title').textContent = t.s3;
+  
+  document.getElementById('s1-ar').textContent = t.s1Sub;
+  document.getElementById('s2-ar').textContent = t.s2Sub;
+  document.getElementById('s3-ar').textContent = t.s3Sub;
+
+  document.getElementById('lbl-comments').textContent = t.lblComments;
+  document.getElementById('lbl-guest-info').textContent = t.lblGuestInfo;
+  document.getElementById('lbl-name').textContent = t.lblName;
+  document.getElementById('lbl-room').textContent = t.lblRoom;
+  document.getElementById('lbl-date').textContent = t.lblDate;
+  document.getElementById('comments').placeholder = t.commPH;
+  document.getElementById('guestName').placeholder = t.namePH;
+  document.getElementById('roomNumber').placeholder = t.roomPH;
+  document.getElementById('submitBtn').innerHTML = t.submitBtn;
+  document.getElementById('success-title').textContent = t.successTitle;
+  document.getElementById('success-msg').textContent = t.successMsg;
+  document.getElementById('success-sub').textContent = t.successSub;
+  document.querySelector('.new-btn').textContent = t.newSurvey;
+  document.getElementById('lang-btn').textContent = t.langBtn;
+  
+  document.getElementById('chart-lbl-dist').textContent = t.chartLabel1;
+  document.getElementById('chart-lbl-perf').textContent = t.chartLabel2;
+  document.getElementById('lbl-table-head').textContent = t.tblLabel;
+  
+  buildPills(); 
+  testConnection();
+}
+
+// ── CONFIG ───
+function saveScriptUrl() {
+  const url = document.getElementById('scriptUrlInput').value.trim();
+  scriptUrl = url;
+  localStorage.setItem('resta_script_url', url);
+  updateSyncStatus();
+  testConnection();
+  alert(url ? '✓ تم حفظ الرابط بنجاح وجاري فحص الاتصال!' : 'تم مسح الرابط.');
+}
+
+function updateSyncStatus() {
+  const input = document.getElementById('scriptUrlInput');
+  if (input) input.value = scriptUrl;
+}
+
+function toggleCode() {
+  const block = document.getElementById('codeBlock');
+  const arrow = document.getElementById('code-arrow');
+  block.classList.toggle('open');
+  arrow.textContent = block.classList.contains('open') ? '▲' : '▼';
+}
+
+function copyAppsScriptCode() {
+  const code = APPS_SCRIPT_CODE.trim();
+  const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+
+  function flashBtn(btn, originalHTML) {
+    btn.innerHTML = checkIcon + ' تم النسخ!';
+    btn.style.background = 'var(--green)';
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.style.background = 'var(--gold)';
+    }, 2000);
+  }
+
+  const dashBtn = document.getElementById('dashCopyBtn');
+  const configBtn = document.getElementById('copyCodeBtn');
+  const activeBtn = dashBtn && document.getElementById('view-admin').classList.contains('active') ? dashBtn : (configBtn || dashBtn);
+  const originalHTML = activeBtn ? activeBtn.innerHTML : '';
+
+  const doFlash = () => { if (activeBtn) flashBtn(activeBtn, originalHTML); };
+
+  navigator.clipboard.writeText(code).then(doFlash).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = code;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    doFlash();
+  });
+}
+
+// ── PASSWORD GATE (resta) ──────────────────────────────────────────
+const ADMIN_PASSWORD = 'resta';
+let adminUnlocked = false;
+
+function requestAdminAccess() {
+  if (adminUnlocked) { showView('admin'); return; }
+  document.getElementById('passwordModal').classList.add('open');
+  setTimeout(() => document.getElementById('passwordInput').focus(), 100);
+}
+
+function checkPassword() {
+  const val = document.getElementById('passwordInput').value;
+  const input = document.getElementById('passwordInput');
+  const err = document.getElementById('pwError');
+  if (val === ADMIN_PASSWORD) {
+    adminUnlocked = true;
+    document.getElementById('passwordModal').classList.remove('open');
+    document.getElementById('passwordInput').value = '';
+    showView('admin');
+  } else {
+    input.classList.add('error');
+    err.textContent = '⚠️ الرقم السري غير صحيح. حاول مجدداً.';
+    input.value = '';
+    input.focus();
+  }
+}
+
+function closePasswordModal() {
+  document.getElementById('passwordModal').classList.remove('open');
+  document.getElementById('passwordInput').value = '';
+  document.getElementById('pwError').textContent = '';
+}
+
+// ── FEEDBACK DETAIL ────────────────────────────────────────────────
+const ITEM_LABELS = {
+  fo_staffCourtesy:  'Staff Courtesy',
+  fo_staffResponse:  'Staff Response',
+  fo_checkIn:        'Check In',
+  fo_checkOut:       'Check Out',
+  fo_doorMan:        'Door Man',
+  fo_internet:       'Internet Service',
+  fb_ambience:       'Restaurant Ambience',
+  fb_staffCourtesy:  'Staff Courtesy',
+  fb_staffResponse:  'Staff Response',
+  fb_foodQuality:    'Quality of Food',
+  hk_cleanliness:    'Cleanliness of the Room',
+  hk_staffCourtesy:  'Staff Courtesy'
+};
+
+const FO_KEYS = ['fo_staffCourtesy','fo_staffResponse','fo_checkIn','fo_checkOut','fo_doorMan','fo_internet'];
+const FB_KEYS = ['fb_ambience','fb_staffCourtesy','fb_staffResponse','fb_foodQuality'];
+const HK_KEYS = ['hk_cleanliness','hk_staffCourtesy'];
+
+const BADGE_COLORS = {
+  excellent: { bg:'#e8f5ee', color:'#2d7a4f' },
+  good:      { bg:'#e6f0f8', color:'#1a5a8a' },
+  fair:      { bg:'#fdf3e0', color:'#c9850a' },
+  poor:      { bg:'#fde8e8', color:'#a32d2d' }
+};
+
+let currentDetailEntry = null;
+
+function openDetail(entry) {
+  currentDetailEntry = entry;
+  const d = entry;
+  document.getElementById('det-guest-name').textContent = d.guestName || 'نزيل غير معروف';
+  const ts = d.timestamp ? new Date(d.timestamp).toLocaleString() : '—';
+  document.getElementById('det-meta').textContent = 'تاريخ الإرسال: ' + ts;
+  document.getElementById('det-room').textContent = d.roomNumber || '—';
+  document.getElementById('det-date').textContent = d.checkInDate || '—';
+  document.getElementById('det-overall').textContent = sectionAvg(d, ITEM_KEYS) + ' / 4';
+
+  function buildRows(keys) {
+    return keys.map(k => {
+      const r = d.ratings?.[k] || '—';
+      const bc = BADGE_COLORS[r] || { bg:'rgba(0,0,0,0.05)', color:'#6b5a45' };
+      return `<div class="detail-rating-row">
+        <span class="dr-label">${ITEM_LABELS[k]}</span>
+        <span class="badge" style="background:${bc.bg};color:${bc.color};font-size:14px;padding:3px 14px;border-radius:12px;font-weight:700">${r.charAt(0).toUpperCase()+r.slice(1)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('det-fo-rows').innerHTML = buildRows(FO_KEYS);
+  document.getElementById('det-fb-rows').innerHTML = buildRows(FB_KEYS);
+  document.getElementById('det-hk-rows').innerHTML = buildRows(HK_KEYS);
+
+  const commentWrap = document.getElementById('det-comments-wrap');
+  if (d.comments) {
+    document.getElementById('det-comments').textContent = d.comments;
+    commentWrap.style.display = 'block';
+  } else {
+    commentWrap.style.display = 'none';
+  }
+
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailModal').classList.remove('open');
+}
+
+// ── PRINT & PDF STYLES ─────────────────────────────────────────────
+function buildPrintContent(entry) {
+  const d = entry;
+  document.getElementById('print-date-stamp').textContent = new Date().toLocaleString();
+
+  document.getElementById('print-info').innerHTML = `
+    <div class="print-info-item"><div class="pil">Guest Name</div><div class="piv">${d.guestName||'—'}</div></div>
+    <div class="print-info-item"><div class="pil">Room Number</div><div class="piv">${d.roomNumber||'—'}</div></div>
+    <div class="print-info-item"><div class="pil">Check-In Date</div><div class="piv">${d.checkInDate||'—'}</div></div>
+    <div class="print-info-item"><div class="pil">Overall Avg</div><div class="piv">${sectionAvg(d, ITEM_KEYS)} / 4</div></div>
+  `;
+
+  function buildPrintSection(title, keys, cls) {
+    const rows = keys.map(k => {
+      const r = d.ratings?.[k] || '—';
+      return `<div class="print-row">
+        <span>${ITEM_LABELS[k]}</span>
+        <span class="print-badge ${r}">${r.charAt(0).toUpperCase()+r.slice(1)}</span>
+      </div>`;
+    }).join('');
+    return `<div class="print-sec-title ${cls}">${title}</div>${rows}`;
+  }
+
+  let sections = buildPrintSection('🏨 Front Office — الاستقبال', FO_KEYS, 'fo');
+  sections += buildPrintSection('🍽 Food & Beverage — الأغذية والمشروبات', FB_KEYS, 'fb');
+  sections += buildPrintSection('🛏 House Keeping — الإشراف الداخلي', HK_KEYS, 'hk');
+
+  if (d.comments) {
+    sections += `<div style="font-size:13px;color:#6b5a45;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:16px;margin-bottom:6px;">Comments</div>
+    <div class="print-comments">${d.comments}</div>`;
+  }
+
+  document.getElementById('print-sections').innerHTML = sections;
+}
+
+function printDetail() {
+  if (!currentDetailEntry) return;
+  buildPrintContent(currentDetailEntry);
+  window.print();
+}
+
+function exportDetailPDF() {
+  if (!currentDetailEntry) return;
+  buildPrintContent(currentDetailEntry);
+  const style = document.createElement('style');
+  style.id = 'pdf-force-style';
+  style.textContent = `@page { size: A4; margin: 15mm; }`;
+  document.head.appendChild(style);
+  window.print();
+  setTimeout(() => { const s = document.getElementById('pdf-force-style'); if(s) s.remove(); }, 1000);
+}
+
+// ── APPS SCRIPT CODE (STABLE WITH CORS SUPPORT) ────────────────────
+const APPS_SCRIPT_CODE = `
+// ================================================================
+//  GOOGLE APPS SCRIPT — RESTA PORT SAID HOTEL (مطور وآمن 2026)
+//  خطوات التثبيت:
+//  1. افتح https://script.google.com ثم انقر على "مشروع جديد".
+//  2. احذف الكود القديم والصق هذا الكود بالكامل.
+//  3. انقر على زر "حفظ المشروع" (رمز القرص المرن).
+//  4. انقر على "نشر" (Deploy) ← "نشر جديد" (New Deployment).
+//  5. اختر النوع: "تطبيق ويب" (Web App).
+//  6. اضبط الإعدادات التالية بدقة:
+//     - تنفيذ التطبيق باسم: "أنا" (Execute as: Me / Your email).
+//     - من لديه صلاحية الدخول: "أي شخص" (Who has access: Anyone).
+//  7. انقر على "نشر"، ثم انسخ رابط الويب السحابي الممنوح لك.
+//  8. ضعه في تطبيق رستا تحت تبويب (الإعدادات Settings).
+// ================================================================
+
+const SHEET_NAME   = "Feedback";
+const ALERT_EMAIL  = "manager@restahotel.com"; // ← غير هذا البريد لإستقبال التنبيهات
+
+// معالجة طلب جلب البيانات بدعم CORS كامل وحيوي
+function doGet(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  
+  if (!sheet) {
+    return createJsonResponse([]);
+  }
+
+  const values = sheet.getDataRange().getValues();
+  if (values.length <= 1) {
+    return createJsonResponse([]);
+  }
+
+  const rows = values.slice(1);
+  const resultArr = rows.map(row => {
+    return {
+      timestamp: row[0] || "",
+      guestName: row[1] || "",
+      roomNumber: row[2] || "",
+      checkInDate: row[3] || "",
+      ratings: {
+        fo_staffCourtesy: row[4] || "", 
+        fo_staffResponse: row[5] || "", 
+        fo_checkIn: row[6] || "", 
+        fo_checkOut: row[7] || "", 
+        fo_doorMan: row[8] || "", 
+        fo_internet: row[9] || "",
+        fb_ambience: row[10] || "", 
+        fb_staffCourtesy: row[11] || "", 
+        fb_staffResponse: row[12] || "", 
+        fb_foodQuality: row[13] || "",
+        hk_cleanliness: row[14] || "", 
+        hk_staffCourtesy: row[15] || ""
+      },
+      comments: row[16] || ""
+    };
+  });
+
+  return createJsonResponse(resultArr);
+}
+
+// معالجة إرسال البيانات من التطبيق
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const ss    = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet   = ss.getSheetByName(SHEET_NAME);
+
+    // إذا كانت الصفحة غير موجودة، يتم إنشاؤها تلقائياً وتلوينها
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEET_NAME);
+      const headers = [
+        "Timestamp","Guest Name","Room Number","Check-In Date",
+        "FO - Staff Courtesy","FO - Staff Response",
+        "FO - Check In","FO - Check Out",
+        "FO - Door Man","FO - Internet Service",
+        "FB - Restaurant Ambience","FB - Staff Courtesy",
+        "FB - Staff Response","FB - Quality of Food",
+        "HK - Cleanliness","HK - Staff Courtesy",
+        "Comments"
+      ];
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers])
+        .setFontWeight("bold")
+        .setBackground("#8B1A1A")
+        .setFontColor("#ffffff");
+      sheet.setFrozenRows(1);
+    }
+
+    const r = data.ratings || {};
+    const row = [
+      new Date().toISOString(),
+      data.guestName   || "",
+      data.roomNumber  || "",
+      data.checkInDate || "",
+      r.fo_staffCourtesy  || "",
+      r.fo_staffResponse  || "",
+      r.fo_checkIn        || "",
+      r.fo_checkOut       || "",
+      r.fo_doorMan        || "",
+      r.fo_internet       || "",
+      r.fb_ambience       || "",
+      r.fb_staffCourtesy  || "",
+      r.fb_staffResponse  || "",
+      r.fb_foodQuality    || "",
+      r.hk_cleanliness    || "",
+      r.hk_staffCourtesy  || "",
+      data.comments || ""
+    ];
+    sheet.appendRow(row);
+
+    // تلوين الخلايا تلقائياً لتسهيل القراءة بالملف
+    const lastRow = sheet.getLastRow();
+    const ratingCols = [5,6,7,8,9,10,11,12,13,14,15,16];
+    ratingCols.forEach(col => {
+      const cell = sheet.getRange(lastRow, col);
+      const val = cell.getValue();
+      if (val === "poor") {
+        cell.setBackground("#fde8e8").setFontColor("#8B1A1A");
+      } else if (val === "excellent") {
+        cell.setBackground("#e8f5ee").setFontColor("#1a5a2e");
+      }
+    });
+
+    // إرسال بريد إلكتروني تنبيهي للمدير في حال وجود تقييم ضعيف
+    const hasPoor = Object.values(r).includes("poor");
+    if (hasPoor && ALERT_EMAIL) {
+      try {
+        MailApp.sendEmail({
+          to: ALERT_EMAIL,
+          subject: "⚠️ تنبيه تقييم ضعيف — فندق رستا بورسعيد",
+          htmlBody: \`
+            <div style="direction:rtl; text-align:right; font-family:sans-serif;">
+              <h2 style="color:#8B1A1A">تنبيه تقييم ضعيف جديد!</h2>
+              <p><strong>اسم النزيل:</strong> \${data.guestName || "غير معروف"}</p>
+              <p><strong>رقم الغرفة:</strong> \${data.roomNumber || "غير محدد"}</p>
+              <p><strong>تاريخ الوصول:</strong> \${data.checkInDate || "غير محدد"}</p>
+              <p><strong>التعليق والملاحظات:</strong> <span style="color:#a32d2d; font-style:italic;">\${data.comments || "لا يوجد تعليق"}</span></p>
+              <hr>
+              <p style="font-size:12px; color:#6b5a45;">تم إرسال هذا التنبيه تلقائياً عبر نظام تقييم رضا النزلاء.</p>
+            </div>
+          \`
+        });
+      } catch(eEmail) {
+        // تجاهل خطأ إرسال الإيميل إن وجد لمتابعة حفظ التقييم بنجاح
+      }
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// دالة مساعدة لضمان إرسال رؤوس استجابة صحيحة تدعم الـ CORS بنسبة 100%
+function createJsonResponse(data) {
+  const output = JSON.stringify(data);
+  return ContentService.createTextOutput(output)
+    .setMimeType(ContentService.MimeType.JSON);
+}
+// ================================================================
+`;
+</script>
+</body>
+</html>

@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Lesseps Café – Menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Tajawal:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dark: #8A6820;
+    --navy: #0A1628;
+    --navy-mid: #122040;
+    --navy-light: #1C3060;
+    --cream: #F5EDD8;
+    --cream-dark: #E8D8B8;
+    --water: #1A5276;
+    --water-light: #2980B9;
+    --white: #FDFAF4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── CANAL BACKGROUND ─── */
+  .canal-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .canal-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 120% 60% at 50% 110%, rgba(26,82,118,0.55) 0%, transparent 70%),
+      radial-gradient(ellipse 80% 40% at 20% 90%, rgba(41,128,185,0.2) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 40% at 80% 90%, rgba(41,128,185,0.2) 0%, transparent 60%),
+      linear-gradient(175deg, #0A1628 0%, #122040 40%, #0e2040 70%, #0d1f3a 100%);
+  }
+  .wave {
+    position: absolute;
+    bottom: 0;
+    left: -10%;
+    width: 120%;
+    height: 180px;
+    opacity: 0.08;
+    animation: waveDrift 12s ease-in-out infinite alternate;
+  }
+  .wave:nth-child(2) { opacity: 0.05; animation-duration: 16s; animation-direction: alternate-reverse; }
+  .wave:nth-child(3) { opacity: 0.04; animation-duration: 20s; }
+  @keyframes waveDrift { from { transform: translateX(-3%) scaleY(1); } to { transform: translateX(3%) scaleY(1.1); } }
+
+  /* Stars */
+  .stars {
+    position: absolute;
+    inset: 0;
+  }
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: #E8C96A;
+    border-radius: 50%;
+    animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.2; } to { opacity: 0.9; } }
+
+  /* ─── WRAPPER ─── */
+  .page-wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    text-align: center;
+    padding: 60px 20px 40px;
+    position: relative;
+  }
+
+  .suez-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0.9;
+  }
+  .suez-badge::before, .suez-badge::after {
+    content: '';
+    display: block;
+    width: 40px; height: 1px;
+    background: var(--gold);
+    opacity: 0.6;
+  }
+
+  .cafe-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--white);
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 60px rgba(201,168,76,0.3), 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .cafe-name span {
+    color: var(--gold);
+  }
+  .cafe-name .de { font-style: italic; font-weight: 400; font-size: 0.6em; }
+
+  .cafe-subtitle {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    color: var(--gold-light);
+    margin-top: 10px;
+    opacity: 0.85;
+    letter-spacing: 0.15em;
+  }
+
+  .divider-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 28px auto 0;
+    color: var(--gold);
+  }
+  .divider-ornament::before, .divider-ornament::after {
+    content: '';
+    flex: 1;
+    max-width: 180px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+    opacity: 0.7;
+  }
+  .divider-ornament svg { width: 22px; height: 22px; fill: var(--gold); opacity: 0.8; }
+
+  .tagline {
+    text-align: center;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: rgba(245,237,216,0.6);
+    margin-top: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ─── SECTION ─── */
+  .menu-section {
+    margin-top: 52px;
+    animation: fadeUp 0.6s ease both;
+  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .section-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(201,168,76,0.3);
+  }
+  .section-titles {
+    display: flex;
+    flex-direction: column;
+  }
+  .section-en {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+  .section-ar {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    color: rgba(245,237,216,0.65);
+    margin-top: 2px;
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(201,168,76,0.5), transparent);
+  }
+
+  /* ─── MENU ITEMS ─── */
+  .items-grid {
+    display: grid;
+    gap: 0;
+    background: rgba(12,24,48,0.4);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+  }
+
+  .menu-item {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 13px 20px;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    transition: background 0.25s;
+    gap: 12px;
+  }
+  .menu-item:last-child { border-bottom: none; }
+  .menu-item:hover { background: rgba(201,168,76,0.06); }
+
+  .item-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--cream);
+    text-align: right;
+  }
+  .item-dots {
+    flex: 1;
+    border-bottom: 1px dotted rgba(201,168,76,0.3);
+    height: 1px;
+    min-width: 24px;
+    align-self: flex-end;
+    margin-bottom: 4px;
+  }
+  .item-ar {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.95rem;
+    color: rgba(245,237,216,0.75);
+    text-align: left;
+  }
+  .item-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gold);
+    white-space: nowrap;
+    text-align: center;
+    padding: 2px 10px;
+    background: rgba(201,168,76,0.08);
+    border-radius: 4px;
+    border: 1px solid rgba(201,168,76,0.2);
+  }
+
+  /* Sub-header inside section */
+  .sub-header {
+    padding: 9px 20px 8px;
+    background: rgba(201,168,76,0.07);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: var(--gold-light);
+    font-style: italic;
+    letter-spacing: 0.06em;
+  }
+
+  /* Flavors row */
+  .flavors-row {
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+  }
+  .flavors-row:hover { background: rgba(201,168,76,0.06); }
+  .flavors-label {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.82rem;
+    color: rgba(245,237,216,0.55);
+    margin-bottom: 6px;
+  }
+  .flavors-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    direction: ltr;
+  }
+  .flavor-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem;
+    color: var(--cream-dark);
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 20px;
+    padding: 2px 10px;
+  }
+
+  /* Wine special layout */
+  .wine-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    align-items: center;
+    padding: 13px 20px;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    gap: 12px;
+    transition: background 0.25s;
+  }
+  .wine-item:last-child { border-bottom: none; }
+  .wine-item:hover { background: rgba(201,168,76,0.06); }
+  .wine-name { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: var(--cream); }
+  .wine-ar { font-family: 'Tajawal', sans-serif; font-size: 0.9rem; color: rgba(245,237,216,0.65); }
+  .wine-price-block { text-align: center; }
+  .wine-price-label { font-family: 'Tajawal', sans-serif; font-size: 0.7rem; color: rgba(201,168,76,0.6); margin-bottom: 2px; }
+  .wine-price-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem; font-weight: 700; color: var(--gold);
+    padding: 2px 10px;
+    background: rgba(201,168,76,0.08);
+    border-radius: 4px;
+    border: 1px solid rgba(201,168,76,0.2);
+  }
+
+  /* Currency label */
+  .currency-note {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.78rem;
+    color: rgba(201,168,76,0.55);
+    text-align: left;
+    padding: 8px 20px 4px;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center;
+    padding: 50px 20px 20px;
+    position: relative;
+  }
+  .footer-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .footer-divider::before, .footer-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent);
+  }
+  .footer-emblem {
+    font-size: 1.4rem;
+    color: var(--gold);
+    opacity: 0.7;
+  }
+  .footer-text {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(245,237,216,0.4);
+    line-height: 2;
+    letter-spacing: 0.05em;
+  }
+  .footer-text strong {
+    color: rgba(201,168,76,0.6);
+  }
+
+  /* ─── POOL STRIPE ─── */
+  .pool-stripe {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #1A5276 20%, #2980B9 40%, #1ABC9C 60%, #2980B9 80%, transparent);
+    opacity: 0.6;
+    animation: poolShimmer 4s ease-in-out infinite alternate;
+    z-index: 100;
+  }
+  @keyframes poolShimmer { from { opacity: 0.4; } to { opacity: 0.8; } }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .menu-item { grid-template-columns: 1fr auto; gap: 8px; }
+    .item-en { display: none; }
+    .item-ar { font-size: 0.92rem; text-align: right; }
+    .item-dots { display: none; }
+    .wine-item { grid-template-columns: 1fr auto auto; }
+    .wine-name { display: none; }
+    .wine-ar { display: block; font-size: 0.95rem; color: var(--cream); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Canal Background -->
+<div class="canal-bg">
+  <div class="stars" id="stars"></div>
+  <svg class="wave" viewBox="0 0 1440 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 90 C360 30 720 150 1080 90 C1260 60 1380 120 1440 90 V180 H0Z" fill="#2980B9"/>
+  </svg>
+  <svg class="wave" viewBox="0 0 1440 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 110 C240 60 600 160 960 100 C1200 60 1380 140 1440 110 V180 H0Z" fill="#1A5276"/>
+  </svg>
+  <svg class="wave" viewBox="0 0 1440 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 130 C300 80 660 170 1020 120 C1200 90 1380 150 1440 130 V180 H0Z" fill="#0A1628"/>
+  </svg>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <div class="suez-badge">
+      <span>RESTA PORTSAID</span>
+    </div>
+    <div class="cafe-name">
+      <span class="de">De</span> <span>Lesseps</span>
+    </div>
+    <div class="cafe-name" style="font-size: clamp(1.5rem,4vw,2.6rem); margin-top:6px; font-weight:400; font-style:italic; color: var(--cream-dark);">Café &amp; Pool</div>
+    <div class="cafe-subtitle">كافيه دي ليسبس</div>
+    <div class="divider-ornament">
+      <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+    </div>
+    <p class="tagline">On the shores of the Suez Canal</p>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       HOT DRINKS
+  ═══════════════════════════════════════ -->
+  <section class="menu-section" style="animation-delay:0.1s">
+    <div class="section-header">
+      <div class="section-icon">☕</div>
+      <div class="section-titles">
+        <span class="section-en">Hot Drinks</span>
+        <span class="section-ar">المشروبات الساخنة</span>
+      </div>
+      <div class="section-line"></div>
+    </div>
+    <div class="items-grid">
+      <div class="currency-note">All prices in L.E · الأسعار بالجنيه المصري</div>
+      <div class="menu-item">
+        <div class="item-en">Tea / Green Tea / Mint</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">شاى / شاى أخضر / نعناع</div>
+        <div class="item-price">35</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Turkish Coffee</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">قهوة تركى</div>
+        <div class="item-price">50</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Cappuccino</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">كابوتشينو</div>
+        <div class="item-price">90</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Espresso</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">قهوة إسبريسو</div>
+        <div class="item-price">65</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Nescafé</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">نسكافية</div>
+        <div class="item-price">65</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Cinnamon</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">قرفة</div>
+        <div class="item-price">60</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Sahlab</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">سحلب</div>
+        <div class="item-price">75</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Hot Chocolate</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">شيكولاته ساخنة</div>
+        <div class="item-price">75</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Café Mocha</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">موكا كافيه</div>
+        <div class="item-price">95</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Café Latte</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">لاتيه</div>
+        <div class="item-price">95</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Café Americano</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">أميركان كوفى</div>
+        <div class="item-price">75</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Caramel Macchiato</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">كرامل ماكياتو</div>
+        <div class="item-price">120</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Espresso Hot Macchiato</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">إسبرسو ماكياتو</div>
+        <div class="item-price">75</div>
+      </div>
+      <div class="flavors-row">
+        <div class="flavors-label">Coffee Flavors · نكهات القهوة &nbsp;+25 L.E</div>
+        <div class="flavors-tags">
+          <span class="flavor-tag">Vanilla · فانليا</span>
+          <span class="flavor-tag">Hazelnut · بندق</span>
+          <span class="flavor-tag">Caramel · كاراميل</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FRAPPUCCINO
+  ═══════════════════════════════════════ -->
+  <section class="menu-section" style="animation-delay:0.15s">
+    <div class="section-header">
+      <div class="section-icon">🧊</div>
+      <div class="section-titles">
+        <span class="section-en">Frappuccino &amp; Iced</span>
+        <span class="section-ar">فرابتشينو والمشروبات الباردة</span>
+      </div>
+      <div class="section-line"></div>
+    </div>
+    <div class="items-grid">
+      <div class="sub-header">Frappuccino · فرابتشينو</div>
+      <div class="menu-item">
+        <div class="item-en">Vanilla Frappuccino</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">فرابتشينو فانليا</div>
+        <div class="item-price">90</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Hazelnut Frappuccino</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">فرابتشينو بندق</div>
+        <div class="item-price">120</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Mocha Frappé</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">موكا فرابيه</div>
+        <div class="item-price">120</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Banana Caramel</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">موز كارامل</div>
+        <div class="item-price">130</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Ice Mocha</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">أيس موكا</div>
+        <div class="item-price">130</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Ice White Mocha</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">أيس وايت موكا</div>
+        <div class="item-price">140</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Ice Caramel Frappuccino</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">أيس كاراميل فرابيتشينو</div>
+        <div class="item-price">130</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Mokhito (Mojito)</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">موخيتو</div>
+        <div class="item-price">90</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SOFT DRINKS
+  ═══════════════════════════════════════ -->
+  <section class="menu-section" style="animation-delay:0.2s">
+    <div class="section-header">
+      <div class="section-icon">🥤</div>
+      <div class="section-titles">
+        <span class="section-en">Soft Drinks</span>
+        <span class="section-ar">مشروبات غازية</span>
+      </div>
+      <div class="section-line"></div>
+    </div>
+    <div class="items-grid">
+      <div class="menu-item">
+        <div class="item-en">Cola / Sprite / Diet</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">كولا / سبرايت / دايت</div>
+        <div class="item-price">55</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Fresh Juices / Fruit Yoghurt</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">عصير طازج / زبادى بالفواكه</div>
+        <div class="item-price">75</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Mineral Water – Large</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">مياه معدنية كبيرة</div>
+        <div class="item-price">35</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Mineral Water – Small</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">مياه معدنية صغيرة</div>
+        <div class="item-price">20</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Lemon Juice</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">عصير ليمون</div>
+        <div class="item-price">50</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Yogurt with Honey</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">زبادى بالعسل</div>
+        <div class="item-price">65</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SMOOTHIES
+  ═══════════════════════════════════════ -->
+  <section class="menu-section" style="animation-delay:0.25s">
+    <div class="section-header">
+      <div class="section-icon">🍹</div>
+      <div class="section-titles">
+        <span class="section-en">Smoothies</span>
+        <span class="section-ar">سموزى</span>
+      </div>
+      <div class="section-line"></div>
+    </div>
+    <div class="items-grid">
+      <div class="flavors-row" style="border-bottom:none;">
+        <div class="flavors-label" style="margin-bottom:10px;">Choose your flavour · اختار نكهتك</div>
+        <div class="flavors-tags" style="direction:rtl; gap:8px; margin-bottom:14px;">
+          <span class="flavor-tag">Mango · مانجو</span>
+          <span class="flavor-tag">Strawberry · فراوله</span>
+          <span class="flavor-tag">Mandarin · يوسفى</span>
+          <span class="flavor-tag">Lemon · ليمون</span>
+          <span class="flavor-tag">Blueberry · توت</span>
+          <span class="flavor-tag">Raspberry · راسبرى</span>
+          <span class="flavor-tag">Peach · خوخ</span>
+          <span class="flavor-tag">Pineapple · أناناس</span>
+          <span class="flavor-tag">Kiwi · كيوى</span>
+          <span class="flavor-tag">Banana · موز</span>
+        </div>
+        <div style="display:flex; justify-content:flex-end; padding-top:8px; border-top:1px solid rgba(201,168,76,0.12);">
+          <div class="item-price" style="font-size:1.05rem; padding: 4px 18px;">100 L.E</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       MILK SHAKE
+  ═══════════════════════════════════════ -->
+  <section class="menu-section" style="animation-delay:0.3s">
+    <div class="section-header">
+      <div class="section-icon">🥛</div>
+      <div class="section-titles">
+        <span class="section-en">Milk Shake</span>
+        <span class="section-ar">ميلك شيك</span>
+      </div>
+      <div class="section-line"></div>
+    </div>
+    <div class="items-grid">
+      <div class="currency-note">All flavours · جميع النكهات</div>
+      <div class="menu-item">
+        <div class="item-en">Vanilla</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">فانليا</div>
+        <div class="item-price">100</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Chocolate</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">شيكولاته</div>
+        <div class="item-price">100</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Caramel</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">كارامل</div>
+        <div class="item-price">100</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Strawberry</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">فراوله</div>
+        <div class="item-price">100</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Mango</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">مانجو</div>
+        <div class="item-price">100</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Blueberry</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">توت</div>
+        <div class="item-price">100</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Raspberry</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">راسبيرى</div>
+        <div class="item-price">100</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Kiwi</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">كيوى</div>
+        <div class="item-price">100</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">OREO</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">أوريو</div>
+        <div class="item-price">100</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Cookies</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">كوكيز</div>
+        <div class="item-price">100</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Coffee</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">قهوه</div>
+        <div class="item-price">100</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       WINE
+  ═══════════════════════════════════════ -->
+  <section class="menu-section" style="animation-delay:0.35s">
+    <div class="section-header">
+      <div class="section-icon">🍷</div>
+      <div class="section-titles">
+        <span class="section-en">Local Wine</span>
+        <span class="section-ar">نبيذ محلى</span>
+      </div>
+      <div class="section-line"></div>
+    </div>
+    <div class="items-grid">
+      <div style="display:grid; grid-template-columns:1fr 120px 120px; padding:8px 20px; border-bottom:1px solid rgba(201,168,76,0.15); gap:12px;">
+        <div></div>
+        <div style="text-align:center; font-family:'Tajawal',sans-serif; font-size:0.8rem; color:rgba(201,168,76,0.7);">Bottle · زجاجة</div>
+        <div style="text-align:center; font-family:'Tajawal',sans-serif; font-size:0.8rem; color:rgba(201,168,76,0.7);">Glass · كوباية</div>
+      </div>
+      <div class="wine-item">
+        <div>
+          <div class="wine-name">Red / White Wine</div>
+          <div class="wine-ar">أحمر / أبيض</div>
+        </div>
+        <div class="wine-price-block">
+          <div class="wine-price-val">680</div>
+        </div>
+        <div class="wine-price-block">
+          <div class="wine-price-val">170</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SPIRITS
+  ═══════════════════════════════════════ -->
+  <section class="menu-section" style="animation-delay:0.4s">
+    <div class="section-header">
+      <div class="section-icon">🥃</div>
+      <div class="section-titles">
+        <span class="section-en">Local Hard Liquors</span>
+        <span class="section-ar">مشروبات كحولية محلية</span>
+      </div>
+      <div class="section-line"></div>
+    </div>
+    <div class="items-grid">
+      <div class="currency-note">Per Glass · للكوباية</div>
+      <div class="menu-item">
+        <div class="item-en">Gin</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">جين</div>
+        <div class="item-price">80</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Whisky</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">ويسكى</div>
+        <div class="item-price">65</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Vodka ID Blue</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">فودكا ID أزرق</div>
+        <div class="item-price">75</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Vodka ID Black</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">فودكا ID أسود</div>
+        <div class="item-price">75</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       BEER
+  ═══════════════════════════════════════ -->
+  <section class="menu-section" style="animation-delay:0.45s">
+    <div class="section-header">
+      <div class="section-icon">🍺</div>
+      <div class="section-titles">
+        <span class="section-en">Beer</span>
+        <span class="section-ar">البيرة</span>
+      </div>
+      <div class="section-line"></div>
+    </div>
+    <div class="items-grid">
+      <div class="menu-item">
+        <div class="item-en">Stella</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">ستيلا</div>
+        <div class="item-price">160</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Stella Sakara</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">ستيلا سقارة</div>
+        <div class="item-price">160</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Heineken Beer</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">هينيكين</div>
+        <div class="item-price">160</div>
+      </div>
+      <div class="menu-item">
+        <div class="item-en">Nonalcoholic Beer</div>
+        <div class="item-dots"></div>
+        <div class="item-ar">بيرة غير كحولية</div>
+        <div class="item-price">65</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-divider"><div class="footer-emblem">⚓</div></div>
+    <p class="footer-text">
+      <strong>De Lesseps Café &amp; Pool</strong><br>
+      Overlooking the statue of Ferdinand de Lesseps · بإطلالة على تمثال فرديناند دي ليسبس<br>
+      Suez Canal – Port Said · قناة السويس – بورسعيد
+    </p>
+  </footer>
+
+</div><!-- end page-wrapper -->
+
+<div class="pool-stripe"></div>
+
+<script>
+  // Generate stars
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `
+      left:${Math.random()*100}%;
+      top:${Math.random()*65}%;
+      --d:${2+Math.random()*4}s;
+      opacity:${0.1+Math.random()*0.5};
+      width:${1+Math.random()*2}px;
+      height:${1+Math.random()*2}px;
+      animation-delay:${Math.random()*4}s;
+    `;
+    starsEl.appendChild(s);
+  }
+
+  // Staggered section reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'none';
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.menu-section').forEach((s, i) => {
+    s.style.opacity = '0';
+    s.style.transform = 'translateY(28px)';
+    s.style.transition = `opacity 0.6s ease ${i*0.08}s, transform 0.6s ease ${i*0.08}s`;
+    observer.observe(s);
+  });
+</script>
+</body>
+</html>

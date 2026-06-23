@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resta Port Said – Beverage Menu | قائمة المشروبات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cairo:wght@300;400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --gold:        #C9A84C;
+    --gold-light:  #E8D08A;
+    --gold-pale:   #F5ECD0;
+    --cream:       #FAF6EE;
+    --ink:         #1A1208;
+    --ink-mid:     #3B2D14;
+    --ink-soft:    #6B5530;
+    --rule:        rgba(201,168,76,.35);
+    --rule-thick:  rgba(201,168,76,.7);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ── Decorative background ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%,  rgba(201,168,76,.08) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(201,168,76,.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 40px 80px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    padding-bottom: 40px;
+    position: relative;
+  }
+
+  .logo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 28px;
+    animation: fadeDown .8s ease both;
+  }
+
+  .logo-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.6rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .logo-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: .38em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .header-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 20px 0;
+    animation: fadeUp .9s .2s ease both;
+  }
+  .header-ornament .line { flex: 1; max-width: 160px; height: 1px; background: var(--rule-thick); }
+  .header-ornament .diamond {
+    width: 10px; height: 10px;
+    background: var(--gold);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .header-ornament .dot {
+    width: 5px; height: 5px;
+    border: 1px solid var(--gold);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+
+  .menu-title {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 18px;
+    margin-top: 6px;
+    animation: fadeUp .9s .3s ease both;
+  }
+
+  .menu-title-ar {
+    font-family: 'Amiri', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: .02em;
+  }
+
+  .menu-title-sep {
+    color: var(--gold);
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  .menu-title-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--ink);
+    letter-spacing: .04em;
+  }
+
+  /* ── Language toggle ── */
+  .lang-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 22px;
+    animation: fadeUp .9s .4s ease both;
+  }
+
+  .lang-btn {
+    padding: 6px 20px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: 'Cairo', sans-serif;
+    font-size: .78rem;
+    letter-spacing: .12em;
+    cursor: pointer;
+    transition: all .25s;
+    text-transform: uppercase;
+  }
+  .lang-btn.active, .lang-btn:hover {
+    background: var(--gold);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ── Sections ── */
+  .section {
+    margin-top: 48px;
+    animation: fadeUp .7s ease both;
+  }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+
+  .section-rule { height: 1px; background: var(--rule-thick); }
+
+  .section-title-block { text-align: center; }
+
+  .section-icon {
+    font-size: 1.3rem;
+    margin-bottom: 2px;
+    display: block;
+  }
+
+  .section-title-ar {
+    font-family: 'Amiri', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ink-mid);
+    display: block;
+  }
+
+  .section-title-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--ink-soft);
+    display: block;
+    letter-spacing: .06em;
+    margin-top: 1px;
+  }
+
+  /* ── Price header (for wines) ── */
+  .price-header {
+    display: grid;
+    grid-template-columns: 1fr 110px 110px;
+    gap: 8px;
+    padding: 0 4px 8px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 4px;
+  }
+  .price-header span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: .85rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align: center;
+  }
+  .price-header span:first-child { text-align: right; }
+
+  /* ── Menu item ── */
+  .item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    padding: 10px 4px;
+    border-bottom: 1px dotted var(--rule);
+    transition: background .2s;
+    cursor: default;
+  }
+  .item:hover { background: rgba(201,168,76,.05); }
+
+  .item.wine {
+    grid-template-columns: 1fr 110px 110px;
+  }
+
+  .item-names { display: flex; flex-direction: column; gap: 1px; }
+  .item-name-ar {
+    font-family: 'Amiri', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .item-name-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: .9rem;
+    font-style: italic;
+    color: var(--ink-soft);
+    letter-spacing: .03em;
+  }
+
+  .item-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--gold);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .item-price .currency {
+    font-size: .75rem;
+    font-weight: 300;
+    color: var(--ink-soft);
+    margin-right: 2px;
+  }
+  .item-price.dash { color: var(--ink-soft); opacity: .5; font-size: .85rem; }
+
+  /* ── Footer note ── */
+  .footer-note {
+    margin-top: 52px;
+    text-align: center;
+    padding: 20px 30px;
+    border: 1px solid var(--rule);
+    position: relative;
+    background: rgba(201,168,76,.04);
+  }
+  .footer-note::before, .footer-note::after {
+    content: '✦';
+    position: absolute;
+    top: -9px;
+    color: var(--gold);
+    background: var(--cream);
+    padding: 0 8px;
+    font-size: .75rem;
+  }
+  .footer-note::before { left: 30px; }
+  .footer-note::after  { right: 30px; }
+
+  .footer-note p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: .92rem;
+    font-style: italic;
+    color: var(--ink-soft);
+    letter-spacing: .03em;
+    line-height: 1.7;
+  }
+  .footer-note .ar {
+    font-family: 'Amiri', serif;
+    font-style: normal;
+    font-size: .95rem;
+    margin-top: 4px;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Language visibility ── */
+  .en-text { display: inline; }
+  .ar-text { display: inline; }
+
+  body.en-only .ar-text  { display: none; }
+  body.en-only .item-name-ar { display: none; }
+  body.en-only .section-title-ar { display: none; }
+  body.en-only .menu-title-ar { display: none; }
+  body.en-only .menu-title-sep { display: none; }
+
+  body.ar-only .en-text  { display: none; }
+  body.ar-only .item-name-en { display: none; }
+  body.ar-only .section-title-en { display: none; }
+  body.ar-only .menu-title-en { display: none; }
+  body.ar-only .menu-title-sep { display: none; }
+
+  /* ── Print ── */
+  @media print {
+    .lang-toggle { display: none; }
+    body { background: white; }
+    body::before { display: none; }
+    .page { padding: 30px 20px; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .page { padding: 36px 20px 60px; }
+    .logo-name { font-size: 2.6rem; }
+    .price-header, .item.wine { grid-template-columns: 1fr 90px 90px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ══ HEADER ══ -->
+  <header class="header">
+    <div class="logo-wrap">
+      <span class="logo-name">Resta</span>
+      <span class="logo-sub">Port Said Hotel</span>
+    </div>
+
+    <div class="header-ornament">
+      <div class="line"></div>
+      <div class="dot"></div>
+      <div class="diamond"></div>
+      <div class="dot"></div>
+      <div class="line"></div>
+    </div>
+
+    <div class="menu-title">
+      <span class="menu-title-ar ar-text">قائمة المشروبات</span>
+      <span class="menu-title-sep">✦</span>
+      <span class="menu-title-en en-text">Beverage Menu</span>
+    </div>
+
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('both')">AR + EN</button>
+      <button class="lang-btn" onclick="setLang('ar')">العربية</button>
+      <button class="lang-btn" onclick="setLang('en')">English</button>
+    </div>
+  </header>
+
+  <!-- ══ WINES ══ -->
+  <section class="section" style="animation-delay:.1s">
+    <div class="section-header">
+      <div class="section-rule"></div>
+      <div class="section-title-block">
+        <span class="section-icon">🍷</span>
+        <span class="section-title-ar ar-text">الأنيذة المصرية</span>
+        <span class="section-title-en en-text">Egyptian Wines</span>
+      </div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="price-header">
+      <span></span>
+      <span>Bottle<br><span class="ar-text" style="font-family:'Cairo';font-size:.75rem;font-weight:400;">زجاجة</span></span>
+      <span>Glass<br><span class="ar-text" style="font-family:'Cairo';font-size:.75rem;font-weight:400;">كأس</span></span>
+    </div>
+
+    <div class="item wine">
+      <div class="item-names">
+        <span class="item-name-ar ar-text">أحمر، أبيض</span>
+        <span class="item-name-en en-text">Red, White</span>
+      </div>
+      <div class="item-price"><span class="currency">L.E</span>680.00</div>
+      <div class="item-price"><span class="currency">L.E</span>170.00</div>
+    </div>
+  </section>
+
+  <!-- ══ HOT DRINKS ══ -->
+  <section class="section" style="animation-delay:.2s">
+    <div class="section-header">
+      <div class="section-rule"></div>
+      <div class="section-title-block">
+        <span class="section-icon">☕</span>
+        <span class="section-title-ar ar-text">المشروبات الساخنة</span>
+        <span class="section-title-en en-text">Hot Drinks</span>
+      </div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">شاى</span><span class="item-name-en en-text">Tea</span></div><div class="item-price"><span class="currency">L.E</span>35.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">قهوة تركى</span><span class="item-name-en en-text">Turkish Coffee</span></div><div class="item-price"><span class="currency">L.E</span>50.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">كابوتشينو</span><span class="item-name-en en-text">Cappuccino</span></div><div class="item-price"><span class="currency">L.E</span>90.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">قهوة إسبريسو</span><span class="item-name-en en-text">Espresso</span></div><div class="item-price"><span class="currency">L.E</span>65.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">نسكافية</span><span class="item-name-en en-text">Nescafé</span></div><div class="item-price"><span class="currency">L.E</span>65.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">شيكولاته ساخنة</span><span class="item-name-en en-text">Hot Chocolate</span></div><div class="item-price"><span class="currency">L.E</span>75.00</div></div>
+  </section>
+
+  <!-- ══ BEER ══ -->
+  <section class="section" style="animation-delay:.3s">
+    <div class="section-header">
+      <div class="section-rule"></div>
+      <div class="section-title-block">
+        <span class="section-icon">🍺</span>
+        <span class="section-title-ar ar-text">البيرة</span>
+        <span class="section-title-en en-text">Beer</span>
+      </div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">ستيلا</span><span class="item-name-en en-text">Stella</span></div><div class="item-price"><span class="currency">L.E</span>160.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">سقارة</span><span class="item-name-en en-text">Sakara</span></div><div class="item-price"><span class="currency">L.E</span>160.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">هينيكين</span><span class="item-name-en en-text">Heineken Beer</span></div><div class="item-price"><span class="currency">L.E</span>160.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">بيرة غير كحولية</span><span class="item-name-en en-text">Nonalcoholic Beer</span></div><div class="item-price"><span class="currency">L.E</span>65.00</div></div>
+  </section>
+
+  <!-- ══ LOCAL HARD LIQUORS ══ -->
+  <section class="section" style="animation-delay:.4s">
+    <div class="section-header">
+      <div class="section-rule"></div>
+      <div class="section-title-block">
+        <span class="section-icon">🥃</span>
+        <span class="section-title-ar ar-text">مشروبات كحولية محلية</span>
+        <span class="section-title-en en-text">Local Hard Liquors</span>
+      </div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">جين</span><span class="item-name-en en-text">Gin</span></div><div class="item-price"><span class="currency">L.E</span>80.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">ويسكى</span><span class="item-name-en en-text">Whisky</span></div><div class="item-price"><span class="currency">L.E</span>65.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">فودكا أزرق ID</span><span class="item-name-en en-text">Vodka ID Blue</span></div><div class="item-price"><span class="currency">L.E</span>75.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">فودكا أسود ID</span><span class="item-name-en en-text">Vodka ID Black</span></div><div class="item-price"><span class="currency">L.E</span>75.00</div></div>
+  </section>
+
+  <!-- ══ SOFT DRINKS ══ -->
+  <section class="section" style="animation-delay:.5s">
+    <div class="section-header">
+      <div class="section-rule"></div>
+      <div class="section-title-block">
+        <span class="section-icon">🥤</span>
+        <span class="section-title-ar ar-text">مشروبات غير كحولية</span>
+        <span class="section-title-en en-text">Soft Drinks</span>
+      </div>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">كولا، سبرايت</span><span class="item-name-en en-text">Cola, Sprite</span></div><div class="item-price"><span class="currency">L.E</span>55.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">كولا، سبرايت منخفضة السعرات</span><span class="item-name-en en-text">Diet Cola, Sprite</span></div><div class="item-price"><span class="currency">L.E</span>55.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">عصير طازج</span><span class="item-name-en en-text">Fresh Juices</span></div><div class="item-price"><span class="currency">L.E</span>75.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">كوكتيل فلوريدا</span><span class="item-name-en en-text">Florida Cocktail</span></div><div class="item-price"><span class="currency">L.E</span>75.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">مياه معدنية كبيرة</span><span class="item-name-en en-text">Mineral Water Large</span></div><div class="item-price"><span class="currency">L.E</span>35.00</div></div>
+    <div class="item"><div class="item-names"><span class="item-name-ar ar-text">مياه معدنية صغيرة</span><span class="item-name-en en-text">Mineral Water Small</span></div><div class="item-price"><span class="currency">L.E</span>20.00</div></div>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <div class="footer-note">
+    <p class="en-text">All prices are inclusive of 12% service charge and 14% taxes</p>
+    <p class="ar-text ar">الأسعار شاملة ١٢٪ خدمة و ١٤٪ ضريبة مضافة</p>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+  const btns = document.querySelectorAll('.lang-btn');
+
+  function setLang(mode) {
+    document.body.classList.remove('ar-only', 'en-only');
+    if (mode === 'ar') document.body.classList.add('ar-only');
+    if (mode === 'en') document.body.classList.add('en-only');
+    btns.forEach(b => b.classList.toggle('active', b.textContent.trim().includes(
+      mode === 'both' ? 'AR' : mode === 'ar' ? 'العربية' : 'English'
+    )));
+  }
+</script>
+</body>
+</html>

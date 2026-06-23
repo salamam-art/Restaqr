@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green House — Resta Port Said Hotel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Tajawal:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e4c97e;
+    --dark: #0d0d0d;
+    --dark-2: #161610;
+    --cream: #f5f0e8;
+    --cream-2: #ede5d4;
+    --text-light: #d6cbb4;
+    --green: #2a3d2e;
+    --green-light: #3a5440;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--dark);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 60%, #1a2e1c 0%, var(--dark) 70%);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(201,168,76,0.04) 60px, rgba(201,168,76,0.04) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(201,168,76,0.04) 60px, rgba(201,168,76,0.04) 61px);
+    pointer-events: none;
+  }
+
+  .hero-ornament {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.1);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-ring 4s ease-in-out infinite;
+  }
+  .hero-ornament:nth-child(2) { width: 800px; height: 800px; animation-delay: 1s; opacity: 0.6; }
+  .hero-ornament:nth-child(3) { width: 1000px; height: 1000px; animation-delay: 2s; opacity: 0.3; }
+
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 0.15; transform: translate(-50%,-50%) scale(1); }
+    50% { opacity: 0.35; transform: translate(-50%,-50%) scale(1.02); }
+  }
+
+  .hero-inner { position: relative; z-index: 2; }
+
+  .hotel-name {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 300;
+    font-size: 0.9rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.3s forwards;
+  }
+
+  .hero-divider {
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0 auto 2rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.5s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 12vw, 9rem);
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--cream);
+    opacity: 0;
+    animation: fadeUp 1s ease 0.7s forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .hero-subtitle {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 300;
+    font-size: 1rem;
+    letter-spacing: 0.25em;
+    color: var(--text-light);
+    margin-top: 2rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.9s forwards;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 1.5s forwards;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .hero-scroll span {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .hero-scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scroll-line 1.5s ease-in-out infinite;
+  }
+  @keyframes scroll-line {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,13,13,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    padding: 0 2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-inner {
+    display: flex;
+    gap: 0;
+    min-width: max-content;
+    margin: 0 auto;
+    max-width: 1100px;
+  }
+  .nav a {
+    display: block;
+    padding: 1.1rem 1.5rem;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.25em;
+    color: var(--text-light);
+    text-decoration: none;
+    text-transform: uppercase;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+  .nav a:hover {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+
+  /* ── SECTION ── */
+  .section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 4rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.7s ease;
+  }
+  .section-header.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .section-header-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+  .section-header-line.right {
+    background: linear-gradient(90deg, transparent, var(--gold));
+  }
+  .section-title-wrap { text-align: center; }
+  .section-category {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1;
+  }
+
+  /* ── MENU GRID ── */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5px;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.15);
+  }
+
+  .menu-item {
+    background: var(--dark-2);
+    padding: 2.2rem 2rem;
+    position: relative;
+    transition: background 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease, background 0.3s ease;
+  }
+  .menu-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .menu-item:hover {
+    background: #1a1a12;
+  }
+  .menu-item:hover .item-corner {
+    opacity: 1;
+  }
+
+  .item-corner {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 20px;
+    height: 20px;
+    border-top: 1px solid var(--gold);
+    border-right: 1px solid var(--gold);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .item-corner.br {
+    top: auto; left: auto;
+    bottom: 1rem; right: 1rem;
+    border-top: none; border-right: none;
+    border-bottom: 1px solid var(--gold);
+    border-left: 1px solid var(--gold);
+  }
+
+  .item-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--cream);
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.03em;
+  }
+
+  .item-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: rgba(214,203,180,0.65);
+    line-height: 1.6;
+    margin-bottom: 1.2rem;
+  }
+
+  .item-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+  .item-price span {
+    font-size: 0.7rem;
+    font-family: 'Tajawal', sans-serif;
+    color: var(--gold-light);
+    margin-right: 0.2rem;
+    opacity: 0.8;
+  }
+
+  .item-name-ar {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 400;
+    font-size: 0.88rem;
+    color: var(--gold-light);
+    margin-bottom: 0.5rem;
+    opacity: 0.85;
+    direction: rtl;
+  }
+
+  .item-desc-ar {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 300;
+    font-size: 0.8rem;
+    color: rgba(214,203,180,0.5);
+    line-height: 1.7;
+    margin-bottom: 1.2rem;
+    direction: rtl;
+  }
+
+  .item-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(201,168,76,0.12);
+    margin: 0.8rem 0;
+  }
+
+  /* ── SECTION DIVIDER ── */
+  .section-divider {
+    text-align: center;
+    padding: 3rem 0;
+    overflow: hidden;
+  }
+  .section-divider-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .divider-line { width: 120px; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,168,76,0.4)); }
+  .divider-line.r { background: linear-gradient(90deg, rgba(201,168,76,0.4), transparent); }
+  .divider-diamond {
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    transform: rotate(45deg);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid rgba(201,168,76,0.2);
+    padding: 3rem 2rem;
+    text-align: center;
+    background: var(--dark-2);
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+  .footer-logo em { font-style: italic; color: var(--cream); }
+  .footer-note {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.78rem;
+    color: rgba(214,203,180,0.45);
+    letter-spacing: 0.15em;
+    margin-top: 1.5rem;
+  }
+  .footer-taxes {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: rgba(214,203,180,0.4);
+    margin-top: 0.5rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-ornament"></div>
+  <div class="hero-ornament"></div>
+  <div class="hero-ornament"></div>
+  <div class="hero-inner">
+    <p class="hotel-name">Resta Port Said Hotel</p>
+    <div class="hero-divider"></div>
+    <h1 class="hero-title">Green<br><em>House</em></h1>
+    <p class="hero-subtitle">قائمة الطعام &nbsp;·&nbsp; The Menu</p>
+  </div>
+  <a class="hero-scroll" href="#appetizers">
+    <span>Explore</span>
+    <div class="hero-scroll-line"></div>
+  </a>
+</section>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#appetizers">Appetizers</a>
+    <a href="#soups">Soups</a>
+    <a href="#sandwiches">Sandwiches</a>
+    <a href="#pasta">Pasta</a>
+    <a href="#pizza">Pizza</a>
+    <a href="#mains">Main Dishes</a>
+    <a href="#desserts">Desserts</a>
+  </div>
+</nav>
+
+<!-- APPETIZERS -->
+<section id="appetizers" class="section">
+  <div class="section-header">
+    <div class="section-header-line"></div>
+    <div class="section-title-wrap">
+      <span class="section-category">المشهيات</span>
+      <h2 class="section-title">Appetizers</h2>
+    </div>
+    <div class="section-header-line right"></div>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Chinese Spring Roll</h3>
+      <p class="item-name-ar">سبرينج رول صيني</p>
+      <p class="item-desc">Spring dough stuffed with mushroom, cabbage and vegetables — served with soya sauce & sweet and sour sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">عجينة سبرينج محشوة بالمشروم والكرنب مع الخضروات — تقدم مع صلصة الصويا والحلو والحامض</p>
+      <p class="item-price"><span>L.E</span> 150.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Fish & Chips</h3>
+      <p class="item-name-ar">سمك وبطاطس</p>
+      <p class="item-desc">Fried fish served with crispy French fries accompanied with tartar sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">شرائح السمك المقلية مع البطاطس المقلية وصوص الترتار</p>
+      <p class="item-price"><span>L.E</span> 250.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Resta Jumbo Mix</h3>
+      <p class="item-name-ar">ريستا جامبو ميكس</p>
+      <p class="item-desc">Stuffed wine leaves, sambousek, fried chicken strips, mozzarella cheese sticks with ranch sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">محشي ورق عنب، سمبوسك، شرائح دجاج مقلية، أصابع جبنة موزاريلا مع صوص رانش</p>
+      <p class="item-price"><span>L.E</span> 350.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Typical Greek Salad</h3>
+      <p class="item-name-ar">سلطة يونانية</p>
+      <p class="item-desc">Fresh vegetables with feta cheese and oregano, garnished with black olives and filet of anchovies</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">خضروات طازجة مع جبنة الفيتا والأوريجانو مزيّنة بالزيتون الأسود وفيليه الأنشوجة</p>
+      <p class="item-price"><span>L.E</span> 95.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Seasonal Mixed Salad</h3>
+      <p class="item-name-ar">سلطة موسمية مشكّلة</p>
+      <p class="item-desc">Fresh vegetables served with Italian sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">الخضروات الطازجة تقدم مع الصوص الإيطالي</p>
+      <p class="item-price"><span>L.E</span> 60.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Cocktail di Gamberetti</h3>
+      <p class="item-name-ar">كوكتيل جمبري</p>
+      <p class="item-desc">Boiled shrimp served on a pillow of lettuce with cocktail sauce and boiled eggs</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">جمبري مسلوق يقدم على وسادة من الخس مع صوص الكوكتيل والبيض المسلوق</p>
+      <p class="item-price"><span>L.E</span> 350.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Caesar Salad</h3>
+      <p class="item-name-ar">سلطة قيصر</p>
+      <p class="item-desc">Iceberg salad with herbed croutons, parmesan cheese, Caesar sauce — served with grilled chicken breast and anchovies</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">سلطة القيصر الشهيرة تقدم مع خبز التوست والجبن البارميزان واختيارك من صدور الدجاج والأنشوجة</p>
+      <p class="item-price"><span>L.E</span> 250.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Variety of Cold Oriental Mezzah</h3>
+      <p class="item-name-ar">تشكيلة مزة شرقية باردة</p>
+      <p class="item-desc">Your choice from: Tehina · Baba Ghanoush · Hummus · Yogurt · Baladi Salad</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">اختيارك من: طحينة · بابا غنوج · حمص · زبادي · سلطة بلدي</p>
+      <p class="item-price"><span>L.E</span> 80.00</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><div class="section-divider-inner"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line r"></div></div></div>
+
+<!-- SOUPS -->
+<section id="soups" class="section">
+  <div class="section-header">
+    <div class="section-header-line"></div>
+    <div class="section-title-wrap">
+      <span class="section-category">الحساء</span>
+      <h2 class="section-title">Soups</h2>
+    </div>
+    <div class="section-header-line right"></div>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Orzo Soup</h3>
+      <p class="item-name-ar">شوربة أورزو</p>
+      <p class="item-desc">Meat broth with celery and orzo pasta</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">مرق اللحم البقري مع الكرفس ومكرونة الأرزو</p>
+      <p class="item-price"><span>L.E</span> 40.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Tomato Cream Soup</h3>
+      <p class="item-name-ar">شوربة كريمة الطماطم</p>
+      <p class="item-desc">Served with herb crispy croutons</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">شوربة الطماطم بالأعشاب تقدم مع خبز الكريتون المحمص</p>
+      <p class="item-price"><span>L.E</span> 50.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">French Onion Soup</h3>
+      <p class="item-name-ar">شوربة البصل الفرنسية</p>
+      <p class="item-desc">Served with sliced French bread covered with melted cheese</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">شوربة البصل الفرنسية تقدم مع شريحة من التوست المحمص والجبن الشيدر</p>
+      <p class="item-price"><span>L.E</span> 40.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Egyptian Lentil Soup</h3>
+      <p class="item-name-ar">شوربة العدس المصرية</p>
+      <p class="item-desc">Served with garlic bread</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">شوربة العدس المصرية تقدم مع خبز الثوم</p>
+      <p class="item-price"><span>L.E</span> 40.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Seafood Soup</h3>
+      <p class="item-name-ar">شوربة المأكولات البحرية</p>
+      <p class="item-desc">Assorted seafood with fresh cream</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">شوربة المأكولات البحرية بالكريمة</p>
+      <p class="item-price"><span>L.E</span> 120.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Chicken Mushroom Cream Soup</h3>
+      <p class="item-name-ar">شوربة كريمة الدجاج والمشروم</p>
+      <p class="item-desc">Chicken breast cubes with mushroom and fresh cream</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">مكعبات صدور الدجاج مع الماشروم والكريمة الطازجة</p>
+      <p class="item-price"><span>L.E</span> 100.00</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><div class="section-divider-inner"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line r"></div></div></div>
+
+<!-- SANDWICHES -->
+<section id="sandwiches" class="section">
+  <div class="section-header">
+    <div class="section-header-line"></div>
+    <div class="section-title-wrap">
+      <span class="section-category">السندوتشات</span>
+      <h2 class="section-title">Sandwiches</h2>
+    </div>
+    <div class="section-header-line right"></div>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Tuna Sandwich</h3>
+      <p class="item-name-ar">ساندوتش تونة</p>
+      <p class="item-desc">Tuna salad served on French baguette</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">ساندوتش تونة يقدم على الخبز الفرنسي</p>
+      <p class="item-price"><span>L.E</span> 180.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Club Sandwich</h3>
+      <p class="item-name-ar">كلوب ساندوتش</p>
+      <p class="item-desc">White toast with salami, chicken, eggs, cheese, lettuce and mayonnaise — served with French fries</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">طبقات من التوست محشو بالبيض والسلامي والدجاج على شرائح الخس والطماطم ويقدم مع صوص المايونيز</p>
+      <p class="item-price"><span>L.E</span> 350.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Classic Burger Sandwich</h3>
+      <p class="item-name-ar">برجر كلاسيك</p>
+      <p class="item-desc">Grilled burger with creamy mayonnaise, onion rings, lettuce and cheddar cheese sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">برجر مشوي يقدم مع المايونيز الكريمي وحلقات البصل والخس والطماطم مع صوص الجبنة الشيدر والبطاطس المقرمشة</p>
+      <p class="item-price"><span>L.E</span> 250.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Apache Burger</h3>
+      <p class="item-name-ar">أباتشي برجر</p>
+      <p class="item-desc">Grilled burger with fried mozzarella sticks, creamy mayonnaise, cheddar, Texas sauce, tomatoes, onions, lettuce and crunchy potatoes</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">برجر مشوي مع أصابع الموتزاريلا المقلية والمايونيز وصوص الجبنة الشيدر وصوص تكساس والطماطم والبصل والخس والبطاطس المقرمشة</p>
+      <p class="item-price"><span>L.E</span> 270.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">BBQ Chicken Shish</h3>
+      <p class="item-name-ar">شيش دجاج باربيكيو</p>
+      <p class="item-desc">Chicken shish in baguette bread with vegetables, barbeque sauce, cheddar sauce and crunchy potatoes</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">الدجاج المشوي يقدم في الخبز الباجت مع الخضار وصوص الباربيكيو وصوص الشيدر والبطاطس المقرمشة</p>
+      <p class="item-price"><span>L.E</span> 250.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Super Crunchy Chicken</h3>
+      <p class="item-name-ar">دجاج سوبر كرانشي</p>
+      <p class="item-desc">Crispy chicken breasts with fried mozzarella sticks, fried onion rings, pickled cucumber and cheddar cheese sauce in baguette bread</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">صدور الدجاج الكرسبي مع أصابع الموتزاريلا المقلية وحلقات البصل المقلية والخيار المخلل وصوص الجبنة الشيدر تقدم في عيش البرجر والبطاطس المقرمشة</p>
+      <p class="item-price"><span>L.E</span> 220.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Chicken Gordon Blue</h3>
+      <p class="item-name-ar">دجاج جوردون بلو</p>
+      <p class="item-desc">Chicken breasts stuffed with cheddar cheese, served with beef and cheddar sauces and French fries</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">صدور الدجاج محشوة بالجبن مع صوص البيف والجبنة الشيدر والبطاطس المقرمشة</p>
+      <p class="item-price"><span>L.E</span> 220.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Resta Special Kofta</h3>
+      <p class="item-name-ar">كفتة ريستا الخاصة</p>
+      <p class="item-desc">Grilled kofta on baguette with tehina sauce, barbecue sauce and tomatoes — served with French fries</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">كفتة مشوية تقدم في الخبز الباجيت مع صوص الطحينة وصوص الباربيكيو والطماطم والبطاطس المقلية</p>
+      <p class="item-price"><span>L.E</span> 260.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Fried Shrimps</h3>
+      <p class="item-name-ar">جمبري مقلي</p>
+      <p class="item-desc">Fried shrimp with tehina sauce, ranch sauce and French fries</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">جمبري بانيه يقدم على الخبز الباجت مع صوص الطحينة وصوص الرانش والبطاطس المقرمشة</p>
+      <p class="item-price"><span>L.E</span> 270.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Calamari Rings</h3>
+      <p class="item-name-ar">حلقات كاليماري</p>
+      <p class="item-desc">Calamari rings on sesame baguette with tehina and ranch sauce, served with French fries</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">حلقات الكاليماري المقلية تقدم على الخبز الباجيت مع صوص الطحينة والخس وصوص الرانش والبطاطس المقرمشة</p>
+      <p class="item-price"><span>L.E</span> 260.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Spicy Mix</h3>
+      <p class="item-name-ar">مكس حار</p>
+      <p class="item-desc">Shrimp, calamari and fried fish with curry sauce, green coriander and French fries</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">الجمبري والسيبيا والسمك الفيلية المقلي بالكزبرة الخضراء وصوص الكاري الحار والبطاطس المقرمشة</p>
+      <p class="item-price"><span>L.E</span> 260.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Hot Dog</h3>
+      <p class="item-name-ar">هوت دوج</p>
+      <p class="item-desc">Served on baguette bread with mustard, fried mozzarella sticks, BBQ sauce and crispy fries</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">يقدم على عيش الباجت بالمستردة والجبن الموتزاريلا المقلية وصوص الباربيكيو والبطاطس المقرمشة</p>
+      <p class="item-price"><span>L.E</span> 160.00</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><div class="section-divider-inner"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line r"></div></div></div>
+
+<!-- PASTA -->
+<section id="pasta" class="section">
+  <div class="section-header">
+    <div class="section-header-line"></div>
+    <div class="section-title-wrap">
+      <span class="section-category">العجائن</span>
+      <h2 class="section-title">Pasta</h2>
+    </div>
+    <div class="section-header-line right"></div>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Napoletana Pasta</h3>
+      <p class="item-name-ar">باستا نابوليتانا</p>
+      <p class="item-desc">Pasta with fresh tomato sauce, basil and olive oil</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">مكرونة مع صوص الطماطم الفريش والريحان وزيت الزيتون</p>
+      <p class="item-price"><span>L.E</span> 70.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Ragu Pasta (Bolognese)</h3>
+      <p class="item-name-ar">باستا راجو (بولونيز)</p>
+      <p class="item-desc">Spaghetti pasta served with rich meat sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">إسباجيتي تقدم مع صوص اللحم المفروم الطازج</p>
+      <p class="item-price"><span>L.E</span> 180.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Negressco</h3>
+      <p class="item-name-ar">نيجريسكو</p>
+      <p class="item-desc">Penne pasta with cream sauce, chicken and mozzarella cheese</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">مكرونة بيني مع صوص الكريمة والدجاج وجبنة الموزاريلا</p>
+      <p class="item-price"><span>L.E</span> 280.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Oven Pasta Tajjin</h3>
+      <p class="item-name-ar">طاجن مكرونة بالفرن</p>
+      <p class="item-desc">Pasta with Alfredo sauce combined with Bolognese, covered with mozzarella and baked in the oven</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">طاجن المكرونة المطبوخة في الفرن مع صوص اللحم المفروم مغطاة بالجبن الموتزريلا</p>
+      <p class="item-price"><span>L.E</span> 270.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Seafood Pasta</h3>
+      <p class="item-name-ar">باستا مأكولات بحرية</p>
+      <p class="item-desc">Your choice of pasta with shrimp, calamari and cream or rosé sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">اختيارك من نوع المكرونة المفضلة مع الجمبري والكاليماري وصوص الكريمة أو صوص الروزاي</p>
+      <p class="item-price"><span>L.E</span> 300.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Fettuccine</h3>
+      <p class="item-name-ar">فيتوتشيني</p>
+      <p class="item-desc">Fettuccine with chicken Alfredo sauce and mushroom</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">شرائح المكرونة مع الدجاج مع الصوص الأبيض والماشروم</p>
+      <p class="item-price"><span>L.E</span> 270.00</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><div class="section-divider-inner"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line r"></div></div></div>
+
+<!-- PIZZA -->
+<section id="pizza" class="section">
+  <div class="section-header">
+    <div class="section-header-line"></div>
+    <div class="section-title-wrap">
+      <span class="section-category">البيتزا</span>
+      <h2 class="section-title">Pizza</h2>
+    </div>
+    <div class="section-header-line right"></div>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Margretta</h3>
+      <p class="item-name-ar">بيتزا مارجريتا</p>
+      <p class="item-desc">Fresh tomato sauce with mozzarella cheese</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">بيتزا مارجريتا بصوص الطماطم والموتزريلا</p>
+      <p class="item-price"><span>L.E</span> 230.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Pizza di Pollo</h3>
+      <p class="item-name-ar">بيتزا الدجاج</p>
+      <p class="item-desc">Marinated chicken, sun-dried tomato, pesto sauce, mushroom and mozzarella cheese</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">الدجاج المتبل مع الطماطم المجففة والماشروم وجبن الموتزريلا</p>
+      <p class="item-price"><span>L.E</span> 400.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Pizza ai Frutti di Mare</h3>
+      <p class="item-name-ar">بيتزا المأكولات البحرية</p>
+      <p class="item-desc">Assorted seafood with fresh tomato and mozzarella</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">بيتزا المأكولات البحرية بصوص الطماطم والموتزريلا</p>
+      <p class="item-price"><span>L.E</span> 400.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Tonnata</h3>
+      <p class="item-name-ar">بيتزا التونة</p>
+      <p class="item-desc">Tomato sauce, tuna, onion, green pepper, mozzarella cheese</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">بيتزا بالتونه مع الفلفل الأخضر والبصل وجبن الموتزريلا</p>
+      <p class="item-price"><span>L.E</span> 300.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Quattro Formaggi</h3>
+      <p class="item-name-ar">بيتزا الجبن الأربعة</p>
+      <p class="item-desc">Four cheese pizza</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">بيتزا الجبن الأربعة</p>
+      <p class="item-price"><span>L.E</span> 300.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Americana</h3>
+      <p class="item-name-ar">بيتزا أمريكانا</p>
+      <p class="item-desc">Mozzarella cheese, sausage and smoked beef</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">جبنة موتزاريلا — سوسيس — شرائح اللحم المدخن</p>
+      <p class="item-price"><span>L.E</span> 350.00</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><div class="section-divider-inner"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line r"></div></div></div>
+
+<!-- MAIN DISHES -->
+<section id="mains" class="section">
+  <div class="section-header">
+    <div class="section-header-line"></div>
+    <div class="section-title-wrap">
+      <span class="section-category">الأطباق الرئيسية</span>
+      <h2 class="section-title">Main Dishes</h2>
+    </div>
+    <div class="section-header-line right"></div>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Grilled Fish</h3>
+      <p class="item-name-ar">سمك مشوي</p>
+      <p class="item-desc">Fillet grilled fish with lemon and butter sauce, served with white rice and diced vegetables</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">فيليه سمك مشوي مع صوص الزبدة والليمون يقدم مع أرز أبيض ومكعبات الخضار</p>
+      <p class="item-price"><span>L.E</span> 500.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Red Sea Shrimps</h3>
+      <p class="item-name-ar">جمبري البحر الأحمر</p>
+      <p class="item-desc">Jumbo grilled red sea shrimps with double jus sauce, white rice and roasted potatoes</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">جمبري البحر الأحمر المشوي جامبو يقدم مع الصوص وأرز أبيض وبطاطس محمرة</p>
+      <p class="item-price"><span>L.E</span> 850.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Fried Calamari</h3>
+      <p class="item-name-ar">كاليماري مقلي</p>
+      <p class="item-desc">Fried calamari served with French fries and tartar sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">كاليماري مقلي يقدم مع البطاطس المقلية وصوص الترتار</p>
+      <p class="item-price"><span>L.E</span> 350.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Backed Scotch Salmon Steak</h3>
+      <p class="item-name-ar">ستيك سلمون اسكتلندي</p>
+      <p class="item-desc">Marinated salmon steak served with mashed potatoes, grilled vegetables and sun-dried tomatoes</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">ستيك سلمون متبل يقدم مع بطاطس مهروسة وخضروات مشوية وطماطم مجففة</p>
+      <p class="item-price"><span>L.E</span> 999.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Seafood Platter</h3>
+      <p class="item-name-ar">تشكيلة مأكولات بحرية</p>
+      <p class="item-desc">Assorted grilled shrimps, grilled sea bass and grilled sepia (squid) with white rice</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">تشكيلة من فواكه البحر، جمبري مشوي، قاروص مشوي، سيبيا مشوية (سبيط) والأرز الأبيض</p>
+      <p class="item-price"><span>L.E</span> 800.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Seafood Tajian</h3>
+      <p class="item-name-ar">طاجن مأكولات بحرية</p>
+      <p class="item-desc">Shrimp, calamari, fish fillet, cream sauce and mozzarella cheese served with white rice</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">جمبري، كاليماري، فيليه سمك مع صوص كريمة وجبنة موزاريلا تقدم مع أرز أبيض</p>
+      <p class="item-price"><span>L.E</span> 450.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Veal Escalope</h3>
+      <p class="item-name-ar">إسكالوب بتلو</p>
+      <p class="item-desc">Breaded veal escalope served with spaghetti puttanesca</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">إسكالوب بتلو يقدم مع سباجيتي بوتانيسكا</p>
+      <p class="item-price"><span>L.E</span> 800.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Mixed Grilled</h3>
+      <p class="item-name-ar">مشكّل مشاوي</p>
+      <p class="item-desc">Grilled kofta, veal kebab, shish tawook — served with oriental rice and grilled vegetable cubes</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">كفتة مشوية، كباب بتلو، شيش طاووق — يقدم مع أرز شرقي ومكعبات خضروات مشوية</p>
+      <p class="item-price"><span>L.E</span> 900.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Beef Medalion</h3>
+      <p class="item-name-ar">ميداليون لحم بقري</p>
+      <p class="item-desc">Two medallions of beef filet with pepper or mushroom sauce, sautéed vegetables and herbed potatoes</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">قطعتان من اللحم بقري مع صلصة الفلفل أو الماشروم خضار سوتيه وبطاطس مع أعشاب</p>
+      <p class="item-price"><span>L.E</span> 850.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Beef Stroganoff</h3>
+      <p class="item-name-ar">بيف ستروجانوف</p>
+      <p class="item-desc">Sautéed beef slices with brown sauce, bell pepper, onion and fresh cream — served with white rice</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">شرائح لحم سوتيه مع صوص بني مع الفلفل الحلو، بصل طازج بالكريمة يقدم مع الأرز الأبيض</p>
+      <p class="item-price"><span>L.E</span> 450.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Veal Picatta</h3>
+      <p class="item-name-ar">بتلو بيكاتا</p>
+      <p class="item-desc">Sliced veal cooked in butter with mushroom or roquefort sauce, sautéed vegetables and mashed potatoes</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">شرائح لحم بتلو مطبوخ بالزبدة مع صوص مشروم أو صوص روكفور تقدم مع خضار سوتيه وبطاطا مهروسة</p>
+      <p class="item-price"><span>L.E</span> 900.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Chicken Curry (Madras)</h3>
+      <p class="item-name-ar">دجاج كاري (مدراس)</p>
+      <p class="item-desc">Served with vegetables and curry sauce, Madras style — with white rice</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">يقدم مع الخضروات وصلصة الكاري على طريقة مدراس تقدم مع الأرز الأبيض</p>
+      <p class="item-price"><span>L.E</span> 450.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Top Kapi</h3>
+      <p class="item-name-ar">توب كابي</p>
+      <p class="item-desc">Half chicken stuffed with rice, vegetables, mozzarella and dried fruit — served with roasted potatoes and herbs brown sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">نصف دجاجة محشية أرز وخضروات وفواكه مجففة وجبنة موتزاريلا تقدم مع بطاطس محمرة وأعشاب صوص بني</p>
+      <p class="item-price"><span>L.E</span> 500.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Corden Blue</h3>
+      <p class="item-name-ar">كوردن بلو</p>
+      <p class="item-desc">Chicken breasts stuffed with smoked beef, smoked turkey and mozzarella — served with French fries and vegetables</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">صدور دجاج محشوة بلحم بقري مدخن وجبنة موتزاريلا تقدم مع البطاطس المقلية والخضروات</p>
+      <p class="item-price"><span>L.E</span> 500.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Marinated Grilled Chicken</h3>
+      <p class="item-name-ar">دجاج مشوي متبّل</p>
+      <p class="item-desc">Marinated half boneless chicken with herbs, served with grilled vegetables and red rice</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">نصف دجاجة مخلية متبلة بالأعشاب تقدم مع خضار مشوي وأرز أحمر</p>
+      <p class="item-price"><span>L.E</span> 450.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Shish Tawook</h3>
+      <p class="item-name-ar">شيش طاووق</p>
+      <p class="item-desc">Chicken cubes with grilled vegetables, French fries and BBQ sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">مكعبات دجاج مشوي مع خضار مشوية وبطاطس مقلية وصوص باربيكيو</p>
+      <p class="item-price"><span>L.E</span> 450.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Vegetable Tajein</h3>
+      <p class="item-name-ar">طاجن خضار</p>
+      <p class="item-desc">Cubes of beef in tomato sauce with vegetables, served with white rice</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">مكعبات لحم بقري في صلصة الطماطم مع الخضار تقدم مع أرز أبيض</p>
+      <p class="item-price"><span>L.E</span> 250.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Aloo Gobhi (Kashmiri Indian) Tajin</h3>
+      <p class="item-name-ar">طاجن ألو جوبي (كشميري هندي)</p>
+      <p class="item-desc">Cauliflower, ginger, potato, tomato and nuts — served with white rice</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">قرنبيط، بطاطس بالزنجبيل، طماطم بالمكسرات تقدم مع الأرز الأبيض</p>
+      <p class="item-price"><span>L.E</span> 250.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Egyptian Kebab and Kofta</h3>
+      <p class="item-name-ar">كباب وكفتة مصرية</p>
+      <p class="item-desc">Served with oriental rice</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">يقدم مع أرز شرقي</p>
+      <p class="item-price"><span>L.E</span> 650.00</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><div class="section-divider-inner"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line r"></div></div></div>
+
+<!-- DESSERTS -->
+<section id="desserts" class="section">
+  <div class="section-header">
+    <div class="section-header-line"></div>
+    <div class="section-title-wrap">
+      <span class="section-category">الحلويات</span>
+      <h2 class="section-title">Desserts</h2>
+    </div>
+    <div class="section-header-line right"></div>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Molten Chocolate Cake</h3>
+      <p class="item-name-ar">مولتن شوكولاتة كيك</p>
+      <p class="item-desc">Molten cake served with ice cream, hot chocolate and nuts</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">مولتن كيك تقدم مع آيس كريم وشوكولاتة ساخنة ومكسرات</p>
+      <p class="item-price"><span>L.E</span> 140.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Fruit Salad</h3>
+      <p class="item-name-ar">سلطة فواكه</p>
+      <p class="item-desc">Mix of seasonal fruits served with vanilla ice cream</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">مزيج من الفاكهة الموسمية يقدم مع آيس كريم الفانيليا</p>
+      <p class="item-price"><span>L.E</span> 120.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Ice Cream</h3>
+      <p class="item-name-ar">آيس كريم</p>
+      <p class="item-desc">Your choice of ice cream, topped with hot chocolate sauce, whipped cream and nuts</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">اختيارك من الآيس كريم اللذيذ المفضل مغطى بصوص الشوكولاتة الساخن بالكريمة المخفوقة والمكسرات</p>
+      <p class="item-price"><span>L.E</span> 80.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Seasonal Fresh Fruit Platter</h3>
+      <p class="item-name-ar">طبق فواكه طازجة موسمية</p>
+      <p class="item-desc">Served with strawberry sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">تقدم مع صوص فراولة</p>
+      <p class="item-price"><span>L.E</span> 90.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Chocolate Cake</h3>
+      <p class="item-name-ar">كيك الشوكولاتة</p>
+      <p class="item-desc">Served with your choice of vanilla sauce or chocolate sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">تقدم مع اختيارك من صوص الفانيليا أو صوص الشوكولاتة</p>
+      <p class="item-price"><span>L.E</span> 120.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Om Ali</h3>
+      <p class="item-name-ar">أم علي</p>
+      <p class="item-desc">Oriental sweet served warm directly from the oven</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">حلويات شرقية تقدم دافئة مباشرة من الفرن</p>
+      <p class="item-price"><span>L.E</span> 120.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Bongo Bongo</h3>
+      <p class="item-name-ar">بونجو بونجو</p>
+      <p class="item-desc">Profiteroles filled with vanilla ice cream, topped with hot chocolate sauce</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">بروفيترول محشو بآيس كريم الفانيليا ومغطى بصوص الشيكولاتة الساخنة</p>
+      <p class="item-price"><span>L.E</span> 120.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">Chocolate Mousse Cake</h3>
+      <p class="item-name-ar">كيك موس الشيكولاتة</p>
+      <p class="item-desc">Dark and white chocolate mousse cake</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">كيك موس الشيكولاتة الداكنة والبيضاء</p>
+      <p class="item-price"><span>L.E</span> 150.00</p>
+    </div>
+    <div class="menu-item">
+      <div class="item-corner"></div><div class="item-corner br"></div>
+      <h3 class="item-name">French Pastries</h3>
+      <p class="item-name-ar">جاتوه فرنسي</p>
+      <p class="item-desc">Freshly baked French pastries</p>
+      <div class="item-divider"></div>
+      <p class="item-desc-ar">معجنات فرنسية طازجة</p>
+      <p class="item-price"><span>L.E</span> 50.00</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Green <em>House</em></div>
+  <p style="font-family:'Tajawal',sans-serif;font-size:0.8rem;color:rgba(214,203,180,0.5);letter-spacing:0.2em;margin-top:0.3rem;">RESTA PORT SAID HOTEL</p>
+  <p class="footer-taxes">All prices are inclusive of 12% service charge and 14% taxes</p>
+  <p class="footer-note" style="margin-top:1rem;">الأسعار شامله ١٢% خدمة و ١٤% ضريبة مضافة</p>
+</footer>
+
+<script>
+  // Intersection Observer for scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => el.classList.add('visible'), delay);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.section-header').forEach(el => observer.observe(el));
+
+  document.querySelectorAll('.menu-item').forEach((el, i) => {
+    el.dataset.delay = (i % 3) * 80;
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
