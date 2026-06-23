@@ -11,7 +11,7 @@
   <script>
     const HOTEL_CONFIG = {
       // ✏️ ضع هنا البريد الإلكتروني الذي سيستقبل الحجوزات
-      receiverEmail: "salama.m@gmail.com,ihab.mohamed@restahotels.com,reservations.portsaid@restahotels.com",
+      receiverEmail: "mohamed.asalam@restahotels.com,ihab.mohamed@restahotels.com,reservations.portsaid@restahotels.com,nahid.nabil@restahotels.com",
       // ✏️ اسم الفندق الذي سيظهر في الواجهة والبريد
       hotelName: "فندق رستا بورسعيد"
     };
@@ -333,6 +333,132 @@
     }
 
     /* ============================================================
+       اختيار الإطلالة
+       ============================================================ */
+    .view-selector {
+      margin-top: 14px;
+    }
+
+    .view-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold-pale);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--gold);
+      font-weight: 700;
+      margin-top: 14px;
+    }
+
+    .view-selector.hidden { display: none; }
+    .view-badge.hidden    { display: none; }
+
+    .view-error {
+      font-size: 12px;
+      color: var(--error);
+      min-height: 16px;
+      display: none;
+      margin-top: 4px;
+    }
+    .view-error.visible { display: block; }
+
+    /* ============================================================
+       طلبات خاصة بالغرفة (checkbox)
+       ============================================================ */
+    .special-requests {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .special-requests.hidden { display: none; }
+
+    .special-requests-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate);
+      margin-bottom: 10px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-item input[type="checkbox"],
+    .checkbox-item input[type="radio"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      border: 1.5px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+      padding: 0;
+    }
+
+    .checkbox-item input[type="radio"] {
+      border-radius: 50%;
+    }
+
+    .checkbox-item input[type="checkbox"]:checked,
+    .checkbox-item input[type="radio"]:checked {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+
+    .checkbox-item input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 5px;
+      width: 5px; height: 9px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .checkbox-item input[type="radio"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 4px; left: 4px;
+      width: 8px; height: 8px;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    .checkbox-item label {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--charcoal);
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .checkbox-divider {
+      font-size: 11.5px;
+      color: var(--silver);
+      margin: 2px 0 2px 28px;
+      font-style: italic;
+    }
+
+    /* ============================================================
        زر الإرسال
        ============================================================ */
     .submit-btn {
@@ -495,21 +621,6 @@
             <span class="field-error" id="phone-error">رقم الهاتف غير صحيح</span>
           </div>
 
-          <!-- البريد الإلكتروني -->
-          <div class="field">
-            <label for="email">البريد الإلكتروني <span class="required-star">*</span></label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="example@email.com"
-              autocomplete="email"
-              dir="ltr"
-              style="text-align:right"
-            />
-            <span class="field-error" id="email-error">البريد الإلكتروني غير صحيح</span>
-          </div>
-
         </div>
       </div>
 
@@ -641,8 +752,87 @@
           </div>
           <span class="field-error" id="roomType_${i}-error">يرجى اختيار نوع الغرفة</span>
         </div>
+
+        <!-- إطلالة الغرف المفردة/المزدوجة/الثلاثية -->
+        <div class="view-selector hidden" id="viewSelector_${i}">
+          <div class="field">
+            <label for="roomView_${i}">الإطلالة <span class="required-star">*</span></label>
+            <div class="select-wrapper">
+              <select id="roomView_${i}" name="roomView_${i}">
+                <option value="" disabled selected>— اختر الإطلالة —</option>
+                <option value="canal">مطلة على القناة وحمام السباحة</option>
+                <option value="city">مطلة على المدينة</option>
+              </select>
+            </div>
+            <span class="view-error" id="roomView_${i}-error">يرجى اختيار الإطلالة</span>
+          </div>
+        </div>
+
+        <!-- إطلالة الأجنحة (ثابتة) -->
+        <div class="view-badge hidden" id="viewBadge_${i}">
+          <span>🌊</span>
+          مطلة على القناة وحمام السباحة
+        </div>
+
+        <!-- طلبات خاصة — للغرف المفردة/المزدوجة/الثلاثية فقط -->
+        <div class="special-requests hidden" id="specialRequests_${i}">
+          <div class="special-requests-title">طلبات خاصة</div>
+          <div class="checkbox-group">
+
+            <!-- نوع السرير: radio (إحداهما فقط) -->
+            <div class="checkbox-item">
+              <input type="radio" name="bedType_${i}" id="bed2_${i}" value="two_beds">
+              <label for="bed2_${i}">سريران منفصلان</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="radio" name="bedType_${i}" id="bed1_${i}" value="one_bed">
+              <label for="bed1_${i}">سرير كبير مزدوج</label>
+            </div>
+
+            <div class="checkbox-divider">— طلبات إضافية —</div>
+
+            <!-- سرير أطفال: checkbox مستقل -->
+            <div class="checkbox-item">
+              <input type="checkbox" name="childBed_${i}" id="childBed_${i}" value="child_bed">
+              <label for="childBed_${i}">سرير أطفال</label>
+            </div>
+
+          </div>
+        </div>
       `;
       container.appendChild(card);
+
+      // ربط حدث تغيير نوع الغرفة
+      document.getElementById(`roomType_${i}`).addEventListener('change', function () {
+        updateViewOptions(i, this.value);
+      });
+    }
+  }
+
+  // إظهار / إخفاء خيار الإطلالة بناءً على نوع الغرفة
+  function updateViewOptions(roomIndex, roomValue) {
+    const selector       = document.getElementById(`viewSelector_${roomIndex}`);
+    const badge          = document.getElementById(`viewBadge_${roomIndex}`);
+    const specialReqs    = document.getElementById(`specialRequests_${roomIndex}`);
+    const singleDoubleTriple = ['single', 'double', 'triple'];
+    const suiteTypes = ['junior', 'suite'];
+
+    if (singleDoubleTriple.includes(roomValue)) {
+      selector.classList.remove('hidden');
+      badge.classList.add('hidden');
+      specialReqs.classList.remove('hidden');
+      document.getElementById(`roomView_${roomIndex}`).value = '';
+      // إعادة تعيين الطلبات الخاصة
+      document.querySelectorAll(`input[name="bedType_${roomIndex}"]`).forEach(r => r.checked = false);
+      document.getElementById(`childBed_${roomIndex}`).checked = false;
+    } else if (suiteTypes.includes(roomValue)) {
+      selector.classList.add('hidden');
+      badge.classList.remove('hidden');
+      specialReqs.classList.add('hidden');
+    } else {
+      selector.classList.add('hidden');
+      badge.classList.add('hidden');
+      specialReqs.classList.add('hidden');
     }
   }
 
@@ -720,7 +910,6 @@
     // ── جمع القيم ────────────────────────────────────────────────────
     const fullName = document.getElementById('fullName').value.trim();
     const phone    = document.getElementById('phone').value.trim();
-    const email    = document.getElementById('email').value.trim();
     const checkIn  = document.getElementById('checkIn').value;
     const checkOut = document.getElementById('checkOut').value;
     const notes    = document.getElementById('notes').value.trim();
@@ -742,16 +931,6 @@
       valid = false;
     }
 
-    // ── تحقق: البريد الإلكتروني ───────────────────────────────────
-    clearError('email');
-    if (!email) {
-      showError('email', 'يرجى إدخال البريد الإلكتروني');
-      valid = false;
-    } else if (!isValidEmail(email)) {
-      showError('email', 'البريد الإلكتروني غير صحيح، مثال: name@domain.com');
-      valid = false;
-    }
-
     // ── تحقق: تاريخ الوصول ────────────────────────────────────────
     clearError('checkIn');
     if (!checkIn) {
@@ -769,18 +948,50 @@
       valid = false;
     }
 
-    // ── تحقق: أنواع الغرف ─────────────────────────────────────────
+    // ── تحقق: أنواع الغرف والإطلالة ──────────────────────────────
     const selectedRooms = [];
+    const viewLabels = {
+      canal: 'مطلة على القناة وحمام السباحة 🌊',
+      city:  'مطلة على المدينة 🏙️'
+    };
+    const suiteViewLabel = 'مطلة على القناة وحمام السباحة 🌊';
+    const needsView = ['single', 'double', 'triple'];
+    const suiteTypes = ['junior', 'suite'];
+
     for (let i = 1; i <= roomsCount; i++) {
       clearError(`roomType_${i}`);
       const sel = document.getElementById(`roomType_${i}`);
+      const viewErr = document.getElementById(`roomView_${i}-error`);
+      if (viewErr) viewErr.classList.remove('visible');
+
       if (!sel || !sel.value) {
         showError(`roomType_${i}`, 'يرجى اختيار نوع الغرفة');
         valid = false;
       } else {
+        let viewText = '';
+        const roomVal = sel.value;
+
+        if (needsView.includes(roomVal)) {
+          const viewSel = document.getElementById(`roomView_${i}`);
+          if (!viewSel || !viewSel.value) {
+            if (viewErr) { viewErr.textContent = 'يرجى اختيار الإطلالة'; viewErr.classList.add('visible'); }
+            valid = false;
+          } else {
+            viewText = viewLabels[viewSel.value];
+          }
+        } else if (suiteTypes.includes(roomVal)) {
+          viewText = suiteViewLabel;
+        }
+
         selectedRooms.push({
           number: i,
-          type: sel.options[sel.selectedIndex].text
+          type: sel.options[sel.selectedIndex].text,
+          view: viewText,
+          bedType:  needsView.includes(roomVal) ? (() => {
+            const b = document.querySelector(`input[name="bedType_${i}"]:checked`);
+            return b ? (b.value === 'two_beds' ? 'سريران منفصلان' : 'سرير كبير مزدوج') : '';
+          })() : '',
+          childBed: needsView.includes(roomVal) ? document.getElementById(`childBed_${i}`).checked : false
         });
       }
     }
@@ -797,9 +1008,14 @@
       (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24)
     );
 
-    const roomsText = selectedRooms
-      .map(r => `  الغرفة ${r.number}: ${r.type}`)
-      .join('\n');
+    const roomsText = selectedRooms.map(r => {
+      let line = `  • ${r.type}${r.view ? ' — ' + r.view : ''}`;
+      const extras = [];
+      if (r.bedType)  extras.push(r.bedType);
+      if (r.childBed) extras.push('سرير أطفال');
+      if (extras.length) line += `\n    ↳ طلبات خاصة: ${extras.join(' | ')}`;
+      return line;
+    }).join('\n');
 
     const emailBody = encodeURIComponent(
 `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -809,7 +1025,6 @@
 📋 بيانات العميل:
   الاسم الكامل : ${fullName}
   رقم الهاتف   : ${phone}
-  البريد       : ${email}
 
 📅 تفاصيل الإقامة:
   تاريخ الوصول    : ${formatDate(checkIn)}
