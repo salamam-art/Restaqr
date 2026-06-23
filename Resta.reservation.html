@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حجز غرف فندقية</title>
+
+  <!-- ========================================================
+       إعدادات التطبيق — عدّل هذه القيمة لتغيير بريد الاستقبال
+       ======================================================== -->
+  <script>
+    const HOTEL_CONFIG = {
+      // ✏️ ضع هنا البريد الإلكتروني الذي سيستقبل الحجوزات
+      receiverEmail: "salama.m@gmail.com,ihab.mohamed@restahotels.com,reservations.portsaid@restahotels.com",
+      // ✏️ اسم الفندق الذي سيظهر في الواجهة والبريد
+      hotelName: "فندق رستا بورسعيد"
+    };
+  </script>
+
+  <!-- Google Fonts: Noto Naskh Arabic + Cormorant for luxury feel -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ============================================================
+       نظام الألوان — لوحة فاخرة مستوحاة من الذهب العتيق والرخام
+       ============================================================ */
+    :root {
+      --gold:        #B08D57;
+      --gold-light:  #D4AF72;
+      --gold-pale:   #F5EDD8;
+      --ivory:       #FDFAF4;
+      --charcoal:    #1C1C1E;
+      --slate:       #4A4A52;
+      --silver:      #9A9AA4;
+      --border:      #E2D9C8;
+      --error:       #B04040;
+      --success-bg:  #EAF4EC;
+      --success-txt: #2E6B3E;
+    }
+
+    /* ============================================================
+       الأساسيات والتخطيط العام
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Naskh Arabic', serif;
+      background: var(--ivory);
+      color: var(--charcoal);
+      min-height: 100vh;
+      direction: rtl;
+    }
+
+    /* ============================================================
+       الهيدر / بانر الفندق
+       ============================================================ */
+    .hero {
+      background: var(--charcoal);
+      padding: 48px 24px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* خط ذهبي رفيع فوق البانر */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    }
+
+    .hero-ornament {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      color: var(--gold-light);
+      letter-spacing: 6px;
+      margin-bottom: 10px;
+      opacity: .85;
+    }
+
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(26px, 5vw, 44px);
+      color: #fff;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--silver);
+      font-size: 15px;
+      letter-spacing: 1px;
+    }
+
+    /* خط ذهبي أسفل البانر */
+    .hero-divider {
+      width: 80px;
+      height: 1px;
+      background: var(--gold);
+      margin: 20px auto 0;
+      opacity: .7;
+    }
+
+    /* ============================================================
+       حاوية النموذج
+       ============================================================ */
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+
+    /* ============================================================
+       بطاقات الأقسام
+       ============================================================ */
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 36px 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 16px rgba(176,141,87,.07);
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* أيقونة ذهبية صغيرة قبل عنوان القسم */
+    .card-title::before {
+      content: '';
+      width: 18px;
+      height: 18px;
+      background: var(--gold);
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       حقول النموذج
+       ============================================================ */
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 560px) {
+      .field-grid { grid-template-columns: 1fr; }
+      .card { padding: 24px 18px; }
+    }
+
+    .field-full { grid-column: 1 / -1; }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--slate);
+      letter-spacing: .3px;
+    }
+
+    label .required-star {
+      color: var(--gold);
+      margin-right: 2px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="number"],
+    select,
+    textarea {
+      font-family: 'Noto Naskh Arabic', serif;
+      font-size: 15px;
+      color: var(--charcoal);
+      background: var(--ivory);
+      border: 1.5px solid var(--border);
+      border-radius: 3px;
+      padding: 11px 14px;
+      width: 100%;
+      direction: rtl;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(176,141,87,.12);
+      background: #fff;
+    }
+
+    /* حالة خطأ */
+    input.invalid,
+    select.invalid,
+    textarea.invalid {
+      border-color: var(--error);
+      background: #FFF8F8;
+    }
+
+    .field-error {
+      font-size: 12px;
+      color: var(--error);
+      min-height: 16px;
+      display: none;
+    }
+
+    .field-error.visible { display: block; }
+
+    /* Select arrow مخصص */
+    .select-wrapper {
+      position: relative;
+    }
+
+    .select-wrapper::after {
+      content: '▾';
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+      pointer-events: none;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    /* ============================================================
+       قسم الغرف
+       ============================================================ */
+    .rooms-count-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .rooms-count-row label {
+      font-size: 15px;
+      white-space: nowrap;
+    }
+
+    /* مدخل عدد الغرف بأزرار + / - */
+    .counter-control {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      height: 44px;
+    }
+
+    .counter-btn {
+      width: 44px;
+      height: 44px;
+      background: var(--gold-pale);
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: var(--gold);
+      transition: background .2s;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .counter-btn:hover { background: var(--gold-light); color: #fff; }
+
+    #roomsCount {
+      width: 60px;
+      text-align: center;
+      border: none;
+      border-right: 1.5px solid var(--border);
+      border-left: 1.5px solid var(--border);
+      border-radius: 0;
+      background: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      height: 44px;
+      padding: 0;
+    }
+
+    /* بطاقة غرفة واحدة */
+    .room-card {
+      background: var(--gold-pale);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 20px 20px 16px;
+      margin-bottom: 16px;
+      animation: slideIn .25s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .room-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 12px;
+      letter-spacing: .5px;
+    }
+
+    /* ============================================================
+       زر الإرسال
+       ============================================================ */
+    .submit-btn {
+      width: 100%;
+      padding: 18px;
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-family: 'Noto Naskh Arabic', serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background .25s, transform .15s, box-shadow .25s;
+      margin-top: 8px;
+      box-shadow: 0 4px 20px rgba(176,141,87,.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn:hover {
+      background: var(--gold-light);
+      box-shadow: 0 6px 28px rgba(176,141,87,.45);
+      transform: translateY(-1px);
+    }
+
+    .submit-btn:active { transform: translateY(0); }
+
+    .submit-btn:disabled {
+      background: var(--silver);
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ============================================================
+       رسالة النجاح
+       ============================================================ */
+    #successMsg {
+      display: none;
+      background: var(--success-bg);
+      border: 1px solid #A8D5B5;
+      border-radius: 4px;
+      padding: 28px 28px 24px;
+      text-align: center;
+      margin-bottom: 24px;
+      animation: fadeIn .4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(.97); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    #successMsg .check-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    #successMsg h2 {
+      color: var(--success-txt);
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    #successMsg p {
+      color: #4A7A56;
+      font-size: 14.5px;
+      line-height: 1.8;
+    }
+
+    /* ============================================================
+       إشعار "افتح تطبيق البريد"
+       ============================================================ */
+    .email-notice {
+      background: #FFF8E8;
+      border: 1px solid #E2C96B;
+      border-radius: 3px;
+      padding: 14px 18px;
+      font-size: 13.5px;
+      color: #7A6020;
+      margin-bottom: 20px;
+      line-height: 1.7;
+      display: none;
+    }
+
+    .email-notice.visible { display: block; }
+
+    /* ============================================================
+       الفوتر
+       ============================================================ */
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--silver);
+      font-size: 12.5px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== هيدر الفندق ===== -->
+  <div class="hero">
+    <h1 id="heroHotelName">فندق رستا بورسعيد</h1>
+    <p>تعليمات هامة ، هذه الاستماره ليست تاكيد حجز نهائى سوف يتم التواصل معكم لتأكيد الحجز</p>
+    <div class="hero-divider"></div>
+  </div>
+
+  <div class="container">
+
+    <!-- رسالة النجاح (مخفية حتى الإرسال) -->
+    <div id="successMsg">
+      <div class="check-icon">✅</div>
+      <h2>تم إرسال طلب الحجز بنجاح!</h2>
+      <p>
+        شكراً لاختيارك <span id="successHotelName"></span>.<br>
+        سيتواصل معك فريق الاستقبال في أقرب وقت لتأكيد الحجز.
+      </p>
+    </div>
+
+    <!-- إشعار فتح تطبيق البريد -->
+    <div class="email-notice" id="emailNotice">
+      📧 سيتم فتح تطبيق البريد الإلكتروني لإرسال بيانات الحجز. يُرجى الضغط على "إرسال" في تطبيق البريد لإتمام العملية.
+    </div>
+
+    <form id="bookingForm" novalidate>
+
+      <!-- ===== القسم الأول: البيانات الشخصية ===== -->
+      <div class="card">
+        <div class="card-title">البيانات الشخصية</div>
+        <div class="field-grid">
+
+          <!-- الاسم الكامل -->
+          <div class="field field-full">
+            <label for="fullName">الاسم الكامل <span class="required-star">*</span></label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              placeholder="مثال: محمد أحمد العمري"
+              autocomplete="name"
+            />
+            <span class="field-error" id="fullName-error">الرجاء إدخال الاسم الكامل</span>
+          </div>
+
+          <!-- رقم الهاتف -->
+          <div class="field">
+            <label for="phone">رقم الهاتف <span class="required-star">*</span></label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              placeholder="+966 5X XXX XXXX"
+              autocomplete="tel"
+              dir="ltr"
+              style="text-align:right"
+            />
+            <span class="field-error" id="phone-error">رقم الهاتف غير صحيح</span>
+          </div>
+
+          <!-- البريد الإلكتروني -->
+          <div class="field">
+            <label for="email">البريد الإلكتروني <span class="required-star">*</span></label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="example@email.com"
+              autocomplete="email"
+              dir="ltr"
+              style="text-align:right"
+            />
+            <span class="field-error" id="email-error">البريد الإلكتروني غير صحيح</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===== القسم الثاني: تواريخ الإقامة ===== -->
+      <div class="card">
+        <div class="card-title">تواريخ الإقامة</div>
+        <div class="field-grid">
+
+          <!-- تاريخ الوصول -->
+          <div class="field">
+            <label for="checkIn">تاريخ الوصول (Check-in) <span class="required-star">*</span></label>
+            <input type="date" id="checkIn" name="checkIn" />
+            <span class="field-error" id="checkIn-error">يرجى تحديد تاريخ الوصول</span>
+          </div>
+
+          <!-- تاريخ المغادرة -->
+          <div class="field">
+            <label for="checkOut">تاريخ المغادرة (Check-out) <span class="required-star">*</span></label>
+            <input type="date" id="checkOut" name="checkOut" />
+            <span class="field-error" id="checkOut-error">يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===== القسم الثالث: الغرف ===== -->
+      <div class="card">
+        <div class="card-title">اختيار الغرف</div>
+
+        <!-- التحكم بعدد الغرف -->
+        <div class="rooms-count-row">
+          <label for="roomsCount">عدد الغرف المطلوبة: <span class="required-star">*</span></label>
+          <div class="counter-control">
+            <button type="button" class="counter-btn" id="btnDecrease" aria-label="تقليل عدد الغرف">−</button>
+            <input
+              type="number"
+              id="roomsCount"
+              min="1"
+              max="10"
+              value="1"
+              readonly
+              aria-label="عدد الغرف"
+            />
+            <button type="button" class="counter-btn" id="btnIncrease" aria-label="زيادة عدد الغرف">+</button>
+          </div>
+        </div>
+
+        <!-- حقول الغرف الديناميكية — يتم إنشاؤها بـ JS -->
+        <div id="roomsContainer"></div>
+
+      </div>
+
+      <!-- ===== القسم الرابع: ملاحظات إضافية ===== -->
+      <div class="card">
+        <div class="card-title">ملاحظات إضافية</div>
+        <div class="field">
+          <label for="notes">ملاحظات أو طلبات خاصة (اختياري)</label>
+          <textarea
+            id="notes"
+            name="notes"
+            placeholder="مثال: طابق مرتفع، سرير إضافي للأطفال، حساسية من الغذاء..."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- ===== زر الإرسال ===== -->
+      <button type="submit" class="submit-btn" id="submitBtn">
+        إرسال طلب الحجز
+      </button>
+
+    </form>
+  </div>
+
+  <!-- ===== الفوتر ===== -->
+  <div class="footer" id="footerText">
+    جميع الحقوق محفوظة © <span id="footerYear"></span> — فندق رستا بورسعيد
+  </div>
+
+
+  <!-- ================================================================
+       JavaScript — منطق التطبيق الكامل
+       ================================================================ -->
+  <script>
+  // ── تطبيق الإعدادات على واجهة المستخدم ──────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const name = HOTEL_CONFIG.hotelName;
+    document.querySelector('#heroHotelName').textContent = name;
+    document.querySelector('#successHotelName').textContent = name;
+    document.querySelector('#footerText').innerHTML =
+      `جميع الحقوق محفوظة © ${new Date().getFullYear()} — ${name}`;
+    document.title = `حجز غرف — ${name}`;
+
+    // تعيين الحد الأدنى لتواريخ الحجز (اليوم فصاعداً)
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('checkIn').min = today;
+    document.getElementById('checkOut').min = today;
+
+    // إنشاء غرفة واحدة ابتداءً
+    renderRooms(1);
+  });
+
+  // ── بناء حقول الغرف ديناميكياً ──────────────────────────────────────
+  const roomTypes = [
+    { value: '',          label: '— اختر نوع الغرفة —' },
+    { value: 'single',    label: 'Single Room — غرفة مفردة' },
+    { value: 'double',    label: 'Double Room — غرفة مزدوجة' },
+    { value: 'triple',    label: 'Triple Room — غرفة ثلاثية' },
+    { value: 'junior',    label: 'Junior Suite — جونيور سويت' },
+    { value: 'suite',     label: 'Suite — سويت' },
+  ];
+
+  function renderRooms(count) {
+    const container = document.getElementById('roomsContainer');
+    container.innerHTML = '';
+
+    for (let i = 1; i <= count; i++) {
+      const card = document.createElement('div');
+      card.className = 'room-card';
+      card.innerHTML = `
+        <div class="room-card-title">الغرفة ${arabicNum(i)}</div>
+        <div class="field">
+          <label for="roomType_${i}">نوع الغرفة <span class="required-star">*</span></label>
+          <div class="select-wrapper">
+            <select id="roomType_${i}" name="roomType_${i}" data-room="${i}">
+              ${roomTypes.map(t =>
+                `<option value="${t.value}" ${t.value ? '' : 'disabled selected'}>${t.label}</option>`
+              ).join('')}
+            </select>
+          </div>
+          <span class="field-error" id="roomType_${i}-error">يرجى اختيار نوع الغرفة</span>
+        </div>
+      `;
+      container.appendChild(card);
+    }
+  }
+
+  // ── تحويل الأرقام إلى عربية للعرض ──────────────────────────────────
+  function arabicNum(n) {
+    return n.toLocaleString('ar-EG');
+  }
+
+  // ── أزرار + / - لعدد الغرف ─────────────────────────────────────────
+  let roomsCount = 1;
+  const MAX_ROOMS = 10;
+
+  document.getElementById('btnIncrease').addEventListener('click', () => {
+    if (roomsCount < MAX_ROOMS) {
+      roomsCount++;
+      document.getElementById('roomsCount').value = roomsCount;
+      renderRooms(roomsCount);
+    }
+  });
+
+  document.getElementById('btnDecrease').addEventListener('click', () => {
+    if (roomsCount > 1) {
+      roomsCount--;
+      document.getElementById('roomsCount').value = roomsCount;
+      renderRooms(roomsCount);
+    }
+  });
+
+  // ── تحديث الحد الأدنى لتاريخ المغادرة عند تغيير الوصول ──────────────
+  document.getElementById('checkIn').addEventListener('change', function () {
+    const checkOut = document.getElementById('checkOut');
+    checkOut.min = this.value;
+    if (checkOut.value && checkOut.value <= this.value) {
+      checkOut.value = '';
+    }
+  });
+
+  // ════════════════════════════════════════════════════════════════════
+  // دوال التحقق من الصحة
+  // ════════════════════════════════════════════════════════════════════
+
+  function showError(id, msg) {
+    const input = document.getElementById(id);
+    const errEl = document.getElementById(id + '-error');
+    if (input)  input.classList.add('invalid');
+    if (errEl) { errEl.textContent = msg || errEl.textContent; errEl.classList.add('visible'); }
+  }
+
+  function clearError(id) {
+    const input = document.getElementById(id);
+    const errEl = document.getElementById(id + '-error');
+    if (input)  input.classList.remove('invalid');
+    if (errEl)  errEl.classList.remove('visible');
+  }
+
+  // التحقق من البريد الإلكتروني
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+  }
+
+  // التحقق من رقم الهاتف (يقبل أرقاماً دولية ومحلية متعددة الصياغات)
+  function isValidPhone(phone) {
+    const cleaned = phone.replace(/[\s\-().]/g, '');
+    return /^[\+]?[0-9]{7,15}$/.test(cleaned);
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // معالجة الإرسال
+  // ════════════════════════════════════════════════════════════════════
+
+  document.getElementById('bookingForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    let valid = true;
+
+    // ── جمع القيم ────────────────────────────────────────────────────
+    const fullName = document.getElementById('fullName').value.trim();
+    const phone    = document.getElementById('phone').value.trim();
+    const email    = document.getElementById('email').value.trim();
+    const checkIn  = document.getElementById('checkIn').value;
+    const checkOut = document.getElementById('checkOut').value;
+    const notes    = document.getElementById('notes').value.trim();
+
+    // ── تحقق: الاسم ────────────────────────────────────────────────
+    clearError('fullName');
+    if (!fullName || fullName.length < 3) {
+      showError('fullName', 'يرجى إدخال الاسم الكامل (3 أحرف على الأقل)');
+      valid = false;
+    }
+
+    // ── تحقق: رقم الهاتف ──────────────────────────────────────────
+    clearError('phone');
+    if (!phone) {
+      showError('phone', 'يرجى إدخال رقم الهاتف');
+      valid = false;
+    } else if (!isValidPhone(phone)) {
+      showError('phone', 'صيغة رقم الهاتف غير صحيحة');
+      valid = false;
+    }
+
+    // ── تحقق: البريد الإلكتروني ───────────────────────────────────
+    clearError('email');
+    if (!email) {
+      showError('email', 'يرجى إدخال البريد الإلكتروني');
+      valid = false;
+    } else if (!isValidEmail(email)) {
+      showError('email', 'البريد الإلكتروني غير صحيح، مثال: name@domain.com');
+      valid = false;
+    }
+
+    // ── تحقق: تاريخ الوصول ────────────────────────────────────────
+    clearError('checkIn');
+    if (!checkIn) {
+      showError('checkIn', 'يرجى تحديد تاريخ الوصول');
+      valid = false;
+    }
+
+    // ── تحقق: تاريخ المغادرة ──────────────────────────────────────
+    clearError('checkOut');
+    if (!checkOut) {
+      showError('checkOut', 'يرجى تحديد تاريخ المغادرة');
+      valid = false;
+    } else if (checkIn && checkOut <= checkIn) {
+      showError('checkOut', 'يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول');
+      valid = false;
+    }
+
+    // ── تحقق: أنواع الغرف ─────────────────────────────────────────
+    const selectedRooms = [];
+    for (let i = 1; i <= roomsCount; i++) {
+      clearError(`roomType_${i}`);
+      const sel = document.getElementById(`roomType_${i}`);
+      if (!sel || !sel.value) {
+        showError(`roomType_${i}`, 'يرجى اختيار نوع الغرفة');
+        valid = false;
+      } else {
+        selectedRooms.push({
+          number: i,
+          type: sel.options[sel.selectedIndex].text
+        });
+      }
+    }
+
+    if (!valid) {
+      // التمرير إلى أول خطأ
+      const firstErr = document.querySelector('.invalid');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // ── بناء محتوى البريد الإلكتروني ─────────────────────────────
+    const nights = Math.round(
+      (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24)
+    );
+
+    const roomsText = selectedRooms
+      .map(r => `  الغرفة ${r.number}: ${r.type}`)
+      .join('\n');
+
+    const emailBody = encodeURIComponent(
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+طلب حجز جديد — ${HOTEL_CONFIG.hotelName}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 بيانات العميل:
+  الاسم الكامل : ${fullName}
+  رقم الهاتف   : ${phone}
+  البريد       : ${email}
+
+📅 تفاصيل الإقامة:
+  تاريخ الوصول    : ${formatDate(checkIn)}
+  تاريخ المغادرة  : ${formatDate(checkOut)}
+  مدة الإقامة     : ${nights} ${nights === 1 ? 'ليلة' : 'ليالٍ'}
+
+🛏️ الغرف المطلوبة (${roomsCount} ${roomsCount === 1 ? 'غرفة' : 'غرف'}):
+${roomsText}
+
+${notes ? `📝 ملاحظات إضافية:\n  ${notes}\n` : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+تم إرسال هذا الطلب من استمارة الحجز الإلكترونية.
+`);
+
+    const subject = encodeURIComponent(
+      `طلب حجز جديد — ${fullName} — ${formatDate(checkIn)} إلى ${formatDate(checkOut)}`
+    );
+
+    // ── فتح تطبيق البريد بالبيانات ────────────────────────────────
+    document.getElementById('emailNotice').classList.add('visible');
+    window.location.href =
+      `mailto:${HOTEL_CONFIG.receiverEmail}?subject=${subject}&body=${emailBody}`;
+
+    // ── عرض رسالة النجاح ──────────────────────────────────────────
+    setTimeout(() => {
+      document.getElementById('successMsg').style.display = 'block';
+      document.getElementById('successMsg').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // مسح النموذج
+      document.getElementById('bookingForm').reset();
+      roomsCount = 1;
+      document.getElementById('roomsCount').value = 1;
+      renderRooms(1);
+      document.getElementById('emailNotice').classList.remove('visible');
+
+      // إخفاء رسالة النجاح بعد 10 ثوان
+      setTimeout(() => {
+        document.getElementById('successMsg').style.display = 'none';
+      }, 10000);
+    }, 800);
+
+  });
+
+  // ── تنسيق التاريخ بالعربية ────────────────────────────────────────
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('ar-EG', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+  </script>
+
+</body>
+</html>
