@@ -86,7 +86,7 @@
       align-items: center; justify-content: center;
       min-height: 100vh;
       min-height: 100dvh;
-      padding: max(5rem, calc(env(safe-area-inset-top, 0px) + 4rem))
+      padding: max(1.2rem, env(safe-area-inset-top, 1.2rem))
                max(1.2rem, env(safe-area-inset-right, 1.2rem))
                max(3rem, calc(env(safe-area-inset-bottom, 0px) + 2.5rem))
                max(1.2rem, env(safe-area-inset-left, 1.2rem));
@@ -248,6 +248,14 @@
       color: var(--gold-mid);
       opacity: 0.75;
     }
+    .card-title-ar {
+      font-family: Tahoma, Arial, sans-serif;
+      font-weight: 400;
+      font-size: clamp(0.78rem, 2.6vw, 0.92rem);
+      color: var(--cream-dim);
+      direction: rtl;
+      margin-top: 0.1rem;
+    }
     .card-arrow {
       margin-top: 0.2rem;
       font-size: 1rem;
@@ -360,6 +368,7 @@
       <div>
         <p class="card-title">Green House Menu</p>
         <p class="card-desc">Dining Experience</p>
+        <p class="card-title-ar">قائمة جرين هاوس</p>
       </div>
       <span class="card-arrow">→</span>
     </div>
@@ -371,6 +380,7 @@
       <div>
         <p class="card-title">Beverage Menu</p>
         <p class="card-desc">Drinks &amp; Cocktails</p>
+        <p class="card-title-ar">قائمة المشروبات</p>
       </div>
       <span class="card-arrow">→</span>
     </div>
@@ -382,6 +392,7 @@
       <div>
         <p class="card-title">De Lesseps Cafe</p>
         <p class="card-desc">Café Experience</p>
+        <p class="card-title-ar">كافيه دي ليسبس</p>
       </div>
       <span class="card-arrow">→</span>
     </div>
@@ -393,6 +404,7 @@
       <div>
         <p class="card-title">Wedding Packages</p>
         <p class="card-desc">Celebrations &amp; Events</p>
+        <p class="card-title-ar">باقات الزفاف</p>
       </div>
       <span class="card-arrow">→</span>
     </div>
@@ -404,6 +416,7 @@
       <div>
         <p class="card-title">Guest Experience</p>
         <p class="card-desc">Share Your Feedback</p>
+        <p class="card-title-ar">تجربة الضيف</p>
       </div>
       <span class="card-arrow">→</span>
     </div>
