@@ -760,7 +760,7 @@
             <div class="select-wrapper">
               <select id="roomView_${i}" name="roomView_${i}">
                 <option value="" disabled selected>— اختر الإطلالة —</option>
-                <option value="canal">مطلة على القناة وحمام السباحة</option>
+                <option value="canal">مطلة على القناة</option>
                 <option value="city">مطلة على المدينة</option>
               </select>
             </div>
@@ -771,7 +771,7 @@
         <!-- إطلالة الأجنحة (ثابتة) -->
         <div class="view-badge hidden" id="viewBadge_${i}">
           <span>🌊</span>
-          مطلة على القناة وحمام السباحة
+          مطلة على القناة
         </div>
 
         <!-- طلبات خاصة — للغرف المفردة/المزدوجة/الثلاثية فقط -->
@@ -951,10 +951,10 @@
     // ── تحقق: أنواع الغرف والإطلالة ──────────────────────────────
     const selectedRooms = [];
     const viewLabels = {
-      canal: 'مطلة على القناة وحمام السباحة 🌊',
+      canal: 'مطلة على القناة 🌊',
       city:  'مطلة على المدينة 🏙️'
     };
-    const suiteViewLabel = 'مطلة على القناة وحمام السباحة 🌊';
+    const suiteViewLabel = 'مطلة على القناة 🌊';
     const needsView = ['single', 'double', 'triple'];
     const suiteTypes = ['junior', 'suite'];
 
