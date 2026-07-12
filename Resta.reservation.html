@@ -13,7 +13,9 @@
       // ✏️ ضع هنا البريد الإلكتروني الذي سيستقبل الحجوزات
       receiverEmail: "mohamed.asalam@restahotels.com,ihab.mohamed@restahotels.com,reservations.portsaid@restahotels.com,nahid.nabil@restahotels.com",
       // ✏️ اسم الفندق الذي سيظهر في الواجهة والبريد
-      hotelName: "فندق رستا بورسعيد"
+      hotelName: "فندق رستا بورسعيد",
+      // رابط تطبيق جوجل أبس سكريبت (Web App URL) لحفظ الحجوزات فى جوجل شيت
+      googleScriptURL: "https://script.google.com/macros/s/AKfycbzBggXmpNA5s7UXHWnXqKVcqbUnG7sLpr2M-RuQWm-ks5OYORorBa2vSufdJwcj8hQy/exec"
     };
   </script>
 
@@ -760,7 +762,7 @@
             <div class="select-wrapper">
               <select id="roomView_${i}" name="roomView_${i}">
                 <option value="" disabled selected>— اختر الإطلالة —</option>
-                <option value="canal">مطلة على القناة</option>
+                <option value="canal">مطلة على القناة </option>
                 <option value="city">مطلة على المدينة</option>
               </select>
             </div>
@@ -771,7 +773,7 @@
         <!-- إطلالة الأجنحة (ثابتة) -->
         <div class="view-badge hidden" id="viewBadge_${i}">
           <span>🌊</span>
-          مطلة على القناة
+          مطلة على القناة 
         </div>
 
         <!-- طلبات خاصة — للغرف المفردة/المزدوجة/الثلاثية فقط -->
@@ -903,7 +905,7 @@
   // معالجة الإرسال
   // ════════════════════════════════════════════════════════════════════
 
-  document.getElementById('bookingForm').addEventListener('submit', function (e) {
+  document.getElementById('bookingForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     let valid = true;
 
@@ -951,10 +953,10 @@
     // ── تحقق: أنواع الغرف والإطلالة ──────────────────────────────
     const selectedRooms = [];
     const viewLabels = {
-      canal: 'مطلة على القناة 🌊',
+      canal: 'مطلة على القناة  🌊',
       city:  'مطلة على المدينة 🏙️'
     };
-    const suiteViewLabel = 'مطلة على القناة 🌊';
+    const suiteViewLabel = 'مطلة على القناة  🌊';
     const needsView = ['single', 'double', 'triple'];
     const suiteTypes = ['junior', 'suite'];
 
@@ -1016,6 +1018,38 @@
       if (extras.length) line += `\n    ↳ طلبات خاصة: ${extras.join(' | ')}`;
       return line;
     }).join('\n');
+
+    // ── إرسال وحفظ بيانات الحجز على جوجل شيت (عبر جوجل أبس سكريبت) ──
+    if (HOTEL_CONFIG.googleScriptURL) {
+      const sheetPayload = {
+        hotelName: HOTEL_CONFIG.hotelName,
+        fullName: fullName,
+        phone: phone,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        checkInFormatted: formatDate(checkIn),
+        checkOutFormatted: formatDate(checkOut),
+        nights: nights,
+        roomsCount: roomsCount,
+        rooms: selectedRooms.map(r => ({
+          number: r.number,
+          type: r.type,
+          view: r.view,
+          bedType: r.bedType,
+          childBed: r.childBed ? 'نعم' : 'لا'
+        })),
+        notes: notes
+      };
+      try {
+        await fetch(HOTEL_CONFIG.googleScriptURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(sheetPayload)
+        });
+      } catch (err) {
+        console.error('تعذر حفظ البيانات على جوجل شيت:', err);
+      }
+    }
 
     const emailBody = encodeURIComponent(
 `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
