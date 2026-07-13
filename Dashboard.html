@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة متابعة الحجوزات</title>
+
+  <!-- ========================================================
+       إعدادات الداشبورد — ضع نفس رابط جوجل أبس سكريبت هنا
+       ======================================================== -->
+  <script>
+    const DASHBOARD_CONFIG = {
+      // رابط تطبيق جوجل أبس سكريبت (Web App URL) — نفس رابط صفحة الحجز
+      googleScriptURL: "https://script.google.com/macros/s/AKfycbwZMJ_69Tv8cUztOV0ROecjoay_8EXZCJufdTBE1Jb1-RexkdSm61Jnv6E2zyQvyjLG/exec",
+      hotelName: "فندق رستا بورسعيد",
+      // ✏️ يجب أن تطابق نفس القيمة الموجودة فى DELETE_PASSWORD داخل Code.gs
+      // اتركها فارغة "" إن لم تُفعّل كلمة مرور للحذف
+      deletePassword: ""
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --gold:        #B08D57;
+      --gold-light:  #D4AF72;
+      --gold-pale:   #F5EDD8;
+      --ivory:       #FDFAF4;
+      --charcoal:    #1C1C1E;
+      --slate:       #4A4A52;
+      --silver:      #9A9AA4;
+      --border:      #E2D9C8;
+      --error:       #B04040;
+      --success-bg:  #EAF4EC;
+      --success-txt: #2E6B3E;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Naskh Arabic', serif;
+      background: var(--ivory);
+      color: var(--charcoal);
+      min-height: 100vh;
+      direction: rtl;
+    }
+
+    .hero {
+      background: var(--charcoal);
+      padding: 36px 24px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    }
+
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(22px, 4vw, 34px);
+      color: #fff;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .hero p {
+      color: var(--silver);
+      font-size: 14px;
+      letter-spacing: .5px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    /* ===== شريط أدوات: بحث + تحديث ===== */
+    .toolbar {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 220px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      font-family: 'Noto Naskh Arabic', serif;
+      font-size: 14.5px;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      outline: none;
+      direction: rtl;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(176,141,87,.12);
+    }
+
+    .btn {
+      font-family: 'Noto Naskh Arabic', serif;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+      white-space: nowrap;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #fff;
+      box-shadow: 0 3px 14px rgba(176,141,87,.3);
+    }
+    .btn-gold:hover { background: var(--gold-light); }
+    .btn-gold:active { transform: translateY(1px); }
+    .btn-gold:disabled { background: var(--silver); cursor: not-allowed; }
+
+    /* ===== بطاقات الإحصائيات ===== */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(176,141,87,.06);
+    }
+
+    .stat-card .num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 34px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .lbl {
+      font-size: 13px;
+      color: var(--slate);
+    }
+
+    /* ===== حالات التحميل / الخطأ / الفراغ ===== */
+    .state-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 50px 20px;
+      text-align: center;
+      color: var(--slate);
+      display: none;
+    }
+    .state-box.visible { display: block; }
+    .state-box.error { border-color: #E3B0B0; background: #FFF6F6; color: var(--error); }
+
+    /* ===== جدول الحجوزات (سطح المكتب) ===== */
+    .table-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow-x: auto;
+      box-shadow: 0 2px 16px rgba(176,141,87,.07);
+      display: none;
+    }
+    .table-wrap.visible { display: block; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    thead th {
+      background: var(--gold-pale);
+      color: var(--charcoal);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 14px 12px;
+      text-align: right;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+    }
+
+    tbody td {
+      padding: 13px 12px;
+      font-size: 13.5px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tbody tr:hover { background: var(--gold-pale); }
+
+    td.rooms-cell {
+      white-space: pre-line;
+      min-width: 220px;
+      font-size: 12.5px;
+      color: var(--slate);
+    }
+
+    td.notes-cell {
+      min-width: 160px;
+      font-size: 12.5px;
+      color: var(--slate);
+    }
+
+    .nights-badge {
+      display: inline-block;
+      background: var(--gold-pale);
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    /* ===== زر حذف الحجز ===== */
+    .btn-delete {
+      font-family: 'Noto Naskh Arabic', serif;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--error);
+      background: #FFF6F6;
+      border: 1px solid #E3B0B0;
+      border-radius: 3px;
+      padding: 7px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s, color .2s;
+    }
+    .btn-delete:hover { background: var(--error); color: #fff; }
+    .btn-delete:disabled { opacity: .5; cursor: not-allowed; }
+
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--silver);
+      font-size: 12.5px;
+    }
+
+    .spinner {
+      width: 34px; height: 34px;
+      border: 3px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      margin: 0 auto 14px;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* إخفاء رابط الإعداد غير المكوَّن */
+    .setup-warning {
+      background: #FFF8E8;
+      border: 1px solid #E2C96B;
+      color: #7A6020;
+      border-radius: 3px;
+      padding: 16px 18px;
+      font-size: 13.5px;
+      line-height: 1.8;
+      margin-bottom: 22px;
+      display: none;
+    }
+    .setup-warning.visible { display: block; }
+
+    /* ===== ترويسة الطباعة/PDF (مخفية على الشاشة) ===== */
+    .print-header { display: none; }
+
+    /* ===== أنماط خاصة عند الطباعة أو تصدير PDF ===== */
+    @media print {
+      body { background: #fff; }
+      .hero, .toolbar, .footer { display: none !important; }
+      .container { padding: 0; max-width: 100%; }
+
+      .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--gold);
+      }
+      .print-header h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 21px;
+        color: var(--charcoal);
+        margin-bottom: 5px;
+      }
+      .print-header p { font-size: 11.5px; color: var(--slate); }
+
+      .stats-row { margin-bottom: 16px; gap: 10px; }
+      .stat-card { box-shadow: none; border: 1px solid #ccc; padding: 12px; }
+      .stat-card .num { font-size: 22px; }
+
+      .table-wrap { box-shadow: none; border: 1px solid #ccc; overflow: visible; }
+      table { min-width: 0; width: 100%; }
+      thead th {
+        background: #F0E6D2 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        font-size: 11px;
+        padding: 8px 6px;
+      }
+      tbody td { font-size: 10.5px; padding: 7px 6px; }
+      tbody tr:hover { background: none; }
+      tbody tr { page-break-inside: avoid; }
+      .nights-badge { background: none; color: var(--charcoal); padding: 0; font-weight: 700; }
+      .no-print { display: none !important; }
+
+      @page { size: A4 landscape; margin: 12mm 10mm; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <h1 id="heroTitle">لوحة متابعة الحجوزات</h1>
+    <p id="heroSubtitle">فندق رستا بورسعيد</p>
+  </div>
+
+  <div class="container">
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="ابحث بالاسم، رقم الهاتف، أو نوع الغرفة..." />
+      </div>
+      <button class="btn btn-gold" id="refreshBtn">⟳ تحديث البيانات</button>
+      <button class="btn btn-gold" id="exportPdfBtn">🖨️ تصدير PDF</button>
+    </div>
+
+    <div class="stats-row" id="statsRow" style="display:none;">
+      <div class="stat-card">
+        <div class="num" id="statTotal">0</div>
+        <div class="lbl">إجمالى الحجوزات</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="statRooms">0</div>
+        <div class="lbl">إجمالى الغرف المطلوبة</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="statUpcoming">0</div>
+        <div class="lbl">حجوزات قادمة</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="statToday">0</div>
+        <div class="lbl">حجوزات اليوم</div>
+      </div>
+    </div>
+
+    <!-- حالة التحميل -->
+    <div class="state-box" id="loadingState">
+      <div class="spinner"></div>
+      جارٍ تحميل بيانات الحجوزات...
+    </div>
+
+    <!-- حالة الخطأ -->
+    <div class="state-box error" id="errorState">
+      تعذّر تحميل البيانات. تأكد من صحة رابط جوجل أبس سكريبت ومحاولة التحديث مجدداً.
+    </div>
+
+    <!-- حالة عدم وجود بيانات -->
+    <div class="state-box" id="emptyState">
+      لا توجد أى حجوزات مسجلة حتى الآن.
+    </div>
+
+    <!-- ترويسة تقرير خاصة بالطباعة/التصدير فقط (مخفية على الشاشة) -->
+    <div class="print-header" id="printHeader">
+      <h2>تقرير الحجوزات — <span id="printHotelName"></span></h2>
+      <p>تاريخ التصدير: <span id="printDate"></span> &nbsp;|&nbsp; إجمالى عدد الحجوزات المعروضة: <span id="printCount"></span></p>
+    </div>
+
+    <!-- الجدول -->
+    <div class="table-wrap" id="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>التاريخ والوقت</th>
+            <th>الاسم الكامل</th>
+            <th>رقم الهاتف</th>
+            <th>تاريخ الوصول</th>
+            <th>تاريخ المغادرة</th>
+            <th>الليالى</th>
+            <th>عدد الغرف</th>
+            <th>تفاصيل الغرف</th>
+            <th>ملاحظات</th>
+            <th class="no-print">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    جميع الحقوق محفوظة © <span id="footerYear"></span> — لوحة متابعة داخلية
+  </div>
+
+  <script>
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+    document.getElementById('heroSubtitle').textContent = DASHBOARD_CONFIG.hotelName;
+
+    let allBookings = [];
+
+    function showState(state) {
+      // state: 'loading' | 'error' | 'empty' | 'table' | null
+      document.getElementById('loadingState').classList.remove('visible');
+      document.getElementById('errorState').classList.remove('visible');
+      document.getElementById('emptyState').classList.remove('visible');
+      document.getElementById('tableWrap').classList.remove('visible');
+      document.getElementById('statsRow').style.display = 'none';
+
+      if (state === 'loading') document.getElementById('loadingState').classList.add('visible');
+      if (state === 'error')   document.getElementById('errorState').classList.add('visible');
+      if (state === 'empty')   document.getElementById('emptyState').classList.add('visible');
+      if (state === 'table') {
+        document.getElementById('tableWrap').classList.add('visible');
+        document.getElementById('statsRow').style.display = 'grid';
+      }
+    }
+
+    async function loadBookings() {
+      showState('loading');
+      document.getElementById('refreshBtn').disabled = true;
+
+      try {
+        const res = await fetch(DASHBOARD_CONFIG.googleScriptURL, { method: 'GET' });
+        const json = await res.json();
+
+        if (json.status !== 'success') throw new Error(json.message || 'خطأ غير معروف');
+
+        allBookings = json.data || [];
+        renderBookings(allBookings);
+
+      } catch (err) {
+        console.error(err);
+        showState('error');
+      } finally {
+        document.getElementById('refreshBtn').disabled = false;
+      }
+    }
+
+    function renderBookings(list) {
+      if (!list.length) {
+        showState('empty');
+        return;
+      }
+
+      updateStats(list);
+
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = list.map(b => `
+        <tr>
+          <td>${formatTimestamp(b.timestamp)}</td>
+          <td>${escapeHtml(b.fullName)}</td>
+          <td dir="ltr" style="text-align:right">${escapeHtml(b.phone)}</td>
+          <td>${escapeHtml(b.checkIn)}</td>
+          <td>${escapeHtml(b.checkOut)}</td>
+          <td><span class="nights-badge">${escapeHtml(b.nights)}</span></td>
+          <td>${escapeHtml(b.roomsCount)}</td>
+          <td class="rooms-cell">${escapeHtml(b.roomsText)}</td>
+          <td class="notes-cell">${b.notes ? escapeHtml(b.notes) : '—'}</td>
+          <td class="no-print">
+            <button class="btn-delete" data-timestamp="${escapeHtml(b.timestamp)}" title="حذف هذا الحجز">🗑️ حذف</button>
+          </td>
+        </tr>
+      `).join('');
+
+      // ربط أزرار الحذف بعد بناء الجدول
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function () {
+          deleteBooking(this.getAttribute('data-timestamp'), this);
+        });
+      });
+
+      showState('table');
+    }
+
+    function updateStats(list) {
+      const totalRooms = list.reduce((sum, b) => sum + (parseInt(b.roomsCount) || 0), 0);
+      const today = new Date(); today.setHours(0,0,0,0);
+
+      let upcoming = 0, todayCount = 0;
+      list.forEach(b => {
+        const ts = new Date(b.timestamp);
+        if (!isNaN(ts) && ts >= today) todayCount++;
+
+        const checkInDate = new Date(b.checkIn + 'T00:00:00');
+        if (!isNaN(checkInDate) && checkInDate >= today) upcoming++;
+      });
+
+      document.getElementById('statTotal').textContent    = list.length;
+      document.getElementById('statRooms').textContent     = totalRooms;
+      document.getElementById('statUpcoming').textContent  = upcoming;
+      document.getElementById('statToday').textContent     = todayCount;
+    }
+
+    function formatTimestamp(ts) {
+      if (!ts) return '—';
+      const d = new Date(ts);
+      if (isNaN(d)) return ts;
+      return d.toLocaleString('ar-EG', {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function escapeHtml(val) {
+      if (val === undefined || val === null) return '';
+      return String(val)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    async function deleteBooking(timestamp, btnEl) {
+      if (!timestamp) return;
+
+      if (!confirm('هل أنت متأكد من حذف هذا الحجز نهائياً؟ لا يمكن التراجع عن هذه الخطوة.')) {
+        return;
+      }
+
+      let password = '';
+      if (DASHBOARD_CONFIG.deletePassword) {
+        password = prompt('يرجى إدخال كلمة المرور لتأكيد الحذف:');
+        if (password === null) return; // تم إلغاء العملية
+        if (password !== DASHBOARD_CONFIG.deletePassword) {
+          alert('كلمة المرور غير صحيحة، لم يتم حذف الحجز.');
+          return;
+        }
+      }
+
+      if (btnEl) { btnEl.disabled = true; btnEl.textContent = '...جارٍ الحذف'; }
+
+      try {
+        const res = await fetch(DASHBOARD_CONFIG.googleScriptURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'delete', timestamp: timestamp, password: password })
+        });
+        const json = await res.json();
+
+        if (json.status === 'success') {
+          allBookings = allBookings.filter(b => b.timestamp !== timestamp);
+          renderBookings(allBookings.filter(b => matchesSearch(b, document.getElementById('searchInput').value)));
+        } else {
+          alert('تعذّر حذف الحجز: ' + (json.message || 'خطأ غير معروف'));
+          if (btnEl) { btnEl.disabled = false; btnEl.textContent = '🗑️ حذف'; }
+        }
+      } catch (err) {
+        console.error(err);
+        alert('حدث خطأ أثناء محاولة الحذف. يرجى المحاولة مرة أخرى.');
+        if (btnEl) { btnEl.disabled = false; btnEl.textContent = '🗑️ حذف'; }
+      }
+    }
+
+    function matchesSearch(b, q) {
+      q = (q || '').trim().toLowerCase();
+      if (!q) return true;
+      return (b.fullName || '').toLowerCase().includes(q) ||
+             (b.phone || '').toLowerCase().includes(q) ||
+             (b.roomsText || '').toLowerCase().includes(q) ||
+             (b.notes || '').toLowerCase().includes(q);
+    }
+
+    // ── البحث الفورى ─────────────────────────────────────────────
+    document.getElementById('searchInput').addEventListener('input', function () {
+      renderBookings(allBookings.filter(b => matchesSearch(b, this.value)));
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', loadBookings);
+
+    // ── تصدير / طباعة PDF ────────────────────────────────────────
+    document.getElementById('exportPdfBtn').addEventListener('click', function () {
+      const hasData = document.getElementById('tableWrap').classList.contains('visible');
+      if (!hasData) {
+        alert('لا توجد بيانات حجوزات لتصديرها حالياً.');
+        return;
+      }
+
+      document.getElementById('printHotelName').textContent = DASHBOARD_CONFIG.hotelName;
+      document.getElementById('printDate').textContent = new Date().toLocaleString('ar-EG', {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      document.getElementById('printCount').textContent =
+        document.querySelectorAll('#tableBody tr').length;
+
+      window.print();
+    });
+
+    // تحميل أولى عند فتح الصفحة
+    loadBookings();
+  </script>
+
+</body>
+</html>
