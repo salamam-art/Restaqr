@@ -762,7 +762,7 @@
             <div class="select-wrapper">
               <select id="roomView_${i}" name="roomView_${i}">
                 <option value="" disabled selected>— اختر الإطلالة —</option>
-                <option value="canal">مطلة على القناة وحمام السباحة</option>
+                <option value="canal">مطلة على القناة </option>
                 <option value="city">مطلة على المدينة</option>
               </select>
             </div>
@@ -773,7 +773,7 @@
         <!-- إطلالة الأجنحة (ثابتة) -->
         <div class="view-badge hidden" id="viewBadge_${i}">
           <span>🌊</span>
-          مطلة على القناة وحمام السباحة
+          مطلة على القناة 
         </div>
 
         <!-- طلبات خاصة — للغرف المفردة/المزدوجة/الثلاثية فقط -->
@@ -953,10 +953,10 @@
     // ── تحقق: أنواع الغرف والإطلالة ──────────────────────────────
     const selectedRooms = [];
     const viewLabels = {
-      canal: 'مطلة على القناة وحمام السباحة 🌊',
+      canal: 'مطلة على القناة  🌊',
       city:  'مطلة على المدينة 🏙️'
     };
-    const suiteViewLabel = 'مطلة على القناة وحمام السباحة 🌊';
+    const suiteViewLabel = 'مطلة على القناة  🌊';
     const needsView = ['single', 'double', 'triple'];
     const suiteTypes = ['junior', 'suite'];
 
@@ -1023,7 +1023,6 @@
     if (HOTEL_CONFIG.googleScriptURL) {
       const sheetPayload = {
         hotelName: HOTEL_CONFIG.hotelName,
-        receiverEmail: HOTEL_CONFIG.receiverEmail,
         fullName: fullName,
         phone: phone,
         checkIn: checkIn,
@@ -1078,9 +1077,10 @@ ${notes ? `📝 ملاحظات إضافية:\n  ${notes}\n` : ''}
       `طلب حجز جديد — ${fullName} — ${formatDate(checkIn)} إلى ${formatDate(checkOut)}`
     );
 
-    // ── تم إلغاء الاعتماد على فتح تطبيق البريد يدوياً ─────────────
-    // الآن يتم إرسال الإيميل تلقائياً من جوجل أبس سكريبت مع حفظ البيانات
-    // (راجع استدعاء sendToGoogleSheet أعلاه)
+    // ── فتح تطبيق البريد بالبيانات ────────────────────────────────
+    document.getElementById('emailNotice').classList.add('visible');
+    window.location.href =
+      `mailto:${HOTEL_CONFIG.receiverEmail}?subject=${subject}&body=${emailBody}`;
 
     // ── عرض رسالة النجاح ──────────────────────────────────────────
     setTimeout(() => {
@@ -1092,6 +1092,7 @@ ${notes ? `📝 ملاحظات إضافية:\n  ${notes}\n` : ''}
       roomsCount = 1;
       document.getElementById('roomsCount').value = 1;
       renderRooms(1);
+      document.getElementById('emailNotice').classList.remove('visible');
 
       // إخفاء رسالة النجاح بعد 10 ثوان
       setTimeout(() => {
