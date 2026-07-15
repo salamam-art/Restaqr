@@ -370,7 +370,7 @@
       </div>
       <div class="stat-card">
         <div class="num" id="statUpcoming">0</div>
-        <div class="lbl">إجمالى عدد الليالى المحجوزة</div>
+        <div class="lbl">إجمالى عدد الليالى</div>
       </div>
       <div class="stat-card">
         <div class="num" id="statToday">0</div>
@@ -509,7 +509,6 @@
 
     function updateStats(list) {
       const totalRooms = list.reduce((sum, b) => sum + (parseInt(b.roomsCount) || 0), 0);
-      const totalNights = list.reduce((sum, b) => sum + (parseInt(b.nights) || 0), 0);
       const today = new Date(); today.setHours(0,0,0,0);
 
       let todayCount = 0;
@@ -517,6 +516,8 @@
         const ts = new Date(b.timestamp);
         if (!isNaN(ts) && ts >= today) todayCount++;
       });
+
+      const totalNights = list.reduce((sum, b) => sum + (parseInt(b.nights) || 0), 0);
 
       document.getElementById('statTotal').textContent    = list.length;
       document.getElementById('statRooms').textContent     = totalRooms;
