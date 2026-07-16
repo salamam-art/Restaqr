@@ -234,17 +234,6 @@
 
     .field-error.visible { display: block; }
 
-    .field-hint {
-      font-size: 12px;
-      color: #8a6d1a;
-      background: #FFF8E1;
-      border: 1px solid #FBEBB5;
-      border-radius: 6px;
-      padding: 6px 10px;
-      margin-top: 6px;
-      line-height: 1.6;
-    }
-
     /* Select arrow مخصص */
     .select-wrapper {
       position: relative;
@@ -508,6 +497,34 @@
       transform: none;
     }
 
+    .submit-note {
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: rgba(176,141,87,.08);
+      border-right: 3px solid var(--gold);
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--charcoal);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .submit-note .alert-icon {
+      flex-shrink: 0;
+      font-size: 16px;
+      animation: blinkIcon 1.2s ease-in-out infinite;
+    }
+
+    @keyframes blinkIcon {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .15; }
+    }
+
     /* ============================================================
        رسالة النجاح
        ============================================================ */
@@ -632,7 +649,6 @@
               style="text-align:right"
             />
             <span class="field-error" id="phone-error">رقم الهاتف غير صحيح</span>
-            <div class="field-hint">⚠️ يرجى التأكد من كتابة رقم هاتف صحيح ومسجل عليه حساب WhatsApp، حيث سيتم التواصل معكم من خلاله.</div>
           </div>
 
         </div>
@@ -704,6 +720,11 @@
       <button type="submit" class="submit-btn" id="submitBtn">
         إرسال طلب الحجز
       </button>
+
+      <div class="submit-note">
+        <span class="alert-icon">🔔</span>
+        <span>ملاحظة: بعد الضغط على "إرسال"، سيفتح تطبيق البريد الإلكتروني في هاتفك تلقائياً مع بيانات حجزك جاهزة. تأكد من الضغط على زر الإرسال داخل تطبيق البريد لإتمام الحجز.</span>
+      </div>
 
     </form>
   </div>
@@ -1035,7 +1056,6 @@
     if (HOTEL_CONFIG.googleScriptURL) {
       const sheetPayload = {
         hotelName: HOTEL_CONFIG.hotelName,
-        receiverEmail: HOTEL_CONFIG.receiverEmail,
         fullName: fullName,
         phone: phone,
         checkIn: checkIn,
@@ -1090,9 +1110,10 @@ ${notes ? `📝 ملاحظات إضافية:\n  ${notes}\n` : ''}
       `طلب حجز جديد — ${fullName} — ${formatDate(checkIn)} إلى ${formatDate(checkOut)}`
     );
 
-    // ── تم إلغاء الاعتماد على فتح تطبيق البريد يدوياً ─────────────
-    // الآن يتم إرسال الإيميل تلقائياً من جوجل أبس سكريبت مع حفظ البيانات
-    // (راجع استدعاء sendToGoogleSheet أعلاه)
+    // ── فتح تطبيق البريد بالبيانات ────────────────────────────────
+    document.getElementById('emailNotice').classList.add('visible');
+    window.location.href =
+      `mailto:${HOTEL_CONFIG.receiverEmail}?subject=${subject}&body=${emailBody}`;
 
     // ── عرض رسالة النجاح ──────────────────────────────────────────
     setTimeout(() => {
@@ -1104,6 +1125,7 @@ ${notes ? `📝 ملاحظات إضافية:\n  ${notes}\n` : ''}
       roomsCount = 1;
       document.getElementById('roomsCount').value = 1;
       renderRooms(1);
+      document.getElementById('emailNotice').classList.remove('visible');
 
       // إخفاء رسالة النجاح بعد 10 ثوان
       setTimeout(() => {
