@@ -579,9 +579,13 @@
 
   /* ============ استجابة الموبايل ============ */
   @media (max-width: 760px) {
-    .table-wrap { display: none !important; }
-    .cards-wrap.visible { display: flex; }
     .status-line { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* إخفاء الجدول (النسخة ذات السكرول بار) من الشاشة نهائياً لمنع تكرار البيانات
+     مع البطاقات — يبقى الجدول مستخدَماً فقط عند التصدير/الطباعة PDF */
+  @media screen {
+    .table-wrap { display: none !important; }
   }
 
   @media (prefers-reduced-motion: reduce) {
