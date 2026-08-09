@@ -10,15 +10,34 @@
      ============================================================ -->
 <script>
   const DASHBOARD_CONFIG = {
-    // رابط تطبيق جوجل أبس سكريبت (Web App URL) — نفس رابط صفحة الحجز
-    googleScriptURL: "https://script.google.com/macros/s/AKfycbyM60ssVlliImihXxK8agbUSatd0bj7k7rtDiJA8wgkKQfi4mtIdouHjqEwg47s3FnT/exec",
     hotelName: "فندق رستا بورسعيد",
-    // ✏️ يجب أن تطابق نفس القيمة الموجودة فى DELETE_PASSWORD داخل Code.gs
-    // اتركها فارغة "" إن لم تُفعّل كلمة مرور للحذف
+    // ✏️ اتركها فارغة "" إن لم ترد تفعيل كلمة مرور للحذف (تحقق داخل المتصفح فقط)
     deletePassword: "",
-    // تحديث تلقائى للبيانات كل كام ثانية (0 = تعطيل التحديث التلقائى)
+    // تحديث تلقائى احتياطى للبيانات كل كام ثانية (0 = تعطيل) — بجانب التحديث الفورى عبر Firebase
     autoRefreshSeconds: 90
   };
+
+  // ========================================================
+  // إعدادات Firebase — نفس بيانات المشروع المستخدم فى صفحة الحجز
+  // ✏️ الصق هنا بيانات مشروعك من Firebase Console › Project settings › Your apps
+  // ========================================================
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyD3Izji2fLQ3-NMReGOL1HclkPqFAehg3E",
+    authDomain: "roomsreserv.firebaseapp.com",
+    databaseURL: "https://roomsreserv-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "roomsreserv",
+    storageBucket: "roomsreserv.firebasestorage.app",
+    messagingSenderId: "302876614825",
+    appId: "1:302876614825:web:f875c206ad36a00ef5c9b8"
+  };
+</script>
+
+<!-- Firebase (Realtime Database) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script>
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const db = firebase.database();
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -607,9 +626,9 @@
 
 <div class="container">
 
-  <!-- لافتة تنبيه إن لم يُضبط رابط جوجل أبس سكريبت -->
+  <!-- لافتة تنبيه إن لم يُضبط إعدادات Firebase -->
   <div class="setup-warning" id="setupWarning">
-    ⚠️ لم يتم ضبط رابط جوجل أبس سكريبت (googleScriptURL) بعد. من فضلك افتح كود الصفحة وضع رابط الويب أب الخاص بك داخل DASHBOARD_CONFIG أعلى الملف.
+    ⚠️ لم يتم ضبط بيانات Firebase بعد. من فضلك افتح كود الصفحة وضع بيانات مشروعك داخل FIREBASE_CONFIG أعلى الملف.
   </div>
 
   <div class="toolbar">
@@ -653,7 +672,7 @@
   </div>
 
   <div class="state-box error" id="errorState" aria-live="assertive">
-    تعذّر تحميل البيانات. تأكد من صحة رابط جوجل أبس سكريبت ومحاولة التحديث مجدداً.
+    تعذّر تحميل البيانات. تأكد من صحة بيانات Firebase وحاول التحديث مجدداً.
     <div><button class="btn btn-gold retry-btn" id="retryBtn">إعادة المحاولة</button></div>
   </div>
 
@@ -725,8 +744,9 @@
     activeFilter: 'all',
     sortKey: 'timestamp',
     sortDir: 'desc',
-    pendingDeleteTimestamp: null,
-    autoRefreshTimer: null
+    pendingDeleteKey: null,
+    autoRefreshTimer: null,
+    metaListenerAttached: false
   };
 
   /* ==========================================================
@@ -865,8 +885,7 @@
      جلب البيانات
      ========================================================== */
   function validateConfig() {
-    const url = (DASHBOARD_CONFIG.googleScriptURL || '').trim();
-    const notConfigured = !url || url.includes('ضع') || url === 'PASTE_URL_HERE';
+    const notConfigured = !FIREBASE_CONFIG.databaseURL || FIREBASE_CONFIG.databaseURL.includes('PASTE');
     el.setupWarning.classList.toggle('visible', notConfigured);
     return !notConfigured;
   }
@@ -879,11 +898,9 @@
     el.refreshBtn.classList.add('loading');
 
     try {
-      const res = await fetch(DASHBOARD_CONFIG.googleScriptURL, { method: 'GET' });
-      const json = await res.json();
-      if (json.status !== 'success') throw new Error(json.message || 'خطأ غير معروف');
-
-      state.allBookings = json.data || [];
+      const snapshot = await db.ref('bookings').once('value');
+      const val = snapshot.val() || {};
+      state.allBookings = Object.keys(val).map(key => Object.assign({ key: key }, val[key]));
       applyFiltersAndRender();
       el.lastUpdated.textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
       if (isAuto) toast('تم تحديث البيانات تلقائياً');
@@ -895,6 +912,21 @@
       el.refreshBtn.disabled = false;
       el.refreshBtn.classList.remove('loading');
     }
+  }
+
+  /* ==========================================================
+     الاستماع الفورى للتحديثات عبر meta/updatedAt
+     كل مرة تُحفظ أو تُحذف حجز، يتم تحديث هذا المسار،
+     فتقوم لوحة المتابعة بإعادة تحميل البيانات تلقائياً وفورياً
+     ========================================================== */
+  function attachMetaListener() {
+    if (state.metaListenerAttached || !validateConfig()) return;
+    state.metaListenerAttached = true;
+    let firstFire = true;
+    db.ref('meta/updatedAt').on('value', function () {
+      if (firstFire) { firstFire = false; return; } // نتجاهل الإطلاق الأول عند فتح الصفحة (loadBookings تكفلت به)
+      loadBookings(true);
+    });
   }
 
   /* ==========================================================
@@ -979,7 +1011,7 @@
           <td class="notes-cell">${b.notes ? highlightMatch(b.notes, state.searchQuery) : '—'}</td>
           <td><span class="status-pill ${status}">${statusLabels[status]}</span></td>
           <td class="no-print">
-            <button class="btn-delete" data-timestamp="${escapeHtml(b.timestamp)}" data-name="${escapeHtml(b.fullName)}" title="حذف هذا الحجز">🗑️ حذف</button>
+            <button class="btn-delete" data-key="${escapeHtml(b.key)}" data-name="${escapeHtml(b.fullName)}" title="حذف هذا الحجز">🗑️ حذف</button>
           </td>
         </tr>`;
     }).join('');
@@ -1004,7 +1036,7 @@
           ${b.roomsText ? `<div class="card-rooms">${highlightMatch(b.roomsText, state.searchQuery)}</div>` : ''}
           ${b.notes ? `<div class="card-rooms">📝 ${highlightMatch(b.notes, state.searchQuery)}</div>` : ''}
           <div class="card-actions">
-            <button class="btn-delete" data-timestamp="${escapeHtml(b.timestamp)}" data-name="${escapeHtml(b.fullName)}">🗑️ حذف الحجز</button>
+            <button class="btn-delete" data-key="${escapeHtml(b.key)}" data-name="${escapeHtml(b.fullName)}">🗑️ حذف الحجز</button>
           </div>
         </div>`;
     }).join('');
@@ -1023,8 +1055,8 @@
   /* ==========================================================
      الحذف (نافذة تأكيد مخصّصة)
      ========================================================== */
-  function openDeleteModal(timestamp, name) {
-    state.pendingDeleteTimestamp = timestamp;
+  function openDeleteModal(key, name) {
+    state.pendingDeleteKey = key;
     el.deleteModalName.textContent = name || 'هذا الحجز';
     el.deleteModalError.classList.remove('visible');
     el.deleteModalPassword.value = '';
@@ -1035,15 +1067,15 @@
 
   function closeDeleteModal() {
     el.deleteModal.classList.remove('visible');
-    state.pendingDeleteTimestamp = null;
+    state.pendingDeleteKey = null;
   }
 
   el.deleteModalCancel.addEventListener('click', closeDeleteModal);
   el.deleteModal.addEventListener('click', function (e) { if (e.target === el.deleteModal) closeDeleteModal(); });
 
   el.deleteModalConfirm.addEventListener('click', async function () {
-    const timestamp = state.pendingDeleteTimestamp;
-    if (!timestamp) return;
+    const key = state.pendingDeleteKey;
+    if (!key) return;
 
     if (DASHBOARD_CONFIG.deletePassword) {
       if (el.deleteModalPassword.value !== DASHBOARD_CONFIG.deletePassword) {
@@ -1057,22 +1089,13 @@
     el.deleteModalConfirm.textContent = 'جارٍ الحذف...';
 
     try {
-      const res = await fetch(DASHBOARD_CONFIG.googleScriptURL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'delete', timestamp: timestamp, password: el.deleteModalPassword.value })
-      });
-      const json = await res.json();
+      await db.ref('bookings/' + key).remove();
+      await db.ref('meta/updatedAt').set(firebase.database.ServerValue.TIMESTAMP);
 
-      if (json.status === 'success') {
-        state.allBookings = state.allBookings.filter(b => b.timestamp !== timestamp);
-        applyFiltersAndRender();
-        toast('تم حذف الحجز بنجاح', 'success');
-        closeDeleteModal();
-      } else {
-        el.deleteModalError.textContent = 'تعذّر حذف الحجز: ' + (json.message || 'خطأ غير معروف');
-        el.deleteModalError.classList.add('visible');
-      }
+      state.allBookings = state.allBookings.filter(b => b.key !== key);
+      applyFiltersAndRender();
+      toast('تم حذف الحجز بنجاح', 'success');
+      closeDeleteModal();
     } catch (err) {
       console.error(err);
       el.deleteModalError.textContent = 'حدث خطأ أثناء محاولة الحذف. يرجى المحاولة مرة أخرى.';
@@ -1087,7 +1110,7 @@
   document.addEventListener('click', function (e) {
     const btn = e.target.closest('.btn-delete');
     if (!btn) return;
-    openDeleteModal(btn.getAttribute('data-timestamp'), btn.getAttribute('data-name'));
+    openDeleteModal(btn.getAttribute('data-key'), btn.getAttribute('data-name'));
   });
 
   /* ==========================================================
@@ -1202,6 +1225,7 @@
   initTheme();
   setupAutoRefresh();
   loadBookings(false);
+  attachMetaListener();
 
 })();
 </script>
