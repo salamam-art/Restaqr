@@ -661,6 +661,14 @@ function sortedEntries(obj){
     .sort((a,b) => (a[1].order||0) - (b[1].order||0));
 }
 
+// جميع الأجنحة إطلالتها على القناة: لو النوع المختار "جناح" نقفل حقل الإطلالة على القناة فقط
+function isSuiteRoomType(rt){
+  return !!(rt && rt.name && rt.name.indexOf('جناح') !== -1);
+}
+function isCanalView(vt){
+  return !!(vt && vt.name && vt.name.indexOf('القناة') !== -1);
+}
+
 function refreshAllRoomTypeSelects(){
   document.querySelectorAll('.select-room-type').forEach(sel => {
     const currentVal = sel.value;
@@ -681,22 +689,44 @@ function refreshAllRoomTypeSelects(){
 }
 
 function refreshAllViewTypeSelects(){
-  document.querySelectorAll('.select-view-type').forEach(sel => {
-    const currentVal = sel.value;
-    sel.innerHTML = '';
-    const entries = sortedEntries(state.viewTypes);
-    if(entries.length === 0){
-      sel.innerHTML = '<option value="">لا توجد إطلالات</option>';
-      return;
-    }
-    entries.forEach(([id, vt]) => {
-      const opt = document.createElement('option');
-      opt.value = id;
-      opt.textContent = vt.name;
-      sel.appendChild(opt);
-    });
-    if(currentVal && state.viewTypes[currentVal]) sel.value = currentVal;
+  document.querySelectorAll('.room-row').forEach(row => applyViewOptionsForRow(row));
+}
+
+// بيبني قائمة الإطلالات لصف غرفة معيّن، وبيقفلها على "القناة" فقط لو نوع الغرفة المختار جناح
+function applyViewOptionsForRow(row){
+  const roomSel = row.querySelector('.select-room-type');
+  const viewSel = row.querySelector('.select-view-type');
+  if(!roomSel || !viewSel) return;
+
+  const currentVal = viewSel.value;
+  const selectedRoomType = state.roomTypes[roomSel.value];
+  const isSuite = isSuiteRoomType(selectedRoomType);
+
+  let entries = sortedEntries(state.viewTypes);
+  if(isSuite){
+    const canalOnly = entries.filter(([, vt]) => isCanalView(vt));
+    if(canalOnly.length > 0) entries = canalOnly;
+  }
+
+  viewSel.innerHTML = '';
+  if(entries.length === 0){
+    viewSel.innerHTML = '<option value="">لا توجد إطلالات</option>';
+    viewSel.disabled = false;
+    return;
+  }
+  entries.forEach(([id, vt]) => {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = vt.name;
+    viewSel.appendChild(opt);
   });
+
+  if(currentVal && entries.some(([id]) => id === currentVal)){
+    viewSel.value = currentVal;
+  }
+
+  // نقفل الحقل فقط لو فعلاً قصرناه على خيار واحد (القناة) بسبب اختيار جناح
+  viewSel.disabled = isSuite && entries.length === 1;
 }
 
 /* =====================================================================
@@ -728,6 +758,10 @@ function addRoomRow(){
     </div>
   `;
   container.appendChild(row);
+
+  row.querySelector('.select-room-type').addEventListener('change', () => {
+    applyViewOptionsForRow(row);
+  });
 
   row.querySelector('.room-row-remove').addEventListener('click', () => {
     const rows = document.querySelectorAll('.room-row');
