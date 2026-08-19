@@ -130,6 +130,21 @@
   }
   .field{margin-bottom:16px;}
   .req-mark{color:var(--color-danger);}
+  .field-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+  .field-label-row label{margin-bottom:0;}
+  .time-hint-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+    background:var(--color-bg);
+    border:1px solid var(--color-border);
+    border-radius:999px;
+    padding:6px 14px;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--color-primary-dark);
+  }
   .checkbox-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
   .checkbox-row input{width:auto;}
   .checkbox-row label{margin-bottom:0;}
@@ -443,12 +458,18 @@
 
     <div class="dates-grid">
       <div class="field" id="fieldArrival">
-        <label>تاريخ الوصول <span class="req-mark">*</span></label>
+        <div class="field-label-row">
+          <label>تاريخ الوصول (Check-in) <span class="req-mark">*</span></label>
+          <span class="time-hint-badge">⏰ من الساعة ٢ عصرًا</span>
+        </div>
         <input type="date" id="arrivalDate">
         <div class="error-text" id="errArrival">يرجى اختيار تاريخ وصول صحيح (لا يمكن أن يكون في الماضي).</div>
       </div>
       <div class="field" id="fieldDeparture">
-        <label>تاريخ المغادرة <span class="req-mark">*</span></label>
+        <div class="field-label-row">
+          <label>تاريخ المغادرة (Check-out) <span class="req-mark">*</span></label>
+          <span class="time-hint-badge">⏰ حتى الساعة ١٢ ظهرًا</span>
+        </div>
         <input type="date" id="departureDate">
         <div class="error-text" id="errDeparture">تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول.</div>
       </div>
@@ -1137,7 +1158,7 @@ function renderRoomPreferenceBlocks(){
         <label>ترتيب السرير</label>
         <div class="checkbox-row">
           <input type="radio" name="prefBedConfig-${idx}" class="pref-bed-double" value="double" checked>
-          <label>سرير كبير مزدوج (الوضع الافتراضي لكل الأجنحة)</label>
+          <label>سرير كبير مزدوج</label>
         </div>
         <div class="checkbox-row">
           <input type="radio" name="prefBedConfig-${idx}" class="pref-bed-twin" value="twin" ${isSuite ? 'disabled' : ''}>
