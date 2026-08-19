@@ -386,6 +386,18 @@
 
   /* ===== Utility ===== */
   .hint{font-size:12.5px;color:var(--color-text-muted);margin-top:6px;}
+  .phone-warning{
+    display:flex;align-items:flex-start;gap:8px;
+    background:var(--color-accent-light);
+    border:1px solid var(--color-accent);
+    border-radius:var(--radius-sm);
+    padding:10px 12px;
+    font-size:13px;
+    font-weight:700;
+    color:#5A4416;
+    margin-bottom:10px;
+    line-height:1.5;
+  }
   .error-text{font-size:12.5px;color:var(--color-danger);margin-top:6px;display:none;}
   .field.has-error input, .field.has-error select{border-color:var(--color-danger);}
   .field.has-error .error-text{display:block;}
@@ -517,7 +529,9 @@
 
     <div class="field">
       <label>رقم الهاتف <span class="req-mark">*</span></label>
-      <input type="tel" id="customerPhone" placeholder="مثال: 01012345678">
+      <div class="phone-warning">⚠️ رجاء التحقق جيدًا من رقم الموبايل، فسيتم التواصل معكم من خلاله فقط بخصوص الحجز.</div>
+      <input type="tel" id="customerPhone" placeholder="مثال: 01223719900" inputmode="numeric" maxlength="11" autocomplete="tel">
+      <div class="hint">11 رقم يبدأ بـ 010 / 011 / 012 / 015.</div>
       <div class="error-text">رقم الهاتف مطلوب.</div>
     </div>
 
@@ -1096,6 +1110,26 @@ function showStep(stepId){
 /* =====================================================================
    Customer form validation
 ===================================================================== */
+function validatePhoneField(){
+  const phoneEl = document.getElementById('customerPhone');
+  const phoneField = phoneEl.closest('.field');
+  const phoneErrorEl = phoneField.querySelector('.error-text');
+  phoneField.classList.remove('has-error');
+  const phoneRaw = phoneEl.value.trim();
+  if(!phoneRaw){
+    phoneErrorEl.textContent = 'رقم الهاتف مطلوب.';
+    phoneField.classList.add('has-error');
+    return false;
+  }
+  if(!isValidEgyptianMobile(phoneRaw)){
+    phoneErrorEl.textContent = 'رقم الهاتف غير صحيح. يجب أن يتكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015 (مثال: 01223719900).';
+    phoneField.classList.add('has-error');
+    return false;
+  }
+  phoneEl.value = normalizeEgyptianMobile(phoneRaw);
+  return true;
+}
+
 function validateCustomerForm(){
   let valid = true;
 
@@ -1107,15 +1141,31 @@ function validateCustomerForm(){
     valid = false;
   }
 
-  const phoneEl = document.getElementById('customerPhone');
-  const phoneField = phoneEl.closest('.field');
-  phoneField.classList.remove('has-error');
-  if(!phoneEl.value.trim()){
-    phoneField.classList.add('has-error');
-    valid = false;
-  }
+  if(!validatePhoneField()) valid = false;
 
   return valid;
+}
+
+/* =====================================================================
+   التحقق من رقم الموبايل المصري
+   ------------------------------------------------------------------
+   رقم الهاتف هو الوسيلة الوحيدة للتواصل مع العميل، فلازم نتأكد إنه
+   رقم موبايل مصري كامل وصحيح الصيغة قبل قبول الحجز:
+   - 11 رقم بالظبط
+   - يبدأ بـ 01 ثم أحد الأرقام [0,1,2,5] (شبكات فودافون/اتصالات/أورانج/WE)
+   - نسمح كمان لو العميل كتب الرقم بصيغة دولية (+20xxxxxxxxxx أو
+     0020xxxxxxxxxx أو 20xxxxxxxxxx بدون الصفر المحلي) ونحوّله تلقائيا.
+===================================================================== */
+function normalizeEgyptianMobile(raw){
+  let digits = (raw || '').replace(/\D/g, '');
+  if(digits.startsWith('0020')) digits = digits.slice(4);
+  else if(digits.startsWith('20') && digits.length === 12) digits = digits.slice(2);
+  if(digits.length === 10 && digits.startsWith('1')) digits = '0' + digits;
+  return digits;
+}
+function isValidEgyptianMobile(raw){
+  const digits = normalizeEgyptianMobile(raw);
+  return /^01[0125]\d{8}$/.test(digits);
 }
 
 /* =====================================================================
@@ -1414,6 +1464,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('arrivalDate').addEventListener('change', () => {
     const arrival = document.getElementById('arrivalDate').value;
     document.getElementById('departureDate').min = arrival || today;
+  });
+
+  // يسمح فقط بكتابة أرقام، وبحد أقصى 11 خانة، أثناء كتابة رقم الهاتف
+  // (يمنع فورا إدخال حروف/رموز أو رقم أطول من رقم موبايل مصري صحيح)
+  const phoneInputEl = document.getElementById('customerPhone');
+  phoneInputEl.addEventListener('input', () => {
+    const cleaned = phoneInputEl.value.replace(/[^\d]/g, '').slice(0, 11);
+    if(cleaned !== phoneInputEl.value) phoneInputEl.value = cleaned;
+  });
+  phoneInputEl.addEventListener('blur', () => {
+    if(phoneInputEl.value.trim()) validatePhoneField();
   });
 
   addRoomRow();
