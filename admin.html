@@ -284,6 +284,7 @@
     background:none;border:none;color:var(--color-primary);font-weight:700;font-size:13px;
     cursor:pointer;padding:4px 0;text-decoration:underline;
   }
+  .link-btn-danger{color:var(--color-danger);}
   .empty-state{
     text-align:center;padding:40px 20px;color:var(--color-text-muted);font-size:14px;
   }
@@ -925,6 +926,7 @@ function renderRoomTypes(){
                 <td class="row-actions">
                   <button class="link-btn" onclick="openRoomTypeModal('${id}')">تعديل</button>
                   <button class="link-btn" onclick="toggleRoomTypeActive('${id}', ${rt.active === false})">${rt.active !== false ? 'تعطيل' : 'تفعيل'}</button>
+                  <button class="link-btn link-btn-danger" onclick="deleteRoomType('${id}')">حذف</button>
                 </td>
               </tr>`).join('')}
           </tbody>
@@ -1002,6 +1004,42 @@ async function toggleRoomTypeActive(id, newActive){
   toastMsg(newActive ? 'تم التفعيل' : 'تم التعطيل', 'success');
 }
 
+async function deleteRoomType(id){
+  const rt = cache.roomTypes[id] || {};
+  const ok = await askConfirm(`سيتم حذف نوع الغرفة "${rt.name || id}" نهائيا، مع كل بيانات الـ Inventory والغرف خارج الخدمة المرتبطة به، وإزالته من أي إطلالة محددة له. الحجوزات السابقة لن تتأثر. هل تريد المتابعة؟`);
+  if(!ok) return;
+
+  try{
+    const updates = {};
+    updates['roomTypes/' + id] = null;
+
+    // إزالة كل تركيبات الـ Inventory الخاصة بهذا النوع
+    Object.entries(cache.inventory || {}).forEach(([key, inv]) => {
+      if(inv && inv.roomTypeId === id) updates['inventory/' + key] = null;
+    });
+
+    // إزالة كل مجموعات الغرف خارج الخدمة الخاصة بهذا النوع
+    Object.entries(cache.outOfOrder || {}).forEach(([key, list]) => {
+      const belongs = Object.values(list || {}).some(o => o && o.roomTypeId === id);
+      if(belongs) updates['outOfOrder/' + key] = null;
+    });
+
+    // إزالة أي ربط بهذا النوع من داخل الإطلالات
+    Object.entries(cache.viewTypes || {}).forEach(([vtId, vt]) => {
+      if(vt && vt.roomTypeIds && vt.roomTypeIds[id]){
+        updates['viewTypes/' + vtId + '/roomTypeIds/' + id] = null;
+      }
+    });
+
+    await db.ref().update(updates);
+    await logActivity('DELETE_ROOM_TYPE', { roomTypeId: id, name: rt.name });
+    toastMsg('تم حذف نوع الغرفة', 'success');
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر الحذف', 'error');
+  }
+}
+
 /* =====================================================================
    VIEW TYPES MANAGEMENT
 ===================================================================== */
@@ -1025,6 +1063,7 @@ function renderViewTypes(){
                 <td class="row-actions">
                   <button class="link-btn" onclick="openViewTypeModal('${id}')">تعديل</button>
                   <button class="link-btn" onclick="toggleViewTypeActive('${id}', ${vt.active === false})">${vt.active !== false ? 'تعطيل' : 'تفعيل'}</button>
+                  <button class="link-btn link-btn-danger" onclick="deleteViewType('${id}')">حذف</button>
                 </td>
               </tr>`).join('')}
           </tbody>
@@ -1115,6 +1154,40 @@ async function toggleViewTypeActive(id, newActive){
   await db.ref('viewTypes/' + id).update({ active: newActive, updatedAt: firebase.database.ServerValue.TIMESTAMP });
   await logActivity('UPDATE_VIEW', { viewId: id, active: newActive });
   toastMsg(newActive ? 'تم التفعيل' : 'تم التعطيل', 'success');
+}
+
+async function deleteViewType(id){
+  const vt = cache.viewTypes[id] || {};
+  const ok = await askConfirm(`سيتم حذف الإطلالة "${vt.name || id}" نهائيا، مع كل بيانات الـ Inventory والغرف خارج الخدمة وأيام الإغلاق المرتبطة بها. الحجوزات السابقة لن تتأثر. هل تريد المتابعة؟`);
+  if(!ok) return;
+
+  try{
+    const updates = {};
+    updates['viewTypes/' + id] = null;
+
+    // إزالة كل تركيبات الـ Inventory الخاصة بهذه الإطلالة
+    Object.entries(cache.inventory || {}).forEach(([key, inv]) => {
+      if(inv && inv.viewId === id) updates['inventory/' + key] = null;
+    });
+
+    // إزالة كل مجموعات الغرف خارج الخدمة الخاصة بهذه الإطلالة
+    Object.entries(cache.outOfOrder || {}).forEach(([key, list]) => {
+      const belongs = Object.values(list || {}).some(o => o && o.viewId === id);
+      if(belongs) updates['outOfOrder/' + key] = null;
+    });
+
+    // إزالة أيام الإغلاق المرتبطة بهذه الإطلالة تحديدا (لا تمس إغلاقات 'ALL')
+    Object.entries(cache.closures || {}).forEach(([closureId, c]) => {
+      if(c && c.viewId === id) updates['closures/' + closureId] = null;
+    });
+
+    await db.ref().update(updates);
+    await logActivity('DELETE_VIEW', { viewId: id, name: vt.name });
+    toastMsg('تم حذف الإطلالة', 'success');
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر الحذف', 'error');
+  }
 }
 
 /* =====================================================================
@@ -2093,6 +2166,7 @@ function renderUsers(){
                 <td><span class="pill ${u.active !== false ? 'pill-active' : 'pill-inactive'}">${u.active !== false ? 'مفعّل' : 'معطّل'}</span></td>
                 <td class="row-actions">
                   <button class="link-btn" onclick="openUserModal('${uid}')">تعديل</button>
+                  <button class="link-btn link-btn-danger" onclick="deleteUser('${uid}')">حذف</button>
                 </td>
               </tr>`).join('')}
           </tbody>
@@ -2167,6 +2241,25 @@ function openUserModal(uid){
       setBtnLoading(btn, false);
     }
   });
+}
+
+async function deleteUser(uid){
+  if(currentUser && uid === currentUser.uid){
+    toastMsg('لا يمكنك حذف حسابك الخاص', 'error');
+    return;
+  }
+  const u = cache.users[uid] || {};
+  const ok = await askConfirm(`سيتم حذف بيانات المستخدم "${u.name || uid}" من التطبيق (لن يستطيع الدخول بعدها). ملاحظة: هذا لا يحذف حساب الدخول (Email/Password) من Firebase Authentication، ويجب حذفه يدويا من هناك إذا أردت. هل تريد المتابعة؟`);
+  if(!ok) return;
+
+  try{
+    await db.ref('users/' + uid).remove();
+    await logActivity('DELETE_USER', { uid, name: u.name });
+    toastMsg('تم حذف المستخدم', 'success');
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر الحذف', 'error');
+  }
 }
 
 /* =====================================================================
