@@ -1406,8 +1406,17 @@ function openInventoryModal(roomTypeId, viewId){
 let calState = { year: new Date().getFullYear(), month: new Date().getMonth() };
 
 // كل تركيبات (نوع غرفة + إطلالة) التي لها Inventory مُعرّف
+// ملاحظة: بيتم استبعاد أي سجل Inventory قديم/يتيم (orphaned) بقي مرتبط
+// بنوع غرفة أو إطلالة تم حذفها أو فك ربطها، حتى لا يُحتسب ضمن مجموع الكالندر
+// رغم أنه لم يعد ظاهرًا في صفحة "إدارة Inventory".
 function allInventoryCombos(){
-  return Object.values(cache.inventory || {}).filter(inv => inv && inv.roomTypeId && inv.viewId);
+  return Object.values(cache.inventory || {}).filter(inv => {
+    if(!inv || !inv.roomTypeId || !inv.viewId) return false;
+    const rt = cache.roomTypes && cache.roomTypes[inv.roomTypeId];
+    const vt = cache.viewTypes && cache.viewTypes[inv.viewId];
+    if(!rt || !vt) return false; // نوع الغرفة أو الإطلالة محذوف
+    return viewAppliesToRoomType(vt, inv.roomTypeId); // لازم تكون الإطلالة لسه مرتبطة بنوع الغرفة
+  });
 }
 
 function renderCalendar(){
