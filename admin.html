@@ -855,10 +855,28 @@ async function computeOooForNight(comboKey, night){
 /* =====================================================================
    DASHBOARD
 ===================================================================== */
+// إجمالي الغرف الفعلى: يجمع فقط تركيبات (نوع غرفة + إطلالة) المرتبطة
+// حاليا (نفس المنطق المستخدم فى عرض صفحة الـ Inventory)، بدون احتساب
+// أى سجلات Inventory قديمة/يتيمة تخص تركيبات لم تعد مرتبطة.
+function validInventoryTotal(){
+  const rTypes = allRoomTypes();
+  const vTypesAll = allViewTypes();
+  let sum = 0;
+  rTypes.forEach(([rtId]) => {
+    const vTypes = viewTypesForRoomType(rtId, vTypesAll);
+    vTypes.forEach(([vtId]) => {
+      const key = comboKey(rtId, vtId);
+      const inv = cache.inventory[key];
+      sum += inv ? (inv.totalRooms || 0) : 0;
+    });
+  });
+  return sum;
+}
+
 function renderDashboard(){
   const today = todayStr();
   const totalRoomTypes = activeRoomTypes().length;
-  const totalRooms = Object.values(cache.inventory || {}).reduce((s,i) => s + (i.totalRooms||0), 0);
+  const totalRooms = validInventoryTotal();
 
   let pending = 0, confirmed = 0, cancelled = 0, arrivalsToday = 0, departuresToday = 0, occupiedToday = 0;
 
