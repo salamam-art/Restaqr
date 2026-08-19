@@ -1089,6 +1089,12 @@ function validateCustomerForm(){
    rules.json)، والتفضيلات الفردية تُدمج نصيا داخل حقل notes الحر الموجود
    أصلا (نفس أسلوب الكود القديم، لكن سطر لكل غرفة بدل سطر واحد للحجز كله).
 ===================================================================== */
+function isSuiteRoomTypeName(roomTypeName){
+  // اعتماد على اسم نوع الغرفة (لا يوجد حقل مخصص فى roomTypes يفرّق
+  // الأجنحة عن الغرف العادية فى قواعد Firebase الحالية).
+  return (roomTypeName || '').includes('جناح');
+}
+
 function renderRoomPreferenceBlocks(){
   const container = document.getElementById('roomPreferencesContainer');
   container.innerHTML = '';
@@ -1109,6 +1115,7 @@ function renderRoomPreferenceBlocks(){
     const label = u.groupTotal > 1
       ? `${u.roomTypeName} — ${u.viewName} (غرفة ${u.indexInGroup} من ${u.groupTotal})`
       : `${u.roomTypeName} — ${u.viewName}`;
+    const isSuite = isSuiteRoomTypeName(u.roomTypeName);
 
     const block = document.createElement('div');
     block.className = 'field room-pref-block';
@@ -1133,8 +1140,8 @@ function renderRoomPreferenceBlocks(){
           <label>سرير كبير مزدوج (الوضع الافتراضي لكل الأجنحة)</label>
         </div>
         <div class="checkbox-row">
-          <input type="radio" name="prefBedConfig-${idx}" class="pref-bed-twin" value="twin">
-          <label>سريران منفصلان</label>
+          <input type="radio" name="prefBedConfig-${idx}" class="pref-bed-twin" value="twin" ${isSuite ? 'disabled' : ''}>
+          <label style="${isSuite ? 'color:var(--color-text-muted,#999);' : ''}">سريران منفصلان${isSuite ? ' (غير متاح فى الأجنحة)' : ''}</label>
         </div>
       </div>
 
