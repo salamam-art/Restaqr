@@ -1766,7 +1766,10 @@ function openBookingDetails(bookingId){
         <div class="detail-row"><b>الوصول</b><span>${b.arrivalDate}</span></div>
         <div class="detail-row"><b>المغادرة</b><span>${b.departureDate}</span></div>
         <div class="detail-row"><b>الغرف</b><span style="text-align:left;">${roomsSummaryHtml(b.rooms)}</span></div>
-        <div class="detail-row"><b>ملاحظات</b><span>${escapeHtml(b.notes || '—')}</span></div>
+        <div class="detail-row" style="display:block;">
+          <b>ملاحظات</b>
+          <div style="white-space:pre-wrap;margin-top:6px;font-size:13.5px;">${escapeHtml(b.notes || '—')}</div>
+        </div>
         <div class="detail-row"><b>الحالة</b><span><span class="pill ${statusPillClass(b.status)}">${statusLabel(b.status)}</span></span></div>
         <div class="detail-row"><b>تاريخ الإنشاء</b><span>${fmtTimestamp(b.createdAt)}</span></div>
 
@@ -1895,7 +1898,7 @@ function printBookingVoucher(bookingId){
         <tr><td>البريد الإلكتروني</td><td>${escapeHtml(b.email || '—')}</td></tr>
         <tr><td>تاريخ الوصول</td><td>${b.arrivalDate}</td></tr>
         <tr><td>تاريخ المغادرة</td><td>${b.departureDate}</td></tr>
-        <tr><td>ملاحظات</td><td>${escapeHtml(b.notes || '—')}</td></tr>
+        <tr><td>ملاحظات</td><td style="white-space:pre-wrap;">${escapeHtml(b.notes || '—')}</td></tr>
         <tr><td>تاريخ إنشاء الحجز</td><td>${fmtTimestamp(b.createdAt)}</td></tr>
       </table>
       <table class="v-rooms">

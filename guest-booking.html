@@ -180,6 +180,33 @@
     grid-template-columns:1.3fr 1.3fr .8fr;
     gap:12px;
   }
+  .qty-stepper{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .qty-stepper input{
+    width:100%;
+    text-align:center;
+    padding:12px 4px;
+  }
+  .qty-btn{
+    flex:0 0 auto;
+    width:40px;
+    height:44px;
+    border:1.5px solid var(--color-border);
+    border-radius:var(--radius-sm);
+    background:#fff;
+    color:var(--color-primary);
+    font-size:20px;
+    font-weight:700;
+    line-height:1;
+    cursor:pointer;
+  }
+  .qty-btn:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+  }
   .room-row-remove{
     position:absolute;
     top:10px;left:10px;
@@ -472,34 +499,10 @@
     </div>
 
     <div class="section-title" style="margin-top:22px;">تفضيلات الإقامة</div>
+    <div id="roomPreferencesContainer"></div>
 
     <div class="field">
-      <label>عدد الأفراد البالغين (بحد أقصى شخصين)</label>
-      <select id="prefAdults">
-        <option value="1">1</option>
-        <option value="2" selected>2</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>ترتيب السرير</label>
-      <div class="checkbox-row">
-        <input type="radio" name="prefBedConfig" id="prefBedDouble" value="double" checked>
-        <label for="prefBedDouble">سرير كبير مزدوج (الوضع الافتراضي لكل الأجنحة)</label>
-      </div>
-      <div class="checkbox-row">
-        <input type="radio" name="prefBedConfig" id="prefBedTwin" value="twin">
-        <label for="prefBedTwin">سريران منفصلان</label>
-      </div>
-    </div>
-
-    <div class="checkbox-row field">
-      <input type="checkbox" id="prefChildBed">
-      <label for="prefChildBed">أحتاج سرير أطفال (Baby Cot)</label>
-    </div>
-
-    <div class="field">
-      <label>ملاحظات</label>
+      <label>ملاحظات عامة على الحجز بالكامل</label>
       <textarea id="customerNotes" placeholder="أي طلبات أو ملاحظات إضافية..."></textarea>
     </div>
 
@@ -765,7 +768,11 @@ function addRoomRow(){
       </div>
       <div class="field" style="margin-bottom:0;">
         <label>عدد الغرف</label>
-        <input type="number" class="input-room-count" min="1" value="1">
+        <div class="qty-stepper">
+          <button type="button" class="qty-btn qty-minus" aria-label="إنقاص عدد الغرف">−</button>
+          <input type="number" class="input-room-count" min="1" max="20" value="1" readonly>
+          <button type="button" class="qty-btn qty-plus" aria-label="زيادة عدد الغرف">+</button>
+        </div>
       </div>
     </div>
   `;
@@ -781,6 +788,28 @@ function addRoomRow(){
   });
 
   row.querySelector('.select-room-type').addEventListener('change', () => refreshViewSelectForRow(row));
+
+  const qtyInput = row.querySelector('.input-room-count');
+  const btnQtyMinus = row.querySelector('.qty-minus');
+  const btnQtyPlus = row.querySelector('.qty-plus');
+  const updateQtyButtons = () => {
+    const val = parseInt(qtyInput.value, 10) || 1;
+    const max = parseInt(qtyInput.max, 10);
+    btnQtyMinus.disabled = val <= 1;
+    btnQtyPlus.disabled = val >= max;
+  };
+  btnQtyMinus.addEventListener('click', () => {
+    const val = parseInt(qtyInput.value, 10) || 1;
+    if(val > 1) qtyInput.value = val - 1;
+    updateQtyButtons();
+  });
+  btnQtyPlus.addEventListener('click', () => {
+    const val = parseInt(qtyInput.value, 10) || 1;
+    const max = parseInt(qtyInput.max, 10);
+    if(val < max) qtyInput.value = val + 1;
+    updateQtyButtons();
+  });
+  updateQtyButtons();
 
   refreshAllRoomTypeSelects();
   refreshAllViewTypeSelects();
@@ -1047,18 +1076,90 @@ function validateCustomerForm(){
 }
 
 /* =====================================================================
-   دمج تفضيلات الإقامة (عدد الأفراد / ترتيب السرير / سرير أطفال) مع
-   الملاحظات الحرة فى حقل notes الموجود أصلا (بدون تعديل قواعد Firebase)
+   تفضيلات الإقامة لكل غرفة على حدة
+   ------------------------------------------------------------------
+   المشكلة: عند حجز أكثر من غرفة (أو غرفة + جناح معا) كانت التفضيلات
+   (عدد الأفراد / ترتيب السرير / سرير أطفال) تُعرض مرة واحدة فقط وتُطبّق
+   على الحجز كله، رغم أن كل غرفة فعلية قد تحتاج تفضيلات مختلفة.
+
+   الحل: بعد تأكيد التوافر (نتيجة البحث فى state.searchResults) نُوسّع كل
+   تركيبة roomType+view ذات count>1 إلى غرف مفردة (غرفة 1، غرفة 2، ...)
+   ونعرض بلوك تفضيلات مستقل لكل غرفة فعلية. لا حاجة لتعديل قواعد Firebase:
+   لا يزال roomsObj/rooms يُبنى بنفس الشكل المجمّع بالضبط كما كان (matches
+   rules.json)، والتفضيلات الفردية تُدمج نصيا داخل حقل notes الحر الموجود
+   أصلا (نفس أسلوب الكود القديم، لكن سطر لكل غرفة بدل سطر واحد للحجز كله).
 ===================================================================== */
+function renderRoomPreferenceBlocks(){
+  const container = document.getElementById('roomPreferencesContainer');
+  container.innerHTML = '';
+
+  const units = [];
+  (state.searchResults || []).forEach(r => {
+    for(let i = 1; i <= r.requested; i++){
+      units.push({
+        roomTypeName: r.roomTypeName,
+        viewName: r.viewName,
+        indexInGroup: i,
+        groupTotal: r.requested
+      });
+    }
+  });
+
+  units.forEach((u, idx) => {
+    const label = u.groupTotal > 1
+      ? `${u.roomTypeName} — ${u.viewName} (غرفة ${u.indexInGroup} من ${u.groupTotal})`
+      : `${u.roomTypeName} — ${u.viewName}`;
+
+    const block = document.createElement('div');
+    block.className = 'field room-pref-block';
+    block.dataset.unitIdx = idx;
+    block.dataset.roomLabel = label;
+    block.style.cssText = 'border:1px solid var(--color-border,#e2ddd3);border-radius:var(--radius-md,10px);padding:14px;margin-bottom:14px;';
+    block.innerHTML = `
+      <div style="font-weight:700;margin-bottom:10px;">${label}</div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label>عدد الأفراد البالغين (بحد أقصى شخصين)</label>
+        <select class="pref-adults">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label>ترتيب السرير</label>
+        <div class="checkbox-row">
+          <input type="radio" name="prefBedConfig-${idx}" class="pref-bed-double" value="double" checked>
+          <label>سرير كبير مزدوج (الوضع الافتراضي لكل الأجنحة)</label>
+        </div>
+        <div class="checkbox-row">
+          <input type="radio" name="prefBedConfig-${idx}" class="pref-bed-twin" value="twin">
+          <label>سريران منفصلان</label>
+        </div>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" class="pref-child-bed">
+        <label>أحتاج سرير أطفال (Baby Cot)</label>
+      </div>
+    `;
+    container.appendChild(block);
+  });
+}
+
 function buildNotesWithPreferences(){
-  const adults = document.getElementById('prefAdults').value;
-  const bedConfigEl = document.querySelector('input[name="prefBedConfig"]:checked');
-  const bedConfig = (bedConfigEl && bedConfigEl.value === 'twin') ? 'سريران منفصلان' : 'سرير كبير مزدوج';
-  const childBed = document.getElementById('prefChildBed').checked ? 'مطلوب' : 'غير مطلوب';
-  const prefsLine = `تفضيلات الإقامة — عدد الأفراد البالغين: ${adults} | ترتيب السرير: ${bedConfig} | سرير أطفال: ${childBed}`;
+  const blocks = document.querySelectorAll('#roomPreferencesContainer .room-pref-block');
+  const lines = [];
+  blocks.forEach(block => {
+    const label = block.dataset.roomLabel;
+    const adults = block.querySelector('.pref-adults').value;
+    const bedConfig = block.querySelector('.pref-bed-twin').checked ? 'سريران منفصلان' : 'سرير كبير مزدوج';
+    const childBed = block.querySelector('.pref-child-bed').checked ? 'مطلوب' : 'غير مطلوب';
+    lines.push(`${label} — الأفراد: ${adults} | السرير: ${bedConfig} | سرير أطفال: ${childBed}`);
+  });
 
   const freeNotes = document.getElementById('customerNotes').value.trim();
-  const combined = [prefsLine, freeNotes].filter(Boolean).join('\n');
+  const combined = [...lines, freeNotes].filter(Boolean).join('\n');
   return combined.slice(0, 1000); // مطابقة لحد الطول المسموح به فى قواعد Firebase
 }
 
@@ -1174,9 +1275,7 @@ function resetForNewBooking(){
   document.getElementById('customerPhone').value = '';
   document.getElementById('customerEmail').value = '';
   document.getElementById('customerNotes').value = '';
-  document.getElementById('prefAdults').value = '2';
-  document.getElementById('prefBedDouble').checked = true;
-  document.getElementById('prefChildBed').checked = false;
+  document.getElementById('roomPreferencesContainer').innerHTML = '';
   document.getElementById('roomRowsContainer').innerHTML = '';
   state.roomRowCount = 0;
   addRoomRow();
@@ -1205,7 +1304,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnAddRoom').addEventListener('click', addRoomRow);
   document.getElementById('btnSearchAvailability').addEventListener('click', runAvailabilitySearch);
   document.getElementById('btnBackToSearch').addEventListener('click', () => showStep('stepSearch'));
-  document.getElementById('btnContinueBooking').addEventListener('click', () => showStep('stepCustomer'));
+  document.getElementById('btnContinueBooking').addEventListener('click', () => {
+    renderRoomPreferenceBlocks();
+    showStep('stepCustomer');
+  });
   document.getElementById('btnBackToResults').addEventListener('click', () => showStep('stepResults'));
   document.getElementById('btnSubmitBooking').addEventListener('click', submitBookingRequest);
   document.getElementById('btnNewBooking').addEventListener('click', resetForNewBooking);
