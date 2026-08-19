@@ -591,6 +591,8 @@ const state = {
   viewTypes: {},       // { id: {name, order, active} }
   roomRowCount: 0,
   searchResults: [],   // filled after availability search
+  totalPrice: 0,        // إجمالي السعر المحسوب فى خطوة تفضيلات الإقامة
+  totalPriceIncomplete: false,
   authReady: false,    // true بعد نجاح Anonymous Sign-In
 };
 
@@ -890,6 +892,16 @@ async function fetchInventoryTotal(roomTypeId, viewId){
   return snap.val() || 0;
 }
 
+async function fetchPricingForCombo(roomTypeId, viewId){
+  const key = comboKey(roomTypeId, viewId);
+  const snap = await db.ref('pricing/' + key).once('value');
+  const val = snap.val();
+  return {
+    priceSingle: (val && typeof val.priceSingle === 'number') ? val.priceSingle : null,
+    priceDouble: (val && typeof val.priceDouble === 'number') ? val.priceDouble : null
+  };
+}
+
 async function fetchConfirmedBookingsForCombo(roomTypeId, viewId){
   const key = comboKey(roomTypeId, viewId);
   const snap = await db.ref('bookingsByRoom/' + key)
@@ -998,6 +1010,7 @@ async function runAvailabilitySearch(){
     const results = [];
     for(const sel of selections){
       const available = await computeAvailabilityForSelection(sel, arrivalDate, departureDate);
+      const pricing = await fetchPricingForCombo(sel.roomTypeId, sel.viewId);
       results.push({
         roomTypeId: sel.roomTypeId,
         viewId: sel.viewId,
@@ -1005,7 +1018,9 @@ async function runAvailabilitySearch(){
         viewName: (state.viewTypes[sel.viewId] || {}).name || sel.viewId,
         requested: sel.count,
         available,
-        ok: available >= sel.count
+        ok: available >= sel.count,
+        priceSingle: pricing.priceSingle,
+        priceDouble: pricing.priceDouble
       });
     }
 
@@ -1127,7 +1142,9 @@ function renderRoomPreferenceBlocks(){
         roomTypeName: r.roomTypeName,
         viewName: r.viewName,
         indexInGroup: i,
-        groupTotal: r.requested
+        groupTotal: r.requested,
+        priceSingle: r.priceSingle,
+        priceDouble: r.priceDouble
       });
     }
   });
@@ -1142,6 +1159,8 @@ function renderRoomPreferenceBlocks(){
     block.className = 'field room-pref-block';
     block.dataset.unitIdx = idx;
     block.dataset.roomLabel = label;
+    block.dataset.priceSingle = (u.priceSingle === null || u.priceSingle === undefined) ? '' : u.priceSingle;
+    block.dataset.priceDouble = (u.priceDouble === null || u.priceDouble === undefined) ? '' : u.priceDouble;
     block.style.cssText = 'border:1px solid var(--color-border,#e2ddd3);border-radius:var(--radius-md,10px);padding:14px;margin-bottom:14px;';
     block.innerHTML = `
       <div style="font-weight:700;margin-bottom:10px;">${label}</div>
@@ -1166,13 +1185,71 @@ function renderRoomPreferenceBlocks(){
         </div>
       </div>
 
-      <div class="checkbox-row">
+      <div class="checkbox-row" style="margin-bottom:10px;">
         <input type="checkbox" class="pref-child-bed">
         <label>أحتاج سرير أطفال (Baby Cot)</label>
       </div>
+
+      <div class="room-pref-price" style="font-size:13.5px;font-weight:700;color:var(--color-primary-dark);"></div>
     `;
     container.appendChild(block);
+
+    block.querySelector('.pref-adults').addEventListener('change', updateTotalPrice);
   });
+
+  renderTotalPriceBox();
+  updateTotalPrice();
+}
+
+/* =====================================================================
+   حساب السعر الإجمالي بناء على نوع الغرفة/الإطلالة (سعر الليلة لكل
+   تركيبة، محدد من لوحة الإدارة فى pricing/{roomTypeId}_{viewId}) وعدد
+   الأفراد المختار لكل غرفة على حدة × عدد الليالى.
+===================================================================== */
+function renderTotalPriceBox(){
+  let box = document.getElementById('totalPriceBox');
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'totalPriceBox';
+    box.style.cssText = 'margin:6px 0 18px;padding:14px 16px;border-radius:var(--radius-md,10px);background:var(--color-bg);border:1px solid var(--color-border);font-weight:800;font-size:16px;color:var(--color-primary-dark);display:flex;justify-content:space-between;align-items:center;';
+    document.getElementById('roomPreferencesContainer').insertAdjacentElement('afterend', box);
+  }
+}
+
+function updateTotalPrice(){
+  const nights = getNightsInRange(state.searchArrival, state.searchDeparture).length || 0;
+  const blocks = document.querySelectorAll('#roomPreferencesContainer .room-pref-block');
+  let total = 0;
+  let missingPrice = false;
+
+  blocks.forEach(block => {
+    const adults = block.querySelector('.pref-adults').value;
+    const priceSingleRaw = block.dataset.priceSingle;
+    const priceDoubleRaw = block.dataset.priceDouble;
+    const price = adults === '1'
+      ? (priceSingleRaw === '' ? null : parseFloat(priceSingleRaw))
+      : (priceDoubleRaw === '' ? null : parseFloat(priceDoubleRaw));
+
+    const priceEl = block.querySelector('.room-pref-price');
+    if(price === null || isNaN(price)){
+      missingPrice = true;
+      if(priceEl) priceEl.textContent = 'السعر غير محدد لهذه التركيبة';
+    }else{
+      const subtotal = price * nights;
+      if(priceEl) priceEl.textContent = `${price} ج.م / الليلة × ${nights} ليالي = ${subtotal} ج.م`;
+      total += subtotal;
+    }
+  });
+
+  state.totalPrice = total;
+  state.totalPriceIncomplete = missingPrice;
+
+  const box = document.getElementById('totalPriceBox');
+  if(box){
+    box.innerHTML = missingPrice
+      ? `<span>الإجمالي التقديري</span><span>${total} ج.م <span style="font-weight:600;font-size:12.5px;color:var(--color-danger);">(بعض الغرف بدون سعر محدد)</span></span>`
+      : `<span>الإجمالي</span><span>${total} ج.م</span>`;
+  }
 }
 
 function buildNotesWithPreferences(){
@@ -1253,6 +1330,7 @@ async function submitBookingRequest(){
       arrivalDate: state.searchArrival,
       departureDate: state.searchDeparture,
       rooms: roomsObj,
+      totalPrice: state.totalPrice || 0,
       status: 'pending',
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       updatedAt: firebase.database.ServerValue.TIMESTAMP
@@ -1304,10 +1382,14 @@ function resetForNewBooking(){
   document.getElementById('customerEmail').value = '';
   document.getElementById('customerNotes').value = '';
   document.getElementById('roomPreferencesContainer').innerHTML = '';
+  const oldTotalBox = document.getElementById('totalPriceBox');
+  if(oldTotalBox) oldTotalBox.remove();
   document.getElementById('roomRowsContainer').innerHTML = '';
   state.roomRowCount = 0;
   addRoomRow();
   state.searchResults = [];
+  state.totalPrice = 0;
+  state.totalPriceIncomplete = false;
   showStep('stepSearch');
 }
 

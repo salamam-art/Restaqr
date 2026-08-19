@@ -448,6 +448,7 @@ const cache = {
   roomTypes: {},     // { id: {name, description, active, order, createdAt, updatedAt} }
   viewTypes: {},      // { id: {name, description, active, order, createdAt, updatedAt} }
   inventory: {},      // { comboKey: {roomTypeId, viewId, totalRooms, updatedAt} }
+  pricing: {},          // { comboKey: {roomTypeId, viewId, priceSingle, priceDouble, updatedAt} }
   outOfOrder: {},      // { comboKey: { oooId: {...} } }
   closures: {},        // { closureId: {viewId:'ALL'|id, fromDate, toDate, reason, createdAt} }
   bookings: {},        // { bookingId: {...} }
@@ -465,6 +466,7 @@ const ROUTES = {
   roomTypes:        { label: 'إدارة أنواع الغرف',     icon: '🛏️', roles: ['admin'] },
   viewTypes:        { label: 'إدارة الإطلالات',       icon: '🌅', roles: ['admin'] },
   inventory:        { label: 'إدارة Inventory',        icon: '📦', roles: ['admin'] },
+  pricing:          { label: 'إدارة الأسعار',           icon: '💰', roles: ['admin'] },
   calendar:         { label: 'التوافر Calendar',       icon: '📅', roles: ['admin','staff'] },
   bookingRequests:  { label: 'طلبات الحجز',            icon: '📝', roles: ['admin','staff'] },
   confirmedBookings:{ label: 'الحجوزات المؤكدة',       icon: '✅', roles: ['admin','staff'] },
@@ -759,6 +761,7 @@ function renderRoute(routeKey){
     roomTypes: renderRoomTypes,
     viewTypes: renderViewTypes,
     inventory: renderInventory,
+    pricing: renderPricing,
     calendar: renderCalendar,
     bookingRequests: () => renderBookingsPage('bookingRequests'),
     confirmedBookings: () => renderBookingsPage('confirmedBookings'),
@@ -778,15 +781,19 @@ function renderRoute(routeKey){
 function initAllListeners(){
   db.ref('roomTypes').on('value', snap => {
     cache.roomTypes = snap.val() || {};
-    rerenderIfCurrent(['dashboard','roomTypes','inventory','calendar','outOfOrder']);
+    rerenderIfCurrent(['dashboard','roomTypes','inventory','pricing','calendar','outOfOrder']);
   });
   db.ref('viewTypes').on('value', snap => {
     cache.viewTypes = snap.val() || {};
-    rerenderIfCurrent(['dashboard','viewTypes','inventory','calendar','outOfOrder']);
+    rerenderIfCurrent(['dashboard','viewTypes','inventory','pricing','calendar','outOfOrder']);
   });
   db.ref('inventory').on('value', snap => {
     cache.inventory = snap.val() || {};
     rerenderIfCurrent(['dashboard','inventory','calendar']);
+  });
+  db.ref('pricing').on('value', snap => {
+    cache.pricing = snap.val() || {};
+    rerenderIfCurrent(['pricing']);
   });
   db.ref('outOfOrder').on('value', snap => {
     cache.outOfOrder = snap.val() || {};
@@ -1206,6 +1213,106 @@ async function deleteViewType(id){
     console.error(err);
     toastMsg('تعذر الحذف', 'error');
   }
+}
+
+/* =====================================================================
+   PRICING MANAGEMENT
+   سعر الليلة لكل تركيبة (نوع غرفة + إطلالة)، بسعرين: فرد واحد وفردين
+   (يستخدمه تطبيق الضيف لحساب إجمالي الحجز بناء على عدد الأفراد فى كل
+   غرفة على حدة).
+===================================================================== */
+function renderPricing(){
+  const rTypes = allRoomTypes();
+  const vTypesAll = allViewTypes();
+  let rowsHtml = '';
+  let anyCombo = false;
+
+  rTypes.forEach(([rtId, rt]) => {
+    const vTypes = viewTypesForRoomType(rtId, vTypesAll);
+    vTypes.forEach(([vtId, vt]) => {
+      anyCombo = true;
+      const key = comboKey(rtId, vtId);
+      const p = cache.pricing[key];
+      const single = (p && typeof p.priceSingle === 'number') ? p.priceSingle : null;
+      const double = (p && typeof p.priceDouble === 'number') ? p.priceDouble : null;
+      rowsHtml += `
+        <tr>
+          <td><b>${escapeHtml(rt.name)}</b></td>
+          <td>${escapeHtml(vt.name)}</td>
+          <td>${single === null ? '<span style="color:var(--color-danger);">غير محدد</span>' : single + ' ج.م'}</td>
+          <td>${double === null ? '<span style="color:var(--color-danger);">غير محدد</span>' : double + ' ج.م'}</td>
+          <td class="row-actions">
+            <button class="link-btn" onclick="openPricingModal('${rtId}','${vtId}')">تعديل السعر</button>
+          </td>
+        </tr>`;
+    });
+  });
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">إدارة الأسعار</div></div>
+      <p class="mini-note">سعر الليلة الواحدة لكل نوع غرفة + إطلالة، حسب عدد الأفراد (فرد واحد / فردين). يُستخدم هذا السعر لحساب إجمالي الحجز تلقائيا فى صفحة الضيف.</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>نوع الغرفة</th><th>الإطلالة</th><th>سعر الليلة (فرد واحد)</th><th>سعر الليلة (فردين)</th><th>إجراءات</th></tr></thead>
+          <tbody>${rowsHtml || ''}</tbody>
+        </table>
+      </div>
+      ${(rTypes.length === 0 || !anyCombo) ? '<div class="empty-state">أضف أنواع غرف وإطلالات، وحدد الإطلالات المرتبطة بكل نوع غرفة</div>' : ''}
+    </div>
+  `;
+}
+
+function openPricingModal(roomTypeId, viewId){
+  const key = comboKey(roomTypeId, viewId);
+  const p = cache.pricing[key];
+  const single = (p && typeof p.priceSingle === 'number') ? p.priceSingle : '';
+  const double = (p && typeof p.priceDouble === 'number') ? p.priceDouble : '';
+  const rtName = (cache.roomTypes[roomTypeId] || {}).name || roomTypeId;
+  const vtName = (cache.viewTypes[viewId] || {}).name || viewId;
+
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">${escapeHtml(rtName)} / ${escapeHtml(vtName)}</div>
+        <div class="field">
+          <label>سعر الليلة لفرد واحد (ج.م) <span class="req-mark">*</span></label>
+          <input type="number" id="priceSingle" min="0" step="1" value="${single}">
+        </div>
+        <div class="field">
+          <label>سعر الليلة لفردين (ج.م) <span class="req-mark">*</span></label>
+          <input type="number" id="priceDouble" min="0" step="1" value="${double}">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+          <button class="btn btn-primary" id="btnSavePricing">حفظ</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('btnSavePricing').addEventListener('click', async () => {
+    const valSingle = parseFloat(document.getElementById('priceSingle').value);
+    const valDouble = parseFloat(document.getElementById('priceDouble').value);
+    if(isNaN(valSingle) || valSingle < 0 || isNaN(valDouble) || valDouble < 0){
+      toastMsg('يرجى إدخال سعرين صحيحين', 'error');
+      return;
+    }
+    const btn = document.getElementById('btnSavePricing');
+    setBtnLoading(btn, true);
+    try{
+      await db.ref('pricing/' + key).update({
+        roomTypeId, viewId, priceSingle: valSingle, priceDouble: valDouble,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      await logActivity('UPDATE_PRICING', { comboKey: key, priceSingle: valSingle, priceDouble: valDouble });
+      closeModal();
+      toastMsg('تم تحديث السعر', 'success');
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+      setBtnLoading(btn, false);
+    }
+  });
 }
 
 /* =====================================================================
@@ -1784,6 +1891,7 @@ function openBookingDetails(bookingId){
         <div class="detail-row"><b>الوصول</b><span>${b.arrivalDate}</span></div>
         <div class="detail-row"><b>المغادرة</b><span>${b.departureDate}</span></div>
         <div class="detail-row"><b>الغرف</b><span style="text-align:left;">${roomsSummaryHtml(b.rooms)}</span></div>
+        <div class="detail-row"><b>الإجمالي</b><span>${(typeof b.totalPrice === 'number') ? b.totalPrice + ' ج.م' : '—'}</span></div>
         <div class="detail-row" style="display:block;">
           <b>ملاحظات</b>
           <div style="white-space:pre-wrap;margin-top:6px;font-size:13.5px;">${escapeHtml(b.notes || '—')}</div>
@@ -1923,6 +2031,9 @@ function printBookingVoucher(bookingId){
         <thead><tr><th>نوع الغرفة</th><th>الإطلالة</th><th>العدد</th></tr></thead>
         <tbody>${roomsRows}</tbody>
       </table>
+      <div class="v-total" style="text-align:left;font-weight:800;font-size:15px;margin:14px 0;">
+        الإجمالي: ${(typeof b.totalPrice === 'number') ? b.totalPrice + ' ج.م' : '—'}
+      </div>
       <div class="v-footer">تمت الطباعة بتاريخ ${new Date().toLocaleString('ar-EG')}</div>
     </body>
     </html>
