@@ -517,6 +517,18 @@ function getNightsInRange(arrivalStr, departureStr){
 
 function comboKey(roomTypeId, viewId){ return `${roomTypeId}_${viewId}`; }
 
+// إطلالة بدون roomTypeIds (أو بقائمة فارغة) تُعتبر متاحة لكل أنواع الغرف (توافق مع البيانات القديمة)
+function viewAppliesToRoomType(vt, roomTypeId){
+  if(!vt || !roomTypeId) return false;
+  const ids = vt.roomTypeIds;
+  if(!ids || Object.keys(ids).length === 0) return true;
+  return !!ids[roomTypeId];
+}
+function viewTypesForRoomType(roomTypeId, source){
+  const list = source || allViewTypes();
+  return list.filter(([, vt]) => viewAppliesToRoomType(vt, roomTypeId));
+}
+
 // يتحقق مما إذا كانت إطلالة معينة مُغلقة (لا يوجد توافر) في تاريخ معين
 // closure.viewId === 'ALL' تعني إغلاق كل الإطلالات معا (المدينة والقناة)
 function getClosureForDate(viewId, dateStr){
@@ -1003,11 +1015,12 @@ function renderViewTypes(){
       </div>
       <div class="table-wrap">
         <table class="data-table">
-          <thead><tr><th>الاسم</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+          <thead><tr><th>الاسم</th><th>أنواع الغرف</th><th>الحالة</th><th>إجراءات</th></tr></thead>
           <tbody>
             ${rows.length === 0 ? '' : rows.map(([id, vt]) => `
               <tr>
                 <td><b>${escapeHtml(vt.name)}</b></td>
+                <td>${escapeHtml(roomTypeNamesForView(vt))}</td>
                 <td><span class="pill ${vt.active !== false ? 'pill-active' : 'pill-inactive'}">${vt.active !== false ? 'مفعّل' : 'معطّل'}</span></td>
                 <td class="row-actions">
                   <button class="link-btn" onclick="openViewTypeModal('${id}')">تعديل</button>
@@ -1023,8 +1036,17 @@ function renderViewTypes(){
   document.getElementById('btnAddViewType').addEventListener('click', () => openViewTypeModal(null));
 }
 
+function roomTypeNamesForView(vt){
+  const ids = vt.roomTypeIds;
+  if(!ids || Object.keys(ids).length === 0) return 'كل أنواع الغرف';
+  const names = Object.keys(ids).map(id => (cache.roomTypes[id] || {}).name || id);
+  return names.join('، ') || 'كل أنواع الغرف';
+}
+
 function openViewTypeModal(id){
-  const vt = id ? cache.viewTypes[id] : { name:'', active:true };
+  const vt = id ? cache.viewTypes[id] : { name:'', active:true, roomTypeIds:null };
+  const rTypes = allRoomTypes();
+  const selectedIds = vt.roomTypeIds || {};
   document.getElementById('modalRoot').innerHTML = `
     <div class="modal-overlay">
       <div class="modal-box">
@@ -1037,6 +1059,15 @@ function openViewTypeModal(id){
           <input type="checkbox" id="vtActive" ${vt.active !== false ? 'checked' : ''}>
           <label for="vtActive">مفعّلة</label>
         </div>
+        <div class="field">
+          <label>أنواع الغرف المسموح بها لهذه الإطلالة</label>
+          <p class="mini-note">اترك الكل بدون تحديد لتطبيق الإطلالة على جميع أنواع الغرف</p>
+          ${rTypes.length === 0 ? '<div class="empty-state">أضف أنواع غرف أولا</div>' : rTypes.map(([rid, rt]) => `
+            <div class="checkbox-row field">
+              <input type="checkbox" class="vtRoomTypeChk" value="${rid}" ${selectedIds[rid] ? 'checked' : ''}>
+              <label>${escapeHtml(rt.name)}</label>
+            </div>`).join('')}
+        </div>
         <div class="modal-actions">
           <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
           <button class="btn btn-primary" id="btnSaveViewType">حفظ</button>
@@ -1048,10 +1079,12 @@ function openViewTypeModal(id){
     const name = document.getElementById('vtName').value.trim();
     if(!name){ toastMsg('يرجى إدخال الاسم', 'error'); return; }
     const active = document.getElementById('vtActive').checked;
+    const roomTypeIds = {};
+    document.querySelectorAll('.vtRoomTypeChk:checked').forEach(chk => { roomTypeIds[chk.value] = true; });
     const btn = document.getElementById('btnSaveViewType');
     setBtnLoading(btn, true);
     try{
-      await saveViewType(id, { name, active });
+      await saveViewType(id, { name, active, roomTypeIds });
       closeModal();
       toastMsg('تم الحفظ بنجاح', 'success');
     }catch(err){
@@ -1070,6 +1103,7 @@ async function saveViewType(id, data){
     name: data.name,
     active: data.active,
     order: isNew ? (allViewTypes().length + 1) : (cache.viewTypes[id] ? cache.viewTypes[id].order : 1),
+    roomTypeIds: (data.roomTypeIds && Object.keys(data.roomTypeIds).length > 0) ? data.roomTypeIds : null,
     updatedAt: firebase.database.ServerValue.TIMESTAMP
   };
   if(isNew) payload.createdAt = firebase.database.ServerValue.TIMESTAMP;
@@ -1088,11 +1122,14 @@ async function toggleViewTypeActive(id, newActive){
 ===================================================================== */
 function renderInventory(){
   const rTypes = allRoomTypes();
-  const vTypes = allViewTypes();
+  const vTypesAll = allViewTypes();
   let rowsHtml = '';
+  let anyCombo = false;
 
   rTypes.forEach(([rtId, rt]) => {
+    const vTypes = viewTypesForRoomType(rtId, vTypesAll);
     vTypes.forEach(([vtId, vt]) => {
+      anyCombo = true;
       const key = comboKey(rtId, vtId);
       const inv = cache.inventory[key];
       const total = inv ? inv.totalRooms : 0;
@@ -1118,7 +1155,7 @@ function renderInventory(){
           <tbody>${rowsHtml || ''}</tbody>
         </table>
       </div>
-      ${(rTypes.length === 0 || vTypes.length === 0) ? '<div class="empty-state">أضف أنواع غرف وإطلالات أولا</div>' : ''}
+      ${(rTypes.length === 0 || !anyCombo) ? '<div class="empty-state">أضف أنواع غرف وإطلالات، وحدد الإطلالات المرتبطة بكل نوع غرفة</div>' : ''}
     </div>
   `;
 }
@@ -1275,7 +1312,6 @@ function renderCalendarGrid(){
 ===================================================================== */
 function renderOutOfOrder(){
   const rTypes = allRoomTypes();
-  const vTypes = allViewTypes();
 
   const entries = [];
   Object.entries(cache.outOfOrder || {}).forEach(([key, list]) => {
@@ -1316,14 +1352,15 @@ function renderOutOfOrder(){
     </div>
   `;
 
-  document.getElementById('btnAddOOO').addEventListener('click', () => openOOOModal(rTypes, vTypes));
+  document.getElementById('btnAddOOO').addEventListener('click', () => openOOOModal(rTypes));
 }
 
-function openOOOModal(rTypes, vTypes){
-  if(rTypes.length === 0 || vTypes.length === 0){
-    toastMsg('أضف أنواع غرف وإطلالات أولا', 'error');
+function openOOOModal(rTypes){
+  if(rTypes.length === 0){
+    toastMsg('أضف أنواع غرف أولا', 'error');
     return;
   }
+  const initialVTypes = viewTypesForRoomType(rTypes[0][0], allViewTypes());
   document.getElementById('modalRoot').innerHTML = `
     <div class="modal-overlay">
       <div class="modal-box">
@@ -1335,7 +1372,7 @@ function openOOOModal(rTypes, vTypes){
           </div>
           <div class="field">
             <label>الإطلالة</label>
-            <select id="oooViewType">${vTypes.map(([id,vt]) => `<option value="${id}">${escapeHtml(vt.name)}</option>`).join('')}</select>
+            <select id="oooViewType">${initialVTypes.length ? initialVTypes.map(([id,vt]) => `<option value="${id}">${escapeHtml(vt.name)}</option>`).join('') : '<option value="">لا توجد إطلالات لهذا النوع</option>'}</select>
           </div>
         </div>
         <div class="field">
@@ -1363,6 +1400,15 @@ function openOOOModal(rTypes, vTypes){
       </div>
     </div>
   `;
+
+  document.getElementById('oooRoomType').addEventListener('change', () => {
+    const rtId = document.getElementById('oooRoomType').value;
+    const vTypes = viewTypesForRoomType(rtId, allViewTypes());
+    document.getElementById('oooViewType').innerHTML = vTypes.length
+      ? vTypes.map(([id,vt]) => `<option value="${id}">${escapeHtml(vt.name)}</option>`).join('')
+      : '<option value="">لا توجد إطلالات لهذا النوع</option>';
+  });
+
   document.getElementById('btnSaveOOO').addEventListener('click', async () => {
     const roomTypeId = document.getElementById('oooRoomType').value;
     const viewId = document.getElementById('oooViewType').value;
@@ -1371,6 +1417,7 @@ function openOOOModal(rTypes, vTypes){
     const toDate = document.getElementById('oooTo').value;
     const reason = document.getElementById('oooReason').value.trim();
 
+    if(!viewId){ toastMsg('لا توجد إطلالات متاحة لنوع الغرفة المختار', 'error'); return; }
     if(!roomsCount || roomsCount < 1){ toastMsg('يرجى إدخال عدد صحيح', 'error'); return; }
     if(!fromDate || !toDate || toDate <= fromDate){ toastMsg('يرجى إدخال تواريخ صحيحة (إلى بعد من)', 'error'); return; }
 
