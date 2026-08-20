@@ -307,7 +307,7 @@
   .bk-card-created{font-size:11.5px;color:var(--color-text-muted);margin-top:8px;}
   .bk-card-actions{margin-top:12px;}
   @media (max-width:760px){
-    .table-wrap{display:none;}
+    #bkTableWrap{display:none;}
     .bk-cards{display:block;}
   }
 
@@ -1516,6 +1516,7 @@ function renderCalendarGrid(){
 
     let total = 0, booked = 0, ooo = 0, available = 0;
     let closedCombos = 0;
+    const closedViewNames = new Set();
 
     combos.forEach(inv => {
       const key = comboKey(inv.roomTypeId, inv.viewId);
@@ -1535,7 +1536,12 @@ function renderCalendarGrid(){
 
       const closure = getClosureForDate(inv.viewId, dateStr);
       let comboAvailable = comboTotal - comboBooked - comboOoo;
-      if(closure){ comboAvailable = 0; closedCombos++; }
+      if(closure){
+        comboAvailable = 0;
+        closedCombos++;
+        const vt = cache.viewTypes && cache.viewTypes[inv.viewId];
+        closedViewNames.add(vt ? vt.name : 'إطلالة محذوفة');
+      }
 
       total += comboTotal;
       booked += comboBooked;
@@ -1550,7 +1556,12 @@ function renderCalendarGrid(){
 
     let closureBadge = '';
     if(closedCombos > 0){
-      const label = closedCombos === combos.length ? 'مغلق — كل الإطلالات' : `مغلق جزئيا (${closedCombos}/${combos.length})`;
+      // كل الإطلالات الفعلية الموجودة في هذا اليوم (مش كل الإطلالات المُعرّفة في النظام)
+      const distinctViewIdsToday = new Set(combos.map(inv => inv.viewId));
+      const allViewsClosed = closedViewNames.size >= distinctViewIdsToday.size;
+      const label = allViewsClosed
+        ? 'مغلق — كل الإطلالات'
+        : `مغلق: ${[...closedViewNames].join('، ')}`;
       closureBadge = `<span class="cal-closed-badge" title="${escapeHtml(label)}">${escapeHtml(label)}</span>`;
     }
 
