@@ -1,0 +1,2585 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>إدارة الفندق</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --color-primary:#164A42;
+    --color-primary-dark:#0E332D;
+    --color-primary-light:#1F5F55;
+    --color-accent:#C9A961;
+    --color-accent-light:#E4CE95;
+    --color-bg:#F5F3EC;
+    --color-surface:#FFFFFF;
+    --color-text:#26251F;
+    --color-text-muted:#77746A;
+    --color-success:#2F7D4F;
+    --color-success-bg:#EAF6EE;
+    --color-danger:#B3403A;
+    --color-danger-bg:#FBEAE9;
+    --color-warning:#B8791C;
+    --color-warning-bg:#FBF1E0;
+    --color-border:#E7E1D2;
+    --sidebar-w:250px;
+    --radius-sm:8px;
+    --radius-md:14px;
+    --radius-lg:20px;
+    --shadow-card:0 8px 24px -12px rgba(22,74,66,0.18);
+    --shadow-soft:0 2px 10px rgba(22,74,66,0.06);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:'Tajawal', system-ui, sans-serif;
+    background:var(--color-bg);
+    color:var(--color-text);
+    line-height:1.6;
+  }
+  button{font-family:inherit;}
+  .hidden{display:none !important;}
+
+  /* ===================== Login Screen ===================== */
+  #loginScreen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:
+      radial-gradient(1200px 600px at 100% -10%, rgba(201,169,97,0.14), transparent 60%),
+      radial-gradient(1000px 500px at -10% 110%, rgba(22,74,66,0.14), transparent 60%),
+      var(--color-bg);
+  }
+  .login-card{
+    width:100%;
+    max-width:400px;
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card);
+    padding:36px 30px;
+  }
+  .login-logo{
+    width:60px;height:60px;border-radius:50%;
+    background:linear-gradient(145deg, var(--color-primary), var(--color-primary-dark));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--color-accent-light);font-size:26px;font-weight:800;
+    margin:0 auto 16px;
+  }
+  .login-title{
+    text-align:center;font-size:20px;font-weight:800;
+    color:var(--color-primary-dark);margin-bottom:4px;
+  }
+  .login-sub{
+    text-align:center;font-size:13px;color:var(--color-text-muted);
+    margin-bottom:26px;
+  }
+  #loginError{
+    background:var(--color-danger-bg);color:var(--color-danger);
+    padding:10px 14px;border-radius:var(--radius-sm);
+    font-size:13px;font-weight:600;margin-bottom:16px;text-align:center;
+  }
+
+  /* ===================== Shared form elements ===================== */
+  label{display:block;font-size:13px;font-weight:700;color:var(--color-text-muted);margin-bottom:6px;}
+  .field{margin-bottom:16px;}
+  .req-mark{color:var(--color-danger);}
+  input[type=text],input[type=password],input[type=email],input[type=tel],
+  input[type=number],input[type=date],select,textarea{
+    width:100%;padding:12px 14px;border:1.5px solid var(--color-border);
+    border-radius:var(--radius-sm);background:#fff;font-family:inherit;font-size:15px;
+    color:var(--color-text);transition:border-color .15s, box-shadow .15s;
+    appearance:none;-webkit-appearance:none;
+  }
+  select{
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1 1l6 6 6-6' stroke='%23164A42' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;background-position:left 14px center;padding-left:34px;
+  }
+  input:focus,select:focus,textarea:focus{
+    outline:none;border-color:var(--color-primary-light);
+    box-shadow:0 0 0 3px rgba(22,74,66,0.12);
+  }
+  textarea{resize:vertical;min-height:70px;}
+  .checkbox-row{display:flex;align-items:center;gap:8px;}
+  .checkbox-row input{width:auto;}
+  .checkbox-row label{margin:0;}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:12px 20px;border-radius:var(--radius-sm);border:none;
+    font-size:14.5px;font-weight:800;cursor:pointer;
+    transition:transform .1s, box-shadow .15s, opacity .15s;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-block{width:100%;}
+  .btn-primary{
+    background:linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color:#fff;box-shadow:0 8px 18px -6px rgba(22,74,66,0.5);
+  }
+  .btn-gold{
+    background:linear-gradient(135deg, var(--color-accent), #B3924D);
+    color:#3A2E10;box-shadow:0 8px 18px -6px rgba(201,169,97,0.5);
+  }
+  .btn-danger{background:var(--color-danger);color:#fff;}
+  .btn-ghost{background:transparent;border:1.5px solid var(--color-border);color:var(--color-text-muted);}
+  .btn-sm{padding:8px 14px;font-size:13px;}
+  .btn[disabled]{opacity:.5;cursor:not-allowed;box-shadow:none;transform:none;}
+  .btn .spinner{
+    width:15px;height:15px;border-radius:50%;
+    border:2.5px solid rgba(255,255,255,0.4);border-top-color:#fff;
+    animation:spin .7s linear infinite;display:none;
+  }
+  .btn.loading .spinner{display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ===================== App Shell ===================== */
+  #appShell{display:flex;min-height:100vh;}
+
+  .sidebar{
+    width:var(--sidebar-w);flex-shrink:0;
+    background:linear-gradient(180deg, var(--color-primary-dark), #0A2723);
+    color:#EDE9DC;
+    display:flex;flex-direction:column;
+    position:fixed;top:0;bottom:0;right:0;
+    z-index:100;
+    transition:transform .25s ease;
+  }
+  .sidebar-brand{
+    padding:22px 20px 16px;
+    display:flex;align-items:center;gap:12px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-brand .logo-circle{
+    width:40px;height:40px;border-radius:50%;
+    background:rgba(201,169,97,0.2);color:var(--color-accent-light);
+    display:flex;align-items:center;justify-content:center;font-weight:800;
+    flex-shrink:0;
+  }
+  .sidebar-brand .brand-text{font-weight:800;font-size:15px;}
+  .sidebar-brand .brand-sub{font-size:11.5px;color:#A9C4BD;}
+
+  .sidebar-nav{flex:1;overflow-y:auto;padding:14px 10px;}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 14px;border-radius:10px;
+    color:#CFE3DD;text-decoration:none;font-size:14px;font-weight:600;
+    cursor:pointer;margin-bottom:2px;
+    transition:background .15s, color .15s;
+    border:none;background:transparent;width:100%;text-align:right;
+  }
+  .nav-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
+  .nav-item.active{background:var(--color-accent);color:#3A2E10;font-weight:800;}
+  .nav-item .nav-ico{width:18px;text-align:center;flex-shrink:0;}
+
+  .sidebar-footer{padding:14px;border-top:1px solid rgba(255,255,255,0.08);}
+  .sidebar-user{
+    display:flex;align-items:center;gap:10px;margin-bottom:10px;
+  }
+  .sidebar-user .avatar{
+    width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;
+  }
+  .sidebar-user .u-name{font-size:13px;font-weight:700;}
+  .sidebar-user .u-role{font-size:11px;color:#A9C4BD;}
+  .btn-logout{
+    width:100%;padding:10px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.15);
+    background:transparent;color:#EDE9DC;font-weight:700;font-size:13px;cursor:pointer;
+  }
+  .btn-logout:hover{background:rgba(255,255,255,0.08);}
+
+  .main-area{flex:1;margin-right:var(--sidebar-w);display:flex;flex-direction:column;min-width:0;}
+
+  .topbar{
+    background:var(--color-surface);
+    border-bottom:1px solid var(--color-border);
+    padding:14px 26px;
+    display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar-title{font-size:18px;font-weight:800;color:var(--color-primary-dark);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  @media (max-width:480px){.topbar-title{font-size:15px;max-width:52vw;}}
+  .topbar-right{display:flex;align-items:center;gap:16px;}
+  .conn-status{
+    display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;
+  }
+  .conn-dot{width:9px;height:9px;border-radius:50%;background:var(--color-success);}
+  .conn-status.offline .conn-dot{background:var(--color-danger);}
+  .conn-status.offline{color:var(--color-danger);}
+  .conn-status.online{color:var(--color-success);}
+  .hamburger{
+    display:none;width:38px;height:38px;border-radius:9px;border:1.5px solid var(--color-border);
+    background:#fff;cursor:pointer;font-size:17px;align-items:center;justify-content:center;
+  }
+
+  #mainContent{padding:24px 26px 60px;flex:1;}
+
+  .sidebar-overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99;
+  }
+
+  @media (max-width:900px){
+    .sidebar{transform:translateX(100%);}
+    .sidebar.open{transform:translateX(0);}
+    .sidebar-overlay.show{display:block;}
+    .main-area{margin-right:0;}
+    .hamburger{display:flex;}
+    #mainContent{padding:18px 14px 50px;}
+    .topbar{padding:12px 14px;}
+  }
+
+  /* ===================== Cards / stats ===================== */
+  .stats-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;
+  }
+  @media (max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:520px){.stats-grid{grid-template-columns:1fr;}}
+  .stat-card{
+    background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--radius-md);padding:18px;box-shadow:var(--shadow-soft);
+  }
+  .stat-card .stat-label{font-size:12.5px;color:var(--color-text-muted);font-weight:700;margin-bottom:8px;}
+  .stat-card .stat-value{font-size:26px;font-weight:800;color:var(--color-primary-dark);}
+  .stat-card.accent{border-color:var(--color-accent);}
+
+  .panel{
+    background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);box-shadow:var(--shadow-card);
+    padding:22px;margin-bottom:22px;
+  }
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:18px;flex-wrap:wrap;gap:10px;
+  }
+  .panel-title{font-size:17px;font-weight:800;color:var(--color-primary-dark);word-break:break-word;}
+  @media (max-width:480px){.panel-title{font-size:15px;}}
+
+  /* ===================== Tables ===================== */
+  .table-wrap{overflow-x:auto;}
+  table.data-table{width:100%;border-collapse:collapse;min-width:640px;}
+  table.data-table th{
+    text-align:right;font-size:12.5px;color:var(--color-text-muted);
+    font-weight:700;padding:10px 12px;border-bottom:2px solid var(--color-border);
+    white-space:nowrap;
+  }
+  table.data-table td{
+    padding:12px;border-bottom:1px solid var(--color-border);font-size:13.5px;vertical-align:middle;
+  }
+  table.data-table tr:hover td{background:#FBFAF6;}
+  .pill{
+    display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;
+  }
+  .pill-pending{background:var(--color-warning-bg);color:var(--color-warning);}
+  .pill-confirmed{background:var(--color-success-bg);color:var(--color-success);}
+  .pill-cancelled{background:var(--color-danger-bg);color:var(--color-danger);}
+  .pill-active{background:var(--color-success-bg);color:var(--color-success);}
+  .pill-inactive{background:#EFEDE4;color:var(--color-text-muted);}
+  .row-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .link-btn{
+    background:none;border:none;color:var(--color-primary);font-weight:700;font-size:13px;
+    cursor:pointer;padding:4px 0;text-decoration:underline;
+  }
+  .link-btn-danger{color:var(--color-danger);}
+  .empty-state{
+    text-align:center;padding:40px 20px;color:var(--color-text-muted);font-size:14px;
+  }
+
+  /* ===== Booking cards (mobile-friendly alternative to the data table) ===== */
+  .bk-cards{display:none;}
+  .bk-card{
+    background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--radius-md);padding:14px 16px;margin-bottom:12px;
+  }
+  .bk-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+  .bk-card-num{font-weight:800;font-size:14.5px;color:var(--color-primary-dark);direction:ltr;text-align:right;}
+  .bk-card-name{font-weight:700;font-size:14px;margin-bottom:2px;}
+  .bk-card-phone{font-size:13px;color:var(--color-text-muted);direction:ltr;text-align:right;}
+  .bk-card-dates{display:flex;gap:16px;margin:10px 0;font-size:13px;}
+  .bk-card-dates div b{display:block;font-size:14px;color:var(--color-text);margin-top:2px;}
+  .bk-card-rooms{font-size:13px;color:var(--color-text-muted);margin:8px 0;line-height:1.7;}
+  .bk-card-created{font-size:11.5px;color:var(--color-text-muted);margin-top:8px;}
+  .bk-card-actions{margin-top:12px;}
+  @media (max-width:760px){
+    .table-wrap{display:none;}
+    .bk-cards{display:block;}
+  }
+
+  .filters-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .filters-row .field{margin-bottom:0;min-width:160px;flex:1;}
+  @media (max-width:480px){.filters-row .field{min-width:100%;}}
+
+  /* ===================== Modal ===================== */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(14,51,45,0.45);
+    display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;
+  }
+  .modal-box{
+    background:#fff;border-radius:var(--radius-lg);max-width:520px;width:100%;
+    max-height:90vh;overflow-y:auto;padding:26px;box-shadow:0 20px 50px rgba(0,0,0,0.25);
+  }
+  .modal-title{font-size:18px;font-weight:800;color:var(--color-primary-dark);margin-bottom:18px;}
+  .modal-close{
+    float:left;background:none;border:none;font-size:20px;color:var(--color-text-muted);cursor:pointer;
+  }
+  .detail-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;padding:9px 0;border-bottom:1px dashed var(--color-border);font-size:13.5px;}
+  .detail-row b{color:var(--color-text-muted);font-weight:700;flex-shrink:0;}
+  .detail-row span{word-break:break-word;text-align:left;min-width:0;}
+  .modal-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+  .modal-actions .btn{flex:1 1 140px;}
+  @media (max-width:480px){
+    .modal-box{padding:18px 16px;}
+    .modal-actions .btn{flex:1 1 100%;}
+  }
+
+  /* ===================== Calendar ===================== */
+  #calGridWrap{width:100%;max-width:100%;overflow-x:hidden;}
+  .cal-grid{
+    display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px;
+    width:100%;max-width:100%;
+  }
+  .cal-cell{
+    border:1px solid var(--color-border);border-radius:10px;padding:8px 6px;min-height:80px;
+    font-size:11.5px;background:#FDFCFA;min-width:0;overflow:hidden;box-sizing:border-box;
+  }
+  .cal-cell .cal-day{font-weight:800;font-size:13px;color:var(--color-primary-dark);margin-bottom:4px;}
+  .cal-cell .cal-line{display:flex;justify-content:space-between;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cal-cell .cal-line span{overflow:hidden;text-overflow:ellipsis;}
+  .cal-cell.low-avail{background:var(--color-danger-bg);}
+  .cal-cell.mid-avail{background:var(--color-warning-bg);}
+  .cal-cell.closed-avail{background:repeating-linear-gradient(135deg, var(--color-danger-bg), var(--color-danger-bg) 6px, #F6D7D5 6px, #F6D7D5 12px);border-color:var(--color-danger);}
+  .cal-cell.closed-avail .cal-line b{color:var(--color-danger);}
+  .cal-closed-badge{display:inline-block;background:var(--color-danger);color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-top:2px;line-height:1.35;white-space:normal;word-break:break-word;}
+  .cal-cell.empty{background:transparent;border:none;}
+
+  /* Responsive breakpoints: keep every day fully visible and readable
+     on narrow Android/mobile screens instead of squeezing 7 columns
+     until text gets clipped/hidden. */
+  @media (max-width:900px){
+    .cal-grid{grid-template-columns:repeat(4,1fr);gap:8px;}
+    .cal-cell{font-size:12.5px;padding:9px 7px;min-height:78px;}
+  }
+  @media (max-width:640px){
+    .cal-grid{grid-template-columns:repeat(3,1fr);gap:7px;}
+    .cal-cell{font-size:12px;padding:8px 6px;min-height:82px;}
+    .cal-cell .cal-line{font-size:11.5px;}
+  }
+  @media (max-width:460px){
+    .cal-grid{grid-template-columns:repeat(2,1fr);gap:7px;}
+    .cal-cell{font-size:13px;padding:10px 8px;min-height:88px;}
+    .cal-cell .cal-day{font-size:14px;}
+    .cal-cell .cal-line{font-size:12.5px;}
+  }
+  @media (max-width:340px){
+    .cal-grid{grid-template-columns:1fr 1fr;gap:6px;}
+    .cal-cell{padding:9px 7px;}
+  }
+
+  /* ===================== Toasts ===================== */
+  #toast-container{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;
+    display:flex;flex-direction:column;gap:10px;width:calc(100% - 32px);max-width:420px;align-items:center;
+  }
+  .toast{
+    background:var(--color-primary-dark);color:#fff;padding:13px 18px;border-radius:var(--radius-md);
+    font-size:14px;font-weight:600;box-shadow:0 10px 25px -8px rgba(0,0,0,0.4);width:100%;text-align:center;
+    animation:toast-in .25s ease;
+  }
+  .toast.error{background:var(--color-danger);}
+  .toast.success{background:var(--color-success);}
+  @keyframes toast-in{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .mini-note{font-size:12px;color:var(--color-text-muted);margin-top:6px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:520px){.grid-2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN SCREEN ===================== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🏨</div>
+    <div class="login-title">تسجيل الدخول</div>
+    <div class="login-sub">لوحة إدارة الفندق</div>
+    <div id="loginError" class="hidden"></div>
+    <div class="field">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="loginEmail" placeholder="name@hotel.com">
+    </div>
+    <div class="field">
+      <label>كلمة المرور</label>
+      <input type="password" id="loginPassword" placeholder="••••••••">
+    </div>
+    <button type="button" class="btn btn-primary btn-block" id="btnLogin">
+      <span class="spinner"></span>
+      <span class="btn-label">دخول</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===================== APP SHELL ===================== -->
+<div id="appShell" class="hidden">
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo-circle" id="sbLogo">🏨</div>
+      <div>
+        <div class="brand-text" id="sbHotelName">اسم الفندق</div>
+        <div class="brand-sub">لوحة الإدارة</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar" id="sbAvatar">؟</div>
+        <div>
+          <div class="u-name" id="sbUserName">—</div>
+          <div class="u-role" id="sbUserRole">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btnLogout">تسجيل الخروج</button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger" id="btnHamburger">☰</button>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="conn-status online" id="connStatus"><span class="conn-dot"></span><span id="connLabel">متصل</span></div>
+      </div>
+    </div>
+    <div id="mainContent"></div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toast-container"></div>
+
+<!-- ===================== Firebase SDK ===================== -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+
+<script>
+/* =====================================================================
+   Firebase Configuration
+   ضع Firebase Configuration هنا
+   (نفس المشروع المستخدم في guest-booking.html تماما)
+===================================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBa30GOqlojv1vj6DGAbRJ5ibf-OQUiXQ0",
+  authDomain: "resta-hotel-booking.firebaseapp.com",
+  databaseURL: "https://resta-hotel-booking-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "resta-hotel-booking",
+  storageBucket: "resta-hotel-booking.firebasestorage.app",
+  messagingSenderId: "1060340241429",
+  appId: "1:1060340241429:web:ce4240d23c2dd7fbc72a1c"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+/* =====================================================================
+   Global State
+===================================================================== */
+let currentUser = null;   // { uid, name, email, role, active }
+let connected = true;
+let sidebarInitialized = false;
+
+const cache = {
+  hotelInfo: {},
+  roomTypes: {},     // { id: {name, description, active, order, createdAt, updatedAt} }
+  viewTypes: {},      // { id: {name, description, active, order, createdAt, updatedAt} }
+  inventory: {},      // { comboKey: {roomTypeId, viewId, totalRooms, updatedAt} }
+  pricing: {},          // { comboKey: {roomTypeId, viewId, priceSingle, priceDouble, updatedAt} }
+  outOfOrder: {},      // { comboKey: { oooId: {...} } }
+  closures: {},        // { closureId: {viewId:'ALL'|id, fromDate, toDate, reason, createdAt} }
+  bookings: {},        // { bookingId: {...} }
+  users: {},            // { uid: {name,email,role,active} }
+  activityLogs: {}       // { logId: {...} }
+};
+
+let currentRoute = 'dashboard';
+
+/* =====================================================================
+   Route definitions
+===================================================================== */
+const ROUTES = {
+  dashboard:        { label: 'Dashboard',            icon: '📊', roles: ['admin','staff'] },
+  roomTypes:        { label: 'إدارة أنواع الغرف',     icon: '🛏️', roles: ['admin'] },
+  viewTypes:        { label: 'إدارة الإطلالات',       icon: '🌅', roles: ['admin'] },
+  inventory:        { label: 'إدارة Inventory',        icon: '📦', roles: ['admin'] },
+  pricing:          { label: 'إدارة الأسعار',           icon: '💰', roles: ['admin'] },
+  calendar:         { label: 'التوافر Calendar',       icon: '📅', roles: ['admin','staff'] },
+  bookingRequests:  { label: 'طلبات الحجز',            icon: '📝', roles: ['admin','staff'] },
+  confirmedBookings:{ label: 'الحجوزات المؤكدة',       icon: '✅', roles: ['admin','staff'] },
+  outOfOrder:       { label: 'الغرف خارج الخدمة',      icon: '🚧', roles: ['admin'] },
+  closures:         { label: 'إغلاق أيام التوافر',      icon: '⛔', roles: ['admin'] },
+  activityLog:      { label: 'Activity Log',           icon: '🕒', roles: ['admin'] },
+  users:            { label: 'المستخدمون',              icon: '👤', roles: ['admin'] },
+  settings:         { label: 'الإعدادات',                icon: '⚙️', roles: ['admin'] }
+};
+
+/* =====================================================================
+   Generic Utilities
+===================================================================== */
+function toastMsg(msg, type){
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? (' ' + type) : '');
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transition = 'opacity .25s';
+    setTimeout(() => el.remove(), 250);
+  }, 3400);
+}
+
+function setBtnLoading(btn, loading){
+  if(!btn) return;
+  btn.disabled = loading;
+  btn.classList.toggle('loading', loading);
+}
+
+function formatDateInput(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function todayStr(){ return formatDateInput(new Date()); }
+
+function getNightsInRange(arrivalStr, departureStr){
+  const nights = [];
+  let cur = new Date(arrivalStr + 'T00:00:00');
+  const end = new Date(departureStr + 'T00:00:00');
+  while(cur < end){
+    nights.push(formatDateInput(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return nights;
+}
+
+function comboKey(roomTypeId, viewId){ return `${roomTypeId}_${viewId}`; }
+
+// إطلالة بدون roomTypeIds (أو بقائمة فارغة) تُعتبر متاحة لكل أنواع الغرف (توافق مع البيانات القديمة)
+function viewAppliesToRoomType(vt, roomTypeId){
+  if(!vt || !roomTypeId) return false;
+  const ids = vt.roomTypeIds;
+  if(!ids || Object.keys(ids).length === 0) return true;
+  return !!ids[roomTypeId];
+}
+function viewTypesForRoomType(roomTypeId, source){
+  const list = source || allViewTypes();
+  return list.filter(([, vt]) => viewAppliesToRoomType(vt, roomTypeId));
+}
+
+// يتحقق مما إذا كانت إطلالة معينة مُغلقة (لا يوجد توافر) في تاريخ معين
+// closure.viewId === 'ALL' تعني إغلاق كل الإطلالات معا (المدينة والقناة)
+function getClosureForDate(viewId, dateStr){
+  const list = Object.entries(cache.closures || {});
+  for(const [id, c] of list){
+    if(!c) continue;
+    if(c.viewId !== 'ALL' && c.viewId !== viewId) continue;
+    if(c.fromDate <= dateStr && dateStr <= c.toDate) return { id, ...c };
+  }
+  return null;
+}
+
+function fmtTimestamp(ts){
+  if(!ts) return '—';
+  const d = new Date(ts);
+  return d.toLocaleString('ar-EG', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+
+function escapeHtml(str){
+  if(str === undefined || str === null) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function statusLabel(status){
+  return { pending:'قيد الانتظار', confirmed:'مؤكد', cancelled:'ملغي' }[status] || status;
+}
+function statusPillClass(status){
+  return { pending:'pill-pending', confirmed:'pill-confirmed', cancelled:'pill-cancelled' }[status] || '';
+}
+
+// حذف نهائي مسموح فقط لطلب لم يُؤكد بعد (pending)، وللمدير (admin) فقط —
+// يطابق قواعد الأمان في Firebase Rules (bookings/bookingsByRoom)
+function canDeleteBooking(b){
+  return !!b && b.status === 'pending' && !!currentUser && currentUser.role === 'admin';
+}
+
+function roomsSummaryHtml(rooms){
+  if(!rooms) return '—';
+  return Object.values(rooms).map(r => `${escapeHtml(r.roomTypeName)} / ${escapeHtml(r.viewName)} × ${r.count}`).join('<br>');
+}
+
+async function askConfirm(message){
+  return new Promise(resolve => {
+    const root = document.getElementById('modalRoot');
+    root.innerHTML = `
+      <div class="modal-overlay" id="confirmOverlay">
+        <div class="modal-box" style="max-width:380px;text-align:center;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:20px;">${escapeHtml(message)}</div>
+          <div class="modal-actions">
+            <button class="btn btn-ghost" id="confirmNo">إلغاء</button>
+            <button class="btn btn-danger" id="confirmYes">تأكيد</button>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('confirmYes').onclick = () => { closeModal(); resolve(true); };
+    document.getElementById('confirmNo').onclick = () => { closeModal(); resolve(false); };
+  });
+}
+function closeModal(){ document.getElementById('modalRoot').innerHTML = ''; }
+
+/* =====================================================================
+   Activity Log
+===================================================================== */
+function logActivity(action, details){
+  if(!currentUser) return Promise.resolve();
+  return db.ref('activityLogs').push().set({
+    action,
+    userId: currentUser.uid,
+    userName: currentUser.name || currentUser.email,
+    timestamp: firebase.database.ServerValue.TIMESTAMP,
+    details: details || {}
+  });
+}
+
+/* =====================================================================
+   Connection status (.info/connected)
+===================================================================== */
+function initConnectionListener(){
+  db.ref('.info/connected').on('value', snap => {
+    connected = snap.val() === true;
+    const el = document.getElementById('connStatus');
+    const label = document.getElementById('connLabel');
+    if(!el) return;
+    el.classList.toggle('online', connected);
+    el.classList.toggle('offline', !connected);
+    label.textContent = connected ? 'متصل' : 'غير متصل';
+  });
+}
+
+/* =====================================================================
+   Authentication
+===================================================================== */
+document.getElementById('btnLogin').addEventListener('click', doLogin);
+document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
+
+function showLoginError(msg){
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+function hideLoginError(){
+  document.getElementById('loginError').classList.add('hidden');
+}
+
+async function doLogin(){
+  hideLoginError();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if(!email || !password){
+    showLoginError('يرجى إدخال البريد الإلكتروني وكلمة المرور');
+    return;
+  }
+  const btn = document.getElementById('btnLogin');
+  setBtnLoading(btn, true);
+  try{
+    await auth.signInWithEmailAndPassword(email, password);
+    // onAuthStateChanged سيتولى الباقي
+  }catch(err){
+    console.error(err);
+    showLoginError('بيانات الدخول غير صحيحة');
+    setBtnLoading(btn, false);
+  }
+}
+
+document.getElementById('btnLogout').addEventListener('click', async () => {
+  await auth.signOut();
+});
+
+auth.onAuthStateChanged(async (user) => {
+  const btn = document.getElementById('btnLogin');
+  if(!user){
+    currentUser = null;
+    document.getElementById('appShell').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    setBtnLoading(btn, false);
+    return;
+  }
+
+  try{
+    const snap = await db.ref('users/' + user.uid).once('value');
+    const profile = snap.val();
+    if(!profile || profile.active === false || !['admin','staff'].includes(profile.role)){
+      await auth.signOut();
+      showLoginError('هذا الحساب غير مصرح له بالدخول إلى لوحة الإدارة');
+      setBtnLoading(btn, false);
+      return;
+    }
+    currentUser = { uid: user.uid, name: profile.name || profile.email, email: profile.email || user.email, role: profile.role, active: profile.active };
+
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appShell').classList.remove('hidden');
+    setBtnLoading(btn, false);
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPassword').value = '';
+
+    document.getElementById('sbUserName').textContent = currentUser.name;
+    document.getElementById('sbUserRole').textContent = currentUser.role === 'admin' ? 'مدير' : 'موظف';
+    document.getElementById('sbAvatar').textContent = (currentUser.name || '?').trim().charAt(0).toUpperCase();
+
+    if(!sidebarInitialized){
+      buildSidebar();
+      initAllListeners();
+      initConnectionListener();
+      sidebarInitialized = true;
+      await logActivity('LOGIN', { email: currentUser.email });
+    }
+    navigate(currentRoute);
+  }catch(err){
+    console.error(err);
+    await auth.signOut();
+    showLoginError('حدث خطأ أثناء تحميل بيانات المستخدم');
+    setBtnLoading(btn, false);
+  }
+});
+
+/* =====================================================================
+   Sidebar / Router
+===================================================================== */
+function buildSidebar(){
+  const nav = document.getElementById('sidebarNav');
+  nav.innerHTML = '';
+  Object.entries(ROUTES).forEach(([key, r]) => {
+    if(!r.roles.includes(currentUser.role)) return;
+    const btn = document.createElement('button');
+    btn.className = 'nav-item';
+    btn.dataset.route = key;
+    btn.innerHTML = `<span class="nav-ico">${r.icon}</span><span>${r.label}</span>`;
+    btn.addEventListener('click', () => { navigate(key); closeMobileSidebar(); });
+    nav.appendChild(btn);
+  });
+
+  document.getElementById('btnHamburger').addEventListener('click', openMobileSidebar);
+  document.getElementById('sidebarOverlay').addEventListener('click', closeMobileSidebar);
+
+  db.ref('hotelInfo').on('value', snap => {
+    const info = snap.val() || {};
+    cache.hotelInfo = info;
+    if(info.name){
+      document.getElementById('sbHotelName').textContent = info.name;
+    }
+    if(info.logoUrl){
+      document.getElementById('sbLogo').innerHTML = `<img src="${escapeHtml(info.logoUrl)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    }
+  });
+}
+
+function openMobileSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('show');
+}
+function closeMobileSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+function navigate(routeKey){
+  if(!ROUTES[routeKey] || !ROUTES[routeKey].roles.includes(currentUser.role)){
+    routeKey = 'dashboard';
+  }
+  currentRoute = routeKey;
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.route === routeKey);
+  });
+  document.getElementById('topbarTitle').textContent = ROUTES[routeKey].label;
+  renderRoute(routeKey);
+}
+
+function renderRoute(routeKey){
+  const map = {
+    dashboard: renderDashboard,
+    roomTypes: renderRoomTypes,
+    viewTypes: renderViewTypes,
+    inventory: renderInventory,
+    pricing: renderPricing,
+    calendar: renderCalendar,
+    bookingRequests: () => renderBookingsPage('bookingRequests'),
+    confirmedBookings: () => renderBookingsPage('confirmedBookings'),
+    outOfOrder: renderOutOfOrder,
+    closures: renderClosures,
+    activityLog: renderActivityLog,
+    users: renderUsers,
+    settings: renderSettings
+  };
+  const fn = map[routeKey] || renderDashboard;
+  fn();
+}
+
+/* =====================================================================
+   Realtime Listeners (populate cache, re-render current route on change)
+===================================================================== */
+function initAllListeners(){
+  db.ref('roomTypes').on('value', snap => {
+    cache.roomTypes = snap.val() || {};
+    rerenderIfCurrent(['dashboard','roomTypes','inventory','pricing','calendar','outOfOrder']);
+  });
+  db.ref('viewTypes').on('value', snap => {
+    cache.viewTypes = snap.val() || {};
+    rerenderIfCurrent(['dashboard','viewTypes','inventory','pricing','calendar','outOfOrder']);
+  });
+  db.ref('inventory').on('value', snap => {
+    cache.inventory = snap.val() || {};
+    rerenderIfCurrent(['dashboard','inventory','calendar']);
+  });
+  db.ref('pricing').on('value', snap => {
+    cache.pricing = snap.val() || {};
+    rerenderIfCurrent(['pricing']);
+  });
+  db.ref('outOfOrder').on('value', snap => {
+    cache.outOfOrder = snap.val() || {};
+    rerenderIfCurrent(['dashboard','outOfOrder','calendar']);
+  });
+  db.ref('closures').on('value', snap => {
+    cache.closures = snap.val() || {};
+    rerenderIfCurrent(['dashboard','closures','calendar']);
+  });
+  db.ref('bookings').limitToLast(500).on('value', snap => {
+    cache.bookings = snap.val() || {};
+    rerenderIfCurrent(['dashboard','bookingRequests','confirmedBookings','calendar']);
+  });
+  if(currentUser.role === 'admin'){
+    db.ref('users').on('value', snap => {
+      cache.users = snap.val() || {};
+      rerenderIfCurrent(['users']);
+    });
+    db.ref('activityLogs').limitToLast(200).on('value', snap => {
+      cache.activityLogs = snap.val() || {};
+      rerenderIfCurrent(['activityLog']);
+    });
+  }
+}
+
+function rerenderIfCurrent(routes){
+  if(routes.includes(currentRoute)) renderRoute(currentRoute);
+}
+
+function activeRoomTypes(){
+  return Object.entries(cache.roomTypes || {}).filter(([,v]) => v && v.active !== false).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+}
+function activeViewTypes(){
+  return Object.entries(cache.viewTypes || {}).filter(([,v]) => v && v.active !== false).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+}
+function allRoomTypes(){
+  return Object.entries(cache.roomTypes || {}).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+}
+function allViewTypes(){
+  return Object.entries(cache.viewTypes || {}).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+}
+
+/* =====================================================================
+   Confirmed / OOO helpers for a specific night (fresh Firebase reads)
+===================================================================== */
+async function computeConfirmedForNight(comboKey, night){
+  const snap = await db.ref('bookingsByRoom/' + comboKey)
+    .orderByChild('status').equalTo('confirmed').once('value');
+  let sum = 0;
+  snap.forEach(child => {
+    const b = child.val();
+    if(b.arrivalDate <= night && night < b.departureDate) sum += (b.count || 0);
+  });
+  return sum;
+}
+async function computeOooForNight(comboKey, night){
+  const snap = await db.ref('outOfOrder/' + comboKey).once('value');
+  let sum = 0;
+  snap.forEach(child => {
+    const o = child.val();
+    if(o.fromDate <= night && night < o.toDate) sum += (o.roomsCount || 0);
+  });
+  return sum;
+}
+
+/* =====================================================================
+   DASHBOARD
+===================================================================== */
+// إجمالي الغرف الفعلى: يجمع فقط تركيبات (نوع غرفة + إطلالة) المرتبطة
+// حاليا (نفس المنطق المستخدم فى عرض صفحة الـ Inventory)، بدون احتساب
+// أى سجلات Inventory قديمة/يتيمة تخص تركيبات لم تعد مرتبطة.
+function validInventoryTotal(){
+  const rTypes = allRoomTypes();
+  const vTypesAll = allViewTypes();
+  let sum = 0;
+  rTypes.forEach(([rtId]) => {
+    const vTypes = viewTypesForRoomType(rtId, vTypesAll);
+    vTypes.forEach(([vtId]) => {
+      const key = comboKey(rtId, vtId);
+      const inv = cache.inventory[key];
+      sum += inv ? (inv.totalRooms || 0) : 0;
+    });
+  });
+  return sum;
+}
+
+function renderDashboard(){
+  const today = todayStr();
+  const totalRoomTypes = activeRoomTypes().length;
+  const totalRooms = validInventoryTotal();
+
+  let pending = 0, confirmed = 0, cancelled = 0, arrivalsToday = 0, departuresToday = 0, occupiedToday = 0;
+
+  Object.values(cache.bookings || {}).forEach(b => {
+    if(b.status === 'pending') pending++;
+    if(b.status === 'confirmed') confirmed++;
+    if(b.status === 'cancelled') cancelled++;
+    if(b.status === 'confirmed'){
+      if(b.arrivalDate === today) arrivalsToday++;
+      if(b.departureDate === today) departuresToday++;
+      if(b.arrivalDate <= today && today < b.departureDate){
+        occupiedToday += Object.values(b.rooms || {}).reduce((s,r)=>s+(r.count||0),0);
+      }
+    }
+  });
+
+  const cards = [
+    { label:'إجمالي أنواع الغرف', value: totalRoomTypes },
+    { label:'إجمالي الغرف', value: totalRooms },
+    { label:'طلبات Pending', value: pending },
+    { label:'الحجوزات Confirmed', value: confirmed },
+    { label:'الحجوزات Cancelled', value: cancelled },
+    { label:'Arrivals Today', value: arrivalsToday },
+    { label:'Departures Today', value: departuresToday },
+    { label:'الغرف المشغولة اليوم', value: occupiedToday }
+  ];
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="stats-grid">
+      ${cards.map(c => `
+        <div class="stat-card${c.label==='طلبات Pending' && pending>0 ? ' accent' : ''}">
+          <div class="stat-label">${c.label}</div>
+          <div class="stat-value">${c.value}</div>
+        </div>`).join('')}
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">مرحبا، ${escapeHtml(currentUser.name)}</div></div>
+      <p style="color:var(--color-text-muted);font-size:14px;">
+        استخدم القائمة الجانبية للتنقل بين إدارة الغرف، التوافر، طلبات الحجز والحجوزات المؤكدة.
+      </p>
+    </div>
+  `;
+}
+
+/* =====================================================================
+   ROOM TYPES MANAGEMENT
+===================================================================== */
+function renderRoomTypes(){
+  const rows = allRoomTypes();
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">إدارة أنواع الغرف</div>
+        <button class="btn btn-gold btn-sm" id="btnAddRoomType">+ إضافة نوع غرفة</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>الاسم</th><th>الوصف</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+          <tbody>
+            ${rows.length === 0 ? '' : rows.map(([id, rt]) => `
+              <tr>
+                <td><b>${escapeHtml(rt.name)}</b></td>
+                <td>${escapeHtml(rt.description || '—')}</td>
+                <td><span class="pill ${rt.active !== false ? 'pill-active' : 'pill-inactive'}">${rt.active !== false ? 'مفعّل' : 'معطّل'}</span></td>
+                <td class="row-actions">
+                  <button class="link-btn" onclick="openRoomTypeModal('${id}')">تعديل</button>
+                  <button class="link-btn" onclick="toggleRoomTypeActive('${id}', ${rt.active === false})">${rt.active !== false ? 'تعطيل' : 'تفعيل'}</button>
+                  <button class="link-btn link-btn-danger" onclick="deleteRoomType('${id}')">حذف</button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${rows.length === 0 ? '<div class="empty-state">لا توجد أنواع غرف بعد</div>' : ''}
+    </div>
+  `;
+  document.getElementById('btnAddRoomType').addEventListener('click', () => openRoomTypeModal(null));
+}
+
+function openRoomTypeModal(id){
+  const rt = id ? cache.roomTypes[id] : { name:'', description:'', active:true };
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">${id ? 'تعديل نوع غرفة' : 'إضافة نوع غرفة'}</div>
+        <div class="field">
+          <label>الاسم <span class="req-mark">*</span></label>
+          <input type="text" id="rtName" value="${escapeHtml(rt.name)}" placeholder="مثال: Double">
+        </div>
+        <div class="field">
+          <label>الوصف</label>
+          <textarea id="rtDescription">${escapeHtml(rt.description || '')}</textarea>
+        </div>
+        <div class="checkbox-row field">
+          <input type="checkbox" id="rtActive" ${rt.active !== false ? 'checked' : ''}>
+          <label for="rtActive">مفعّل</label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+          <button class="btn btn-primary" id="btnSaveRoomType">حفظ</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('btnSaveRoomType').addEventListener('click', async () => {
+    const name = document.getElementById('rtName').value.trim();
+    if(!name){ toastMsg('يرجى إدخال الاسم', 'error'); return; }
+    const description = document.getElementById('rtDescription').value.trim();
+    const active = document.getElementById('rtActive').checked;
+    const btn = document.getElementById('btnSaveRoomType');
+    setBtnLoading(btn, true);
+    try{
+      await saveRoomType(id, { name, description, active });
+      closeModal();
+      toastMsg('تم الحفظ بنجاح', 'success');
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+      setBtnLoading(btn, false);
+    }
+  });
+}
+
+async function saveRoomType(id, data){
+  const isNew = !id;
+  const ref = isNew ? db.ref('roomTypes').push() : db.ref('roomTypes/' + id);
+  const finalId = isNew ? ref.key : id;
+  const payload = {
+    name: data.name,
+    description: data.description || '',
+    active: data.active,
+    order: isNew ? (allRoomTypes().length + 1) : (cache.roomTypes[id] ? cache.roomTypes[id].order : 1),
+    updatedAt: firebase.database.ServerValue.TIMESTAMP
+  };
+  if(isNew) payload.createdAt = firebase.database.ServerValue.TIMESTAMP;
+  await ref.update(payload);
+  await logActivity(isNew ? 'CREATE_ROOM_TYPE' : 'UPDATE_ROOM_TYPE', { roomTypeId: finalId, name: data.name });
+}
+
+async function toggleRoomTypeActive(id, newActive){
+  await db.ref('roomTypes/' + id).update({ active: newActive, updatedAt: firebase.database.ServerValue.TIMESTAMP });
+  await logActivity('UPDATE_ROOM_TYPE', { roomTypeId: id, active: newActive });
+  toastMsg(newActive ? 'تم التفعيل' : 'تم التعطيل', 'success');
+}
+
+async function deleteRoomType(id){
+  const rt = cache.roomTypes[id] || {};
+  const ok = await askConfirm(`سيتم حذف نوع الغرفة "${rt.name || id}" نهائيا، مع كل بيانات الـ Inventory والغرف خارج الخدمة المرتبطة به، وإزالته من أي إطلالة محددة له. الحجوزات السابقة لن تتأثر. هل تريد المتابعة؟`);
+  if(!ok) return;
+
+  try{
+    const updates = {};
+    updates['roomTypes/' + id] = null;
+
+    // إزالة كل تركيبات الـ Inventory الخاصة بهذا النوع
+    Object.entries(cache.inventory || {}).forEach(([key, inv]) => {
+      if(inv && inv.roomTypeId === id) updates['inventory/' + key] = null;
+    });
+
+    // إزالة كل مجموعات الغرف خارج الخدمة الخاصة بهذا النوع
+    Object.entries(cache.outOfOrder || {}).forEach(([key, list]) => {
+      const belongs = Object.values(list || {}).some(o => o && o.roomTypeId === id);
+      if(belongs) updates['outOfOrder/' + key] = null;
+    });
+
+    // إزالة أي ربط بهذا النوع من داخل الإطلالات
+    Object.entries(cache.viewTypes || {}).forEach(([vtId, vt]) => {
+      if(vt && vt.roomTypeIds && vt.roomTypeIds[id]){
+        updates['viewTypes/' + vtId + '/roomTypeIds/' + id] = null;
+      }
+    });
+
+    await db.ref().update(updates);
+    await logActivity('DELETE_ROOM_TYPE', { roomTypeId: id, name: rt.name });
+    toastMsg('تم حذف نوع الغرفة', 'success');
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر الحذف', 'error');
+  }
+}
+
+/* =====================================================================
+   VIEW TYPES MANAGEMENT
+===================================================================== */
+function renderViewTypes(){
+  const rows = allViewTypes();
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">إدارة الإطلالات</div>
+        <button class="btn btn-gold btn-sm" id="btnAddViewType">+ إضافة إطلالة</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>الاسم</th><th>أنواع الغرف</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+          <tbody>
+            ${rows.length === 0 ? '' : rows.map(([id, vt]) => `
+              <tr>
+                <td><b>${escapeHtml(vt.name)}</b></td>
+                <td>${escapeHtml(roomTypeNamesForView(vt))}</td>
+                <td><span class="pill ${vt.active !== false ? 'pill-active' : 'pill-inactive'}">${vt.active !== false ? 'مفعّل' : 'معطّل'}</span></td>
+                <td class="row-actions">
+                  <button class="link-btn" onclick="openViewTypeModal('${id}')">تعديل</button>
+                  <button class="link-btn" onclick="toggleViewTypeActive('${id}', ${vt.active === false})">${vt.active !== false ? 'تعطيل' : 'تفعيل'}</button>
+                  <button class="link-btn link-btn-danger" onclick="deleteViewType('${id}')">حذف</button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${rows.length === 0 ? '<div class="empty-state">لا توجد إطلالات بعد</div>' : ''}
+    </div>
+  `;
+  document.getElementById('btnAddViewType').addEventListener('click', () => openViewTypeModal(null));
+}
+
+function roomTypeNamesForView(vt){
+  const ids = vt.roomTypeIds;
+  if(!ids || Object.keys(ids).length === 0) return 'كل أنواع الغرف';
+  const names = Object.keys(ids).map(id => (cache.roomTypes[id] || {}).name || id);
+  return names.join('، ') || 'كل أنواع الغرف';
+}
+
+function openViewTypeModal(id){
+  const vt = id ? cache.viewTypes[id] : { name:'', active:true, roomTypeIds:null };
+  const rTypes = allRoomTypes();
+  const selectedIds = vt.roomTypeIds || {};
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">${id ? 'تعديل إطلالة' : 'إضافة إطلالة'}</div>
+        <div class="field">
+          <label>الاسم <span class="req-mark">*</span></label>
+          <input type="text" id="vtName" value="${escapeHtml(vt.name)}" placeholder="مثال: Canal View">
+        </div>
+        <div class="checkbox-row field">
+          <input type="checkbox" id="vtActive" ${vt.active !== false ? 'checked' : ''}>
+          <label for="vtActive">مفعّلة</label>
+        </div>
+        <div class="field">
+          <label>أنواع الغرف المسموح بها لهذه الإطلالة</label>
+          <p class="mini-note">اترك الكل بدون تحديد لتطبيق الإطلالة على جميع أنواع الغرف</p>
+          ${rTypes.length === 0 ? '<div class="empty-state">أضف أنواع غرف أولا</div>' : rTypes.map(([rid, rt]) => `
+            <div class="checkbox-row field">
+              <input type="checkbox" class="vtRoomTypeChk" value="${rid}" ${selectedIds[rid] ? 'checked' : ''}>
+              <label>${escapeHtml(rt.name)}</label>
+            </div>`).join('')}
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+          <button class="btn btn-primary" id="btnSaveViewType">حفظ</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('btnSaveViewType').addEventListener('click', async () => {
+    const name = document.getElementById('vtName').value.trim();
+    if(!name){ toastMsg('يرجى إدخال الاسم', 'error'); return; }
+    const active = document.getElementById('vtActive').checked;
+    const roomTypeIds = {};
+    document.querySelectorAll('.vtRoomTypeChk:checked').forEach(chk => { roomTypeIds[chk.value] = true; });
+    const btn = document.getElementById('btnSaveViewType');
+    setBtnLoading(btn, true);
+    try{
+      await saveViewType(id, { name, active, roomTypeIds });
+      closeModal();
+      toastMsg('تم الحفظ بنجاح', 'success');
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+      setBtnLoading(btn, false);
+    }
+  });
+}
+
+async function saveViewType(id, data){
+  const isNew = !id;
+  const ref = isNew ? db.ref('viewTypes').push() : db.ref('viewTypes/' + id);
+  const finalId = isNew ? ref.key : id;
+  const payload = {
+    name: data.name,
+    active: data.active,
+    order: isNew ? (allViewTypes().length + 1) : (cache.viewTypes[id] ? cache.viewTypes[id].order : 1),
+    roomTypeIds: (data.roomTypeIds && Object.keys(data.roomTypeIds).length > 0) ? data.roomTypeIds : null,
+    updatedAt: firebase.database.ServerValue.TIMESTAMP
+  };
+  if(isNew) payload.createdAt = firebase.database.ServerValue.TIMESTAMP;
+  await ref.update(payload);
+  await logActivity(isNew ? 'CREATE_VIEW' : 'UPDATE_VIEW', { viewId: finalId, name: data.name });
+}
+
+async function toggleViewTypeActive(id, newActive){
+  await db.ref('viewTypes/' + id).update({ active: newActive, updatedAt: firebase.database.ServerValue.TIMESTAMP });
+  await logActivity('UPDATE_VIEW', { viewId: id, active: newActive });
+  toastMsg(newActive ? 'تم التفعيل' : 'تم التعطيل', 'success');
+}
+
+async function deleteViewType(id){
+  const vt = cache.viewTypes[id] || {};
+  const ok = await askConfirm(`سيتم حذف الإطلالة "${vt.name || id}" نهائيا، مع كل بيانات الـ Inventory والغرف خارج الخدمة وأيام الإغلاق المرتبطة بها. الحجوزات السابقة لن تتأثر. هل تريد المتابعة؟`);
+  if(!ok) return;
+
+  try{
+    const updates = {};
+    updates['viewTypes/' + id] = null;
+
+    // إزالة كل تركيبات الـ Inventory الخاصة بهذه الإطلالة
+    Object.entries(cache.inventory || {}).forEach(([key, inv]) => {
+      if(inv && inv.viewId === id) updates['inventory/' + key] = null;
+    });
+
+    // إزالة كل مجموعات الغرف خارج الخدمة الخاصة بهذه الإطلالة
+    Object.entries(cache.outOfOrder || {}).forEach(([key, list]) => {
+      const belongs = Object.values(list || {}).some(o => o && o.viewId === id);
+      if(belongs) updates['outOfOrder/' + key] = null;
+    });
+
+    // إزالة أيام الإغلاق المرتبطة بهذه الإطلالة تحديدا (لا تمس إغلاقات 'ALL')
+    Object.entries(cache.closures || {}).forEach(([closureId, c]) => {
+      if(c && c.viewId === id) updates['closures/' + closureId] = null;
+    });
+
+    await db.ref().update(updates);
+    await logActivity('DELETE_VIEW', { viewId: id, name: vt.name });
+    toastMsg('تم حذف الإطلالة', 'success');
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر الحذف', 'error');
+  }
+}
+
+/* =====================================================================
+   PRICING MANAGEMENT
+   سعر الليلة لكل تركيبة (نوع غرفة + إطلالة)، بسعرين: فرد واحد وفردين
+   (يستخدمه تطبيق الضيف لحساب إجمالي الحجز بناء على عدد الأفراد فى كل
+   غرفة على حدة).
+===================================================================== */
+function renderPricing(){
+  const rTypes = allRoomTypes();
+  const vTypesAll = allViewTypes();
+  let rowsHtml = '';
+  let anyCombo = false;
+
+  rTypes.forEach(([rtId, rt]) => {
+    const vTypes = viewTypesForRoomType(rtId, vTypesAll);
+    vTypes.forEach(([vtId, vt]) => {
+      anyCombo = true;
+      const key = comboKey(rtId, vtId);
+      const p = cache.pricing[key];
+      const single = (p && typeof p.priceSingle === 'number') ? p.priceSingle : null;
+      const double = (p && typeof p.priceDouble === 'number') ? p.priceDouble : null;
+      rowsHtml += `
+        <tr>
+          <td><b>${escapeHtml(rt.name)}</b></td>
+          <td>${escapeHtml(vt.name)}</td>
+          <td>${single === null ? '<span style="color:var(--color-danger);">غير محدد</span>' : single + ' ج.م'}</td>
+          <td>${double === null ? '<span style="color:var(--color-danger);">غير محدد</span>' : double + ' ج.م'}</td>
+          <td class="row-actions">
+            <button class="link-btn" onclick="openPricingModal('${rtId}','${vtId}')">تعديل السعر</button>
+          </td>
+        </tr>`;
+    });
+  });
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">إدارة الأسعار</div></div>
+      <p class="mini-note">سعر الليلة الواحدة لكل نوع غرفة + إطلالة، حسب عدد الأفراد (فرد واحد / فردين). يُستخدم هذا السعر لحساب إجمالي الحجز تلقائيا فى صفحة الضيف.</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>نوع الغرفة</th><th>الإطلالة</th><th>سعر الليلة (فرد واحد)</th><th>سعر الليلة (فردين)</th><th>إجراءات</th></tr></thead>
+          <tbody>${rowsHtml || ''}</tbody>
+        </table>
+      </div>
+      ${(rTypes.length === 0 || !anyCombo) ? '<div class="empty-state">أضف أنواع غرف وإطلالات، وحدد الإطلالات المرتبطة بكل نوع غرفة</div>' : ''}
+    </div>
+  `;
+}
+
+function openPricingModal(roomTypeId, viewId){
+  const key = comboKey(roomTypeId, viewId);
+  const p = cache.pricing[key];
+  const single = (p && typeof p.priceSingle === 'number') ? p.priceSingle : '';
+  const double = (p && typeof p.priceDouble === 'number') ? p.priceDouble : '';
+  const rtName = (cache.roomTypes[roomTypeId] || {}).name || roomTypeId;
+  const vtName = (cache.viewTypes[viewId] || {}).name || viewId;
+
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">${escapeHtml(rtName)} / ${escapeHtml(vtName)}</div>
+        <div class="field">
+          <label>سعر الليلة لفرد واحد (ج.م) <span class="req-mark">*</span></label>
+          <input type="number" id="priceSingle" min="0" step="1" value="${single}">
+        </div>
+        <div class="field">
+          <label>سعر الليلة لفردين (ج.م) <span class="req-mark">*</span></label>
+          <input type="number" id="priceDouble" min="0" step="1" value="${double}">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+          <button class="btn btn-primary" id="btnSavePricing">حفظ</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('btnSavePricing').addEventListener('click', async () => {
+    const valSingle = parseFloat(document.getElementById('priceSingle').value);
+    const valDouble = parseFloat(document.getElementById('priceDouble').value);
+    if(isNaN(valSingle) || valSingle < 0 || isNaN(valDouble) || valDouble < 0){
+      toastMsg('يرجى إدخال سعرين صحيحين', 'error');
+      return;
+    }
+    const btn = document.getElementById('btnSavePricing');
+    setBtnLoading(btn, true);
+    try{
+      await db.ref('pricing/' + key).update({
+        roomTypeId, viewId, priceSingle: valSingle, priceDouble: valDouble,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      await logActivity('UPDATE_PRICING', { comboKey: key, priceSingle: valSingle, priceDouble: valDouble });
+      closeModal();
+      toastMsg('تم تحديث السعر', 'success');
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+      setBtnLoading(btn, false);
+    }
+  });
+}
+
+/* =====================================================================
+   INVENTORY MANAGEMENT
+===================================================================== */
+function renderInventory(){
+  const rTypes = allRoomTypes();
+  const vTypesAll = allViewTypes();
+  let rowsHtml = '';
+  let anyCombo = false;
+
+  rTypes.forEach(([rtId, rt]) => {
+    const vTypes = viewTypesForRoomType(rtId, vTypesAll);
+    vTypes.forEach(([vtId, vt]) => {
+      anyCombo = true;
+      const key = comboKey(rtId, vtId);
+      const inv = cache.inventory[key];
+      const total = inv ? inv.totalRooms : 0;
+      rowsHtml += `
+        <tr>
+          <td><b>${escapeHtml(rt.name)}</b></td>
+          <td>${escapeHtml(vt.name)}</td>
+          <td>${total}</td>
+          <td class="row-actions">
+            <button class="link-btn" onclick="openInventoryModal('${rtId}','${vtId}')">تعديل العدد الإجمالي</button>
+          </td>
+        </tr>`;
+    });
+  });
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">إدارة Inventory</div></div>
+      <p class="mini-note">لتعديل عدد الغرف المتاحة لكل نوع + إطلالة. لا يمكن تعديل "المتاح" يدويا؛ يُحسب تلقائيا (Total − Confirmed − Out Of Order).</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>نوع الغرفة</th><th>الإطلالة</th><th>Total Rooms</th><th>إجراءات</th></tr></thead>
+          <tbody>${rowsHtml || ''}</tbody>
+        </table>
+      </div>
+      ${(rTypes.length === 0 || !anyCombo) ? '<div class="empty-state">أضف أنواع غرف وإطلالات، وحدد الإطلالات المرتبطة بكل نوع غرفة</div>' : ''}
+    </div>
+  `;
+}
+
+function openInventoryModal(roomTypeId, viewId){
+  const key = comboKey(roomTypeId, viewId);
+  const inv = cache.inventory[key];
+  const total = inv ? inv.totalRooms : 0;
+  const rtName = (cache.roomTypes[roomTypeId] || {}).name || roomTypeId;
+  const vtName = (cache.viewTypes[viewId] || {}).name || viewId;
+
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">${escapeHtml(rtName)} / ${escapeHtml(vtName)}</div>
+        <div class="field">
+          <label>Total Rooms <span class="req-mark">*</span></label>
+          <input type="number" id="invTotal" min="0" value="${total}">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+          <button class="btn btn-primary" id="btnSaveInventory">حفظ</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('btnSaveInventory').addEventListener('click', async () => {
+    const val = parseInt(document.getElementById('invTotal').value, 10);
+    if(isNaN(val) || val < 0){ toastMsg('يرجى إدخال رقم صحيح', 'error'); return; }
+    const btn = document.getElementById('btnSaveInventory');
+    setBtnLoading(btn, true);
+    try{
+      await db.ref('inventory/' + key).update({
+        roomTypeId, viewId, totalRooms: val, updatedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      await logActivity('UPDATE_INVENTORY', { comboKey: key, totalRooms: val });
+      closeModal();
+      toastMsg('تم تحديث Inventory', 'success');
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+      setBtnLoading(btn, false);
+    }
+  });
+}
+
+/* =====================================================================
+   AVAILABILITY CALENDAR
+===================================================================== */
+let calState = { year: new Date().getFullYear(), month: new Date().getMonth() };
+
+// كل تركيبات (نوع غرفة + إطلالة) التي لها Inventory مُعرّف
+// ملاحظة: بيتم استبعاد أي سجل Inventory قديم/يتيم (orphaned) بقي مرتبط
+// بنوع غرفة أو إطلالة تم حذفها أو فك ربطها، حتى لا يُحتسب ضمن مجموع الكالندر
+// رغم أنه لم يعد ظاهرًا في صفحة "إدارة Inventory".
+function allInventoryCombos(){
+  return Object.values(cache.inventory || {}).filter(inv => {
+    if(!inv || !inv.roomTypeId || !inv.viewId) return false;
+    const rt = cache.roomTypes && cache.roomTypes[inv.roomTypeId];
+    const vt = cache.viewTypes && cache.viewTypes[inv.viewId];
+    if(!rt || !vt) return false; // نوع الغرفة أو الإطلالة محذوف
+    return viewAppliesToRoomType(vt, inv.roomTypeId); // لازم تكون الإطلالة لسه مرتبطة بنوع الغرفة
+  });
+}
+
+function renderCalendar(){
+  const rTypes = allRoomTypes();
+  const vTypes = allViewTypes();
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">التوافر - Calendar (كل الغرف والإطلالات)</div></div>
+      <div class="filters-row">
+        <div class="field">
+          <label>الشهر</label>
+          <input type="month" id="calMonth" value="${calState.year}-${String(calState.month+1).padStart(2,'0')}">
+        </div>
+      </div>
+      <div id="calGridWrap"></div>
+    </div>
+  `;
+
+  const rebuild = () => {
+    const [y,m] = document.getElementById('calMonth').value.split('-');
+    calState.year = parseInt(y,10);
+    calState.month = parseInt(m,10) - 1;
+    renderCalendarGrid();
+  };
+  document.getElementById('calMonth').addEventListener('change', rebuild);
+
+  if(rTypes.length && vTypes.length) renderCalendarGrid();
+  else document.getElementById('calGridWrap').innerHTML = '<div class="empty-state">أضف أنواع غرف وإطلالات أولا</div>';
+}
+
+function renderCalendarGrid(){
+  const { year, month } = calState;
+  const combos = allInventoryCombos();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const firstWeekday = new Date(year, month, 1).getDay(); // 0=Sunday
+
+  let cells = '';
+  for(let i=0;i<firstWeekday;i++) cells += '<div class="cal-cell empty"></div>';
+
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+    let total = 0, booked = 0, ooo = 0, available = 0;
+    let closedCombos = 0;
+    const closedViewNames = new Set();
+
+    combos.forEach(inv => {
+      const key = comboKey(inv.roomTypeId, inv.viewId);
+      const comboTotal = inv.totalRooms || 0;
+
+      let comboBooked = 0;
+      Object.values(cache.bookings || {}).forEach(b => {
+        if(b.status === 'confirmed' && b.rooms && b.rooms[key]){
+          if(b.arrivalDate <= dateStr && dateStr < b.departureDate) comboBooked += b.rooms[key].count;
+        }
+      });
+
+      let comboOoo = 0;
+      Object.values(cache.outOfOrder[key] || {}).forEach(o => {
+        if(o.fromDate <= dateStr && dateStr < o.toDate) comboOoo += (o.roomsCount || 0);
+      });
+
+      const closure = getClosureForDate(inv.viewId, dateStr);
+      let comboAvailable = comboTotal - comboBooked - comboOoo;
+      if(closure){
+        comboAvailable = 0;
+        closedCombos++;
+        const vt = cache.viewTypes && cache.viewTypes[inv.viewId];
+        closedViewNames.add(vt ? vt.name : 'إطلالة محذوفة');
+      }
+
+      total += comboTotal;
+      booked += comboBooked;
+      ooo += comboOoo;
+      available += comboAvailable;
+    });
+
+    let cls = '';
+    if(combos.length && closedCombos === combos.length) cls = 'closed-avail';
+    else if(available <= 0) cls = 'low-avail';
+    else if(available <= Math.max(2, Math.round(total*0.15))) cls = 'mid-avail';
+
+    let closureBadge = '';
+    if(closedCombos > 0){
+      // كل الإطلالات الفعلية الموجودة في هذا اليوم (مش كل الإطلالات المُعرّفة في النظام)
+      const distinctViewIdsToday = new Set(combos.map(inv => inv.viewId));
+      const allViewsClosed = closedViewNames.size >= distinctViewIdsToday.size;
+      const label = allViewsClosed
+        ? 'مغلق — كل الإطلالات'
+        : `مغلق: ${[...closedViewNames].join('، ')}`;
+      closureBadge = `<span class="cal-closed-badge" title="${escapeHtml(label)}">${escapeHtml(label)}</span>`;
+    }
+
+    cells += `
+      <div class="cal-cell ${cls}">
+        <div class="cal-day">${d}</div>
+        <div class="cal-line"><span>Total</span><b>${total}</b></div>
+        <div class="cal-line"><span>Booked</span><b>${booked}</b></div>
+        <div class="cal-line"><span>OOO</span><b>${ooo}</b></div>
+        <div class="cal-line"><span>Avail</span><b>${available}</b></div>
+        ${closureBadge}
+      </div>`;
+  }
+
+  document.getElementById('calGridWrap').innerHTML = `<div class="cal-grid">${cells}</div>`;
+}
+
+/* =====================================================================
+   OUT OF ORDER
+===================================================================== */
+function renderOutOfOrder(){
+  const rTypes = allRoomTypes();
+
+  const entries = [];
+  Object.entries(cache.outOfOrder || {}).forEach(([key, list]) => {
+    Object.entries(list || {}).forEach(([oooId, o]) => {
+      entries.push({ key, oooId, ...o });
+    });
+  });
+  entries.sort((a,b) => (a.fromDate || '').localeCompare(b.fromDate || ''));
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">الغرف خارج الخدمة</div>
+        <button class="btn btn-gold btn-sm" id="btnAddOOO">+ إخراج غرف من الخدمة</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>نوع الغرفة</th><th>الإطلالة</th><th>العدد</th><th>من</th><th>إلى</th><th>السبب</th><th>إجراءات</th></tr></thead>
+          <tbody>
+            ${entries.length === 0 ? '' : entries.map(e => {
+              const rt = cache.roomTypes[e.roomTypeId] || {};
+              const vt = cache.viewTypes[e.viewId] || {};
+              return `
+              <tr>
+                <td>${escapeHtml(rt.name || e.roomTypeId)}</td>
+                <td>${escapeHtml(vt.name || e.viewId)}</td>
+                <td>${e.roomsCount}</td>
+                <td>${e.fromDate}</td>
+                <td>${e.toDate}</td>
+                <td>${escapeHtml(e.reason || '—')}</td>
+                <td><button class="link-btn" onclick="removeOutOfOrder('${e.key}','${e.oooId}')">حذف</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${entries.length === 0 ? '<div class="empty-state">لا توجد غرف خارج الخدمة حاليا</div>' : ''}
+    </div>
+  `;
+
+  document.getElementById('btnAddOOO').addEventListener('click', () => openOOOModal(rTypes));
+}
+
+function openOOOModal(rTypes){
+  if(rTypes.length === 0){
+    toastMsg('أضف أنواع غرف أولا', 'error');
+    return;
+  }
+  const initialVTypes = viewTypesForRoomType(rTypes[0][0], allViewTypes());
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">إخراج غرف من الخدمة</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>نوع الغرفة</label>
+            <select id="oooRoomType">${rTypes.map(([id,rt]) => `<option value="${id}">${escapeHtml(rt.name)}</option>`).join('')}</select>
+          </div>
+          <div class="field">
+            <label>الإطلالة</label>
+            <select id="oooViewType">${initialVTypes.length ? initialVTypes.map(([id,vt]) => `<option value="${id}">${escapeHtml(vt.name)}</option>`).join('') : '<option value="">لا توجد إطلالات لهذا النوع</option>'}</select>
+          </div>
+        </div>
+        <div class="field">
+          <label>عدد الغرف <span class="req-mark">*</span></label>
+          <input type="number" id="oooCount" min="1" value="1">
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>من تاريخ <span class="req-mark">*</span></label>
+            <input type="date" id="oooFrom" min="${todayStr()}">
+          </div>
+          <div class="field">
+            <label>إلى تاريخ <span class="req-mark">*</span></label>
+            <input type="date" id="oooTo" min="${todayStr()}">
+          </div>
+        </div>
+        <div class="field">
+          <label>السبب</label>
+          <input type="text" id="oooReason" placeholder="مثال: Maintenance">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+          <button class="btn btn-primary" id="btnSaveOOO">حفظ</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('oooRoomType').addEventListener('change', () => {
+    const rtId = document.getElementById('oooRoomType').value;
+    const vTypes = viewTypesForRoomType(rtId, allViewTypes());
+    document.getElementById('oooViewType').innerHTML = vTypes.length
+      ? vTypes.map(([id,vt]) => `<option value="${id}">${escapeHtml(vt.name)}</option>`).join('')
+      : '<option value="">لا توجد إطلالات لهذا النوع</option>';
+  });
+
+  document.getElementById('btnSaveOOO').addEventListener('click', async () => {
+    const roomTypeId = document.getElementById('oooRoomType').value;
+    const viewId = document.getElementById('oooViewType').value;
+    const roomsCount = parseInt(document.getElementById('oooCount').value, 10);
+    const fromDate = document.getElementById('oooFrom').value;
+    const toDate = document.getElementById('oooTo').value;
+    const reason = document.getElementById('oooReason').value.trim();
+
+    if(!viewId){ toastMsg('لا توجد إطلالات متاحة لنوع الغرفة المختار', 'error'); return; }
+    if(!roomsCount || roomsCount < 1){ toastMsg('يرجى إدخال عدد صحيح', 'error'); return; }
+    if(!fromDate || !toDate || toDate <= fromDate){ toastMsg('يرجى إدخال تواريخ صحيحة (إلى بعد من)', 'error'); return; }
+
+    const btn = document.getElementById('btnSaveOOO');
+    setBtnLoading(btn, true);
+    try{
+      const key = comboKey(roomTypeId, viewId);
+      const ref = db.ref('outOfOrder/' + key).push();
+      await ref.set({
+        roomTypeId, viewId, roomsCount, fromDate, toDate,
+        reason: reason || '', createdAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      await logActivity('CREATE_OUT_OF_ORDER', { comboKey: key, roomsCount, fromDate, toDate });
+      closeModal();
+      toastMsg('تم إخراج الغرف من الخدمة', 'success');
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+      setBtnLoading(btn, false);
+    }
+  });
+}
+
+async function removeOutOfOrder(key, oooId){
+  const ok = await askConfirm('هل تريد إعادة هذه الغرف إلى الخدمة؟');
+  if(!ok) return;
+  await db.ref('outOfOrder/' + key + '/' + oooId).remove();
+  await logActivity('DELETE_OUT_OF_ORDER', { comboKey: key, oooId });
+  toastMsg('تم الحذف', 'success');
+}
+
+/* =====================================================================
+   CLOSURES (إغلاق أيام/فترات من التوافر حسب الإطلالة)
+   يمنع توافر جميع الغرف (بكل أنواعها) لإطلالة معينة — مدينة/قناة —
+   أو كلتيهما معا خلال فترة محددة، دون الحاجة لتحديد نوع غرفة أو عدد.
+===================================================================== */
+function renderClosures(){
+  const vTypes = allViewTypes();
+
+  const entries = Object.entries(cache.closures || {})
+    .map(([id, c]) => ({ id, ...c }))
+    .sort((a,b) => (a.fromDate || '').localeCompare(b.fromDate || ''));
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">إغلاق أيام التوافر</div>
+        <button class="btn btn-gold btn-sm" id="btnAddClosure">+ إغلاق تواريخ جديدة</button>
+      </div>
+      <p class="mini-note">
+        يمنع هذا الإغلاق التوافر بالكامل (لكل أنواع الغرف) للإطلالة المختارة — المدينة أو القناة أو كلتيهما معا — خلال التواريخ المحددة، بصرف النظر عن الحجوزات أو Inventory.
+      </p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>الإطلالة</th><th>من</th><th>إلى</th><th>السبب</th><th>إجراءات</th></tr></thead>
+          <tbody>
+            ${entries.length === 0 ? '' : entries.map(e => {
+              const viewLabel = e.viewId === 'ALL' ? 'كل الإطلالات (مدينة + قناة)' : ((cache.viewTypes[e.viewId] || {}).name || e.viewId);
+              return `
+              <tr>
+                <td><b>${escapeHtml(viewLabel)}</b></td>
+                <td>${e.fromDate}</td>
+                <td>${e.toDate}</td>
+                <td>${escapeHtml(e.reason || '—')}</td>
+                <td><button class="link-btn" onclick="removeClosure('${e.id}')">حذف</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${entries.length === 0 ? '<div class="empty-state">لا توجد تواريخ مغلقة حاليا</div>' : ''}
+    </div>
+  `;
+
+  document.getElementById('btnAddClosure').addEventListener('click', () => openClosureModal(vTypes));
+}
+
+function openClosureModal(vTypes){
+  if(vTypes.length === 0){
+    toastMsg('أضف إطلالات أولا', 'error');
+    return;
+  }
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">إغلاق أيام من التوافر</div>
+        <div class="field">
+          <label>الإطلالة <span class="req-mark">*</span></label>
+          <select id="closureViewType">
+            <option value="ALL">كل الإطلالات (مدينة + قناة)</option>
+            ${vTypes.map(([id,vt]) => `<option value="${id}">${escapeHtml(vt.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>من تاريخ <span class="req-mark">*</span></label>
+            <input type="date" id="closureFrom" min="${todayStr()}">
+          </div>
+          <div class="field">
+            <label>إلى تاريخ <span class="req-mark">*</span></label>
+            <input type="date" id="closureTo" min="${todayStr()}">
+          </div>
+        </div>
+        <p class="mini-note">لإغلاق يوم واحد فقط، اختر نفس التاريخ في الحقلين.</p>
+        <div class="field">
+          <label>السبب</label>
+          <input type="text" id="closureReason" placeholder="مثال: صيانة، مناسبة خاصة، إجازة رسمية">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+          <button class="btn btn-primary" id="btnSaveClosure">حفظ</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('btnSaveClosure').addEventListener('click', async () => {
+    const viewId = document.getElementById('closureViewType').value;
+    const fromDate = document.getElementById('closureFrom').value;
+    const toDate = document.getElementById('closureTo').value;
+    const reason = document.getElementById('closureReason').value.trim();
+
+    if(!fromDate || !toDate || toDate < fromDate){ toastMsg('يرجى إدخال تواريخ صحيحة (إلى لا يسبق من)', 'error'); return; }
+
+    const btn = document.getElementById('btnSaveClosure');
+    setBtnLoading(btn, true);
+    try{
+      const ref = db.ref('closures').push();
+      await ref.set({
+        viewId, fromDate, toDate,
+        reason: reason || '', createdAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      await logActivity('CREATE_CLOSURE', { viewId, fromDate, toDate });
+      closeModal();
+      toastMsg('تم إغلاق التواريخ بنجاح', 'success');
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+      setBtnLoading(btn, false);
+    }
+  });
+}
+
+async function removeClosure(closureId){
+  const ok = await askConfirm('هل تريد فتح هذه التواريخ وإعادة التوافر؟');
+  if(!ok) return;
+  await db.ref('closures/' + closureId).remove();
+  await logActivity('DELETE_CLOSURE', { closureId });
+  toastMsg('تم الحذف', 'success');
+}
+
+/* =====================================================================
+   BOOKINGS (طلبات الحجز / الحجوزات المؤكدة) - shared table + search
+===================================================================== */
+let bookingsFilterState = {
+  bookingRequests: { status: 'pending', q: '', arrivalDate: '' },
+  confirmedBookings: { status: 'confirmed', q: '', arrivalDate: '' }
+};
+
+function renderBookingsPage(pageKey){
+  const isRequests = pageKey === 'bookingRequests';
+  const filt = bookingsFilterState[pageKey];
+  const title = isRequests ? 'طلبات الحجز' : 'الحجوزات المؤكدة';
+  const statusOptions = isRequests
+    ? ['pending','confirmed','cancelled']
+    : ['confirmed','cancelled'];
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">${title}</div></div>
+      <div class="filters-row">
+        <div class="field">
+          <label>بحث (رقم الحجز / الاسم / الهاتف)</label>
+          <input type="text" id="bkSearchQ" value="${escapeHtml(filt.q)}" placeholder="ابحث هنا...">
+        </div>
+        <div class="field">
+          <label>الحالة</label>
+          <select id="bkFilterStatus">
+            ${statusOptions.map(s => `<option value="${s}" ${filt.status===s?'selected':''}>${statusLabel(s)}</option>`).join('')}
+            <option value="all" ${filt.status==='all'?'selected':''}>الكل</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>تاريخ الوصول</label>
+          <input type="date" id="bkFilterArrival" value="${filt.arrivalDate}">
+        </div>
+      </div>
+      <div class="table-wrap" id="bkTableWrap"></div>
+      <div class="bk-cards" id="bkCardsWrap"></div>
+    </div>
+  `;
+
+  const rerender = () => {
+    filt.q = document.getElementById('bkSearchQ').value.trim();
+    filt.status = document.getElementById('bkFilterStatus').value;
+    filt.arrivalDate = document.getElementById('bkFilterArrival').value;
+    renderBookingsTable(pageKey);
+  };
+  document.getElementById('bkSearchQ').addEventListener('input', rerender);
+  document.getElementById('bkFilterStatus').addEventListener('change', rerender);
+  document.getElementById('bkFilterArrival').addEventListener('change', rerender);
+
+  renderBookingsTable(pageKey);
+}
+
+function renderBookingsTable(pageKey){
+  const filt = bookingsFilterState[pageKey];
+  let list = Object.entries(cache.bookings || {});
+
+  if(filt.status !== 'all') list = list.filter(([,b]) => b.status === filt.status);
+  if(filt.arrivalDate) list = list.filter(([,b]) => b.arrivalDate === filt.arrivalDate);
+  if(filt.q){
+    const q = filt.q.toLowerCase();
+    list = list.filter(([id,b]) =>
+      (b.bookingNumber || '').toLowerCase().includes(q) ||
+      (id || '').toLowerCase().includes(q) ||
+      (b.customerName || '').toLowerCase().includes(q) ||
+      (b.phone || '').toLowerCase().includes(q)
+    );
+  }
+  list.sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0));
+
+  const wrap = document.getElementById('bkTableWrap');
+  const cardsWrap = document.getElementById('bkCardsWrap');
+  if(list.length === 0){
+    wrap.innerHTML = '<div class="empty-state">لا توجد نتائج</div>';
+    cardsWrap.innerHTML = '<div class="empty-state">لا توجد نتائج</div>';
+    return;
+  }
+
+  wrap.innerHTML = `
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>رقم الحجز</th><th>العميل</th><th>الهاتف</th><th>الوصول</th><th>المغادرة</th>
+          <th>الغرف</th><th>الحالة</th><th>تاريخ الإنشاء</th><th>إجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${list.map(([id,b]) => `
+          <tr>
+            <td style="direction:ltr;text-align:left;">${escapeHtml(b.bookingNumber)}</td>
+            <td>${escapeHtml(b.customerName)}</td>
+            <td style="direction:ltr;text-align:left;">${escapeHtml(b.phone)}</td>
+            <td>${b.arrivalDate}</td>
+            <td>${b.departureDate}</td>
+            <td>${roomsSummaryHtml(b.rooms)}</td>
+            <td><span class="pill ${statusPillClass(b.status)}">${statusLabel(b.status)}</span></td>
+            <td>${fmtTimestamp(b.createdAt)}</td>
+            <td class="row-actions">
+              <button class="link-btn" onclick="openBookingDetails('${id}')">عرض</button>
+              ${canDeleteBooking(b) ? `<button class="link-btn link-btn-danger" onclick="deleteBooking('${id}')">حذف</button>` : ''}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  `;
+
+  cardsWrap.innerHTML = list.map(([id,b]) => `
+    <div class="bk-card">
+      <div class="bk-card-top">
+        <div>
+          <div class="bk-card-name">${escapeHtml(b.customerName)}</div>
+          <div class="bk-card-phone">${escapeHtml(b.phone)}</div>
+        </div>
+        <span class="pill ${statusPillClass(b.status)}">${statusLabel(b.status)}</span>
+      </div>
+      <div class="bk-card-num">#${escapeHtml(b.bookingNumber)}</div>
+      <div class="bk-card-dates">
+        <div>الوصول<b>${b.arrivalDate}</b></div>
+        <div>المغادرة<b>${b.departureDate}</b></div>
+      </div>
+      <div class="bk-card-rooms">${roomsSummaryHtml(b.rooms)}</div>
+      <div class="bk-card-created">أُنشئ: ${fmtTimestamp(b.createdAt)}</div>
+      <div class="bk-card-actions">
+        <button class="btn btn-ghost btn-sm btn-block" onclick="openBookingDetails('${id}')">عرض التفاصيل</button>
+        ${canDeleteBooking(b) ? `<button class="btn btn-danger btn-sm btn-block" onclick="deleteBooking('${id}')">حذف الطلب</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* =====================================================================
+   BOOKING DETAILS MODAL + Confirm / Cancel / Edit
+===================================================================== */
+function openBookingDetails(bookingId){
+  const b = cache.bookings[bookingId];
+  if(!b){ toastMsg('تعذر إيجاد الحجز', 'error'); return; }
+
+  const canConfirm = b.status === 'pending';
+  const canCancel = b.status === 'confirmed';
+  const canEdit = b.status === 'pending';
+  const canDelete = canDeleteBooking(b);
+
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box" style="max-width:560px;">
+        <div class="modal-title">تفاصيل الحجز — ${escapeHtml(b.bookingNumber)}</div>
+        <div class="detail-row"><b>الاسم</b><span>${escapeHtml(b.customerName)}</span></div>
+        <div class="detail-row"><b>الهاتف</b><span style="direction:ltr;">${escapeHtml(b.phone)}</span></div>
+        <div class="detail-row"><b>البريد الإلكتروني</b><span>${escapeHtml(b.email || '—')}</span></div>
+        <div class="detail-row"><b>الوصول</b><span>${b.arrivalDate}</span></div>
+        <div class="detail-row"><b>المغادرة</b><span>${b.departureDate}</span></div>
+        <div class="detail-row"><b>الغرف</b><span style="text-align:left;">${roomsSummaryHtml(b.rooms)}</span></div>
+        <div class="detail-row"><b>الإجمالي</b><span>${(typeof b.totalPrice === 'number') ? b.totalPrice + ' ج.م' : '—'}</span></div>
+        <div class="detail-row" style="display:block;">
+          <b>ملاحظات</b>
+          <div style="white-space:pre-wrap;margin-top:6px;font-size:13.5px;">${escapeHtml(b.notes || '—')}</div>
+        </div>
+        <div class="detail-row"><b>الحالة</b><span><span class="pill ${statusPillClass(b.status)}">${statusLabel(b.status)}</span></span></div>
+        <div class="detail-row"><b>تاريخ الإنشاء</b><span>${fmtTimestamp(b.createdAt)}</span></div>
+
+        <div id="bookingActionMsg"></div>
+
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">إغلاق</button>
+          <button class="btn btn-ghost" id="btnPrintBooking">🖨️ طباعة</button>
+          ${canEdit ? `<button class="btn btn-ghost" id="btnEditBooking">تعديل بيانات العميل</button>` : ''}
+          ${canConfirm ? `<button class="btn btn-primary" id="btnConfirmBooking"><span class="spinner"></span><span class="btn-label">Confirm Booking</span></button>` : ''}
+          ${canCancel ? `<button class="btn btn-danger" id="btnCancelBooking"><span class="spinner"></span><span class="btn-label">إلغاء الحجز</span></button>` : ''}
+          ${canDelete ? `<button class="btn btn-danger" id="btnDeleteBooking"><span class="spinner"></span><span class="btn-label">حذف الطلب نهائيا</span></button>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btnPrintBooking').addEventListener('click', () => printBookingVoucher(bookingId));
+  if(canConfirm){
+    document.getElementById('btnConfirmBooking').addEventListener('click', () => confirmBooking(bookingId));
+  }
+  if(canCancel){
+    document.getElementById('btnCancelBooking').addEventListener('click', () => cancelBooking(bookingId));
+  }
+  if(canEdit){
+    document.getElementById('btnEditBooking').addEventListener('click', () => openEditBookingModal(bookingId));
+  }
+  if(canDelete){
+    document.getElementById('btnDeleteBooking').addEventListener('click', () => deleteBooking(bookingId));
+  }
+}
+
+/* =====================================================================
+   PRINT BOOKING VOUCHER
+   يفتح نافذة جديدة تحتوي على مستند مبسّط قابل للطباعة لتفاصيل الحجز
+   (يعمل لحالة "قيد الانتظار" و"مؤكد" على حد سواء)، ويستخدم اسم/شعار
+   الفندق من hotelInfo إن وجدا.
+===================================================================== */
+function printBookingVoucher(bookingId){
+  const b = cache.bookings[bookingId];
+  if(!b){ toastMsg('تعذر إيجاد الحجز', 'error'); return; }
+
+  const info = cache.hotelInfo || {};
+  const hotelName = escapeHtml(info.name || 'الفندق');
+  const logoHtml = info.logoUrl ? `<img src="${escapeHtml(info.logoUrl)}" alt="logo" class="v-logo">` : '';
+
+  const roomsRows = Object.values(b.rooms || {}).map(r => `
+    <tr>
+      <td>${escapeHtml(r.roomTypeName)}</td>
+      <td>${escapeHtml(r.viewName)}</td>
+      <td>${r.count}</td>
+    </tr>`).join('');
+
+  const printWin = window.open('', '_blank', 'width=800,height=900');
+  if(!printWin){
+    toastMsg('يرجى السماح بالنوافذ المنبثقة لطباعة الحجز', 'error');
+    return;
+  }
+
+  printWin.document.write(`
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <title>حجز رقم ${escapeHtml(b.bookingNumber)}</title>
+      <style>
+        * { box-sizing: border-box; }
+        body {
+          font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+          color: #1a1a1a;
+          padding: 32px;
+          max-width: 700px;
+          margin: 0 auto;
+        }
+        .v-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 3px solid #b8934a;
+          padding-bottom: 16px;
+          margin-bottom: 24px;
+        }
+        .v-hotel-name { font-size: 22px; font-weight: 700; }
+        .v-logo { max-height: 60px; max-width: 160px; object-fit: contain; }
+        .v-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+        .v-sub { color: #666; font-size: 13px; margin-bottom: 24px; }
+        .v-status {
+          display: inline-block;
+          padding: 4px 14px;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: 700;
+          margin-inline-start: 8px;
+        }
+        .v-status.pending   { background: #fff3cd; color: #8a6100; }
+        .v-status.confirmed { background: #d4edda; color: #1e6b34; }
+        .v-status.cancelled { background: #f8d7da; color: #8a1f2b; }
+        table.v-info { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        table.v-info td { padding: 8px 4px; border-bottom: 1px solid #eee; vertical-align: top; }
+        table.v-info td:first-child { font-weight: 700; width: 160px; color: #444; }
+        table.v-rooms { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        table.v-rooms th, table.v-rooms td { border: 1px solid #ddd; padding: 8px 10px; text-align: right; font-size: 14px; }
+        table.v-rooms th { background: #f5f0e6; }
+        .v-footer { margin-top: 40px; font-size: 12px; color: #888; text-align: center; }
+        @media print {
+          body { padding: 0; }
+          .v-noprint { display: none; }
+        }
+        .v-noprint { text-align: center; margin-bottom: 20px; }
+        .v-noprint button {
+          padding: 10px 24px; font-size: 14px; border: none; border-radius: 6px;
+          background: #b8934a; color: #fff; cursor: pointer;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="v-noprint"><button onclick="window.print()">طباعة</button></div>
+      <div class="v-head">
+        <div class="v-hotel-name">${hotelName}</div>
+        ${logoHtml}
+      </div>
+      <div class="v-title">إيصال حجز — ${escapeHtml(b.bookingNumber)}</div>
+      <div class="v-sub">
+        الحالة:
+        <span class="v-status ${b.status}">${statusLabel(b.status)}</span>
+      </div>
+      <table class="v-info">
+        <tr><td>اسم العميل</td><td>${escapeHtml(b.customerName)}</td></tr>
+        <tr><td>رقم الهاتف</td><td style="direction:ltr;text-align:right;">${escapeHtml(b.phone)}</td></tr>
+        <tr><td>البريد الإلكتروني</td><td>${escapeHtml(b.email || '—')}</td></tr>
+        <tr><td>تاريخ الوصول</td><td>${b.arrivalDate}</td></tr>
+        <tr><td>تاريخ المغادرة</td><td>${b.departureDate}</td></tr>
+        <tr><td>ملاحظات</td><td style="white-space:pre-wrap;">${escapeHtml(b.notes || '—')}</td></tr>
+        <tr><td>تاريخ إنشاء الحجز</td><td>${fmtTimestamp(b.createdAt)}</td></tr>
+      </table>
+      <table class="v-rooms">
+        <thead><tr><th>نوع الغرفة</th><th>الإطلالة</th><th>العدد</th></tr></thead>
+        <tbody>${roomsRows}</tbody>
+      </table>
+      <div class="v-total" style="text-align:left;font-weight:800;font-size:15px;margin:14px 0;">
+        الإجمالي: ${(typeof b.totalPrice === 'number') ? b.totalPrice + ' ج.م' : '—'}
+      </div>
+      <div class="v-footer">تمت الطباعة بتاريخ ${new Date().toLocaleString('ar-EG')}</div>
+    </body>
+    </html>
+  `);
+  printWin.document.close();
+}
+
+function openEditBookingModal(bookingId){
+  const b = cache.bookings[bookingId];
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">تعديل بيانات العميل</div>
+        <div class="field"><label>الاسم الكامل</label><input type="text" id="editName" value="${escapeHtml(b.customerName)}"></div>
+        <div class="field"><label>رقم الهاتف</label><input type="tel" id="editPhone" value="${escapeHtml(b.phone)}"></div>
+        <div class="field"><label>البريد الإلكتروني</label><input type="email" id="editEmail" value="${escapeHtml(b.email || '')}"></div>
+        <div class="field"><label>ملاحظات</label><textarea id="editNotes">${escapeHtml(b.notes || '')}</textarea></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="openBookingDetails('${bookingId}')">رجوع</button>
+          <button class="btn btn-primary" id="btnSaveEditBooking">حفظ</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('btnSaveEditBooking').addEventListener('click', async () => {
+    const customerName = document.getElementById('editName').value.trim();
+    const phone = document.getElementById('editPhone').value.trim();
+    if(!customerName || !phone){ toastMsg('الاسم والهاتف مطلوبان', 'error'); return; }
+    const email = document.getElementById('editEmail').value.trim();
+    const notes = document.getElementById('editNotes').value.trim();
+    const btn = document.getElementById('btnSaveEditBooking');
+    setBtnLoading(btn, true);
+    try{
+      await db.ref('bookings/' + bookingId).update({
+        customerName, phone, email, notes, updatedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      await logActivity('MODIFY_BOOKING', { bookingId, bookingNumber: b.bookingNumber });
+      toastMsg('تم تحديث بيانات العميل', 'success');
+      openBookingDetails(bookingId);
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+      setBtnLoading(btn, false);
+    }
+  });
+}
+
+/* ---------------------------------------------------------------------
+   CONFIRM BOOKING
+   - يعيد حساب التوافر من Firebase (وليس من نتيجة بحث سابقة).
+   - يستخدم Firebase Transaction لكل (نوع غرفة+إطلالة، ليلة) عبر عقدة
+     nightReservations/{comboKey}/{night} = { [bookingId]: count }
+     بحيث تكون عملية "حجز السعة" ذرية (atomic) ومقاومة لتزامن موظفين
+     يحاولان تأكيد حجوزات تتنافس على نفس الغرف في نفس اللحظة.
+--------------------------------------------------------------------- */
+async function confirmBooking(bookingId){
+  if(!connected){
+    toastMsg('لا يمكن تأكيد الحجز أثناء انقطاع الاتصال', 'error');
+    return;
+  }
+  const booking = cache.bookings[bookingId];
+  if(!booking || booking.status !== 'pending'){
+    toastMsg('هذا الطلب لم يعد قابلا للتأكيد', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnConfirmBooking');
+  setBtnLoading(btn, true);
+
+  const nights = getNightsInRange(booking.arrivalDate, booking.departureDate);
+  const roomEntries = Object.entries(booking.rooms || {}); // [comboKey, {roomTypeId,viewId,count,...}]
+  const committedReservations = []; // {comboKey, night}
+  let rejected = false;
+
+  try{
+    for(const [key, r] of roomEntries){
+      const totalSnap = await db.ref('inventory/' + key + '/totalRooms').once('value');
+      const total = totalSnap.val() || 0;
+
+      for(const night of nights){
+        const oooCount = await computeOooForNight(key, night);
+        const cap = total - oooCount;
+
+        const nodeRef = db.ref('nightReservations/' + key + '/' + night);
+        const txResult = await nodeRef.transaction(current => {
+          const data = current || {};
+          let sumOthers = 0;
+          Object.entries(data).forEach(([bid, cnt]) => {
+            if(bid !== bookingId) sumOthers += (cnt || 0);
+          });
+          if(sumOthers + r.count > cap) return; // abort transaction -> not committed
+          const updated = Object.assign({}, data);
+          updated[bookingId] = r.count;
+          return updated;
+        });
+
+        if(!txResult.committed){
+          rejected = true;
+          break;
+        }
+        committedReservations.push({ key, night });
+      }
+      if(rejected) break;
+    }
+
+    if(rejected){
+      // rollback أي حجوزات جزئية تمت خلال هذه المحاولة
+      // FIX (Code Review): كانت remove() بدون await، ما يعني أن الدالة قد
+      // تنتهي قبل اكتمال التراجع فعليا، وأي فشل في الحذف كان يمر بصمت
+      // تاركا "قفل سعة" وهميا في nightReservations.
+      try{
+        await Promise.all(committedReservations.map(cr =>
+          db.ref('nightReservations/' + cr.key + '/' + cr.night + '/' + bookingId).remove()
+        ));
+      }catch(rollbackErr){
+        console.error('rollback error', rollbackErr);
+      }
+      document.getElementById('bookingActionMsg').innerHTML =
+        `<div style="background:var(--color-danger-bg);color:var(--color-danger);padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;margin-bottom:14px;">عذرا، لم تعد الغرف المطلوبة متاحة لهذه الفترة.</div>`;
+      setBtnLoading(btn, false);
+      return;
+    }
+
+    // كل الحجوزات الجزئية نجحت -> اعتماد الحجز نهائيا
+    // FIX: كانت bookings/status و bookingsByRoom/.../status تُكتبان معا في
+    // update() واحد. قاعدة bookingsByRoom تتحقق من مطابقة الحالة الجديدة
+    // مع root.child('bookings').child($bookingId).child('status')، لكن هذا
+    // الـ cross-reference لا يرى القيمة المكتوبة حديثا ضمن نفس عملية الـ
+    // update (نفس السبب الذي عولج في guest-booking.html)، فيفشل بـ
+    // permission_denied. الحل: كتابة bookings أولا، ثم bookingsByRoom بعد
+    // نجاحها بحيث يرى الـ root الحالة الفعلية المحدّثة.
+    await db.ref('bookings/' + bookingId).update({
+      status: 'confirmed',
+      updatedAt: firebase.database.ServerValue.TIMESTAMP
+    });
+    const byRoomUpdates = {};
+    roomEntries.forEach(([key]) => {
+      byRoomUpdates['bookingsByRoom/' + key + '/' + bookingId + '/status'] = 'confirmed';
+    });
+    await db.ref().update(byRoomUpdates);
+    await logActivity('CONFIRM_BOOKING', { bookingId, bookingNumber: booking.bookingNumber });
+
+    toastMsg('تم تأكيد الحجز بنجاح', 'success');
+    closeModal();
+  }catch(err){
+    console.error(err);
+    try{
+      await Promise.all(committedReservations.map(cr =>
+        db.ref('nightReservations/' + cr.key + '/' + cr.night + '/' + bookingId).remove()
+      ));
+    }catch(rollbackErr){
+      console.error('rollback error', rollbackErr);
+    }
+    toastMsg('حدث خطأ أثناء تأكيد الحجز', 'error');
+    setBtnLoading(btn, false);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   CANCEL BOOKING (لحجز مؤكد)
+--------------------------------------------------------------------- */
+async function cancelBooking(bookingId){
+  const booking = cache.bookings[bookingId];
+  if(!booking || booking.status !== 'confirmed'){
+    toastMsg('لا يمكن إلغاء هذا الحجز', 'error');
+    return;
+  }
+  const ok = await askConfirm('هل أنت متأكد من إلغاء هذا الحجز؟');
+  if(!ok) return;
+
+  const btn = document.getElementById('btnCancelBooking');
+  setBtnLoading(btn, true);
+
+  try{
+    const nights = getNightsInRange(booking.arrivalDate, booking.departureDate);
+    const roomEntries = Object.entries(booking.rooms || {});
+    // FIX: نفس مشكلة confirmBooking — bookings/status و bookingsByRoom/status
+    // كانا يُكتبان معا فتفشل قاعدة bookingsByRoom لأنها لا ترى الحالة
+    // الجديدة إلا بعد اكتمال كتابة bookings فعليا. نكتب bookings أولا.
+    await db.ref('bookings/' + bookingId).update({
+      status: 'cancelled',
+      updatedAt: firebase.database.ServerValue.TIMESTAMP
+    });
+    const restUpdates = {};
+    roomEntries.forEach(([key]) => {
+      restUpdates['bookingsByRoom/' + key + '/' + bookingId + '/status'] = 'cancelled';
+      nights.forEach(night => {
+        restUpdates['nightReservations/' + key + '/' + night + '/' + bookingId] = null;
+      });
+    });
+    await db.ref().update(restUpdates);
+    await logActivity('CANCEL_BOOKING', { bookingId, bookingNumber: booking.bookingNumber });
+    toastMsg('تم إلغاء الحجز', 'success');
+    closeModal();
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر إلغاء الحجز', 'error');
+    setBtnLoading(btn, false);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   DELETE BOOKING (حذف نهائي — لطلب "قيد الانتظار" فقط، ومدير فقط)
+   ملاحظة: هذا حذف حقيقي (remove) من /bookings و /bookingsByRoom، بخلاف
+   الإلغاء (status:'cancelled') الذي يُبقي على السجل. يتطلب تحديث Firebase
+   Rules للسماح بحذف عقدة كانت status:'pending' فقط ولمستخدم admin فقط
+   (راجع Rule.txt). لا حاجة للمس nightReservations لأن السعة لا تُحجز إلا
+   عند التأكيد (confirmBooking).
+--------------------------------------------------------------------- */
+async function deleteBooking(bookingId){
+  const booking = cache.bookings[bookingId];
+  if(!canDeleteBooking(booking)){
+    toastMsg('لا يمكن حذف هذا الطلب', 'error');
+    return;
+  }
+  const ok = await askConfirm(`سيتم حذف طلب الحجز رقم "${booking.bookingNumber}" نهائيا ولا يمكن التراجع عن ذلك. هل تريد المتابعة؟`);
+  if(!ok) return;
+
+  const btn = document.getElementById('btnDeleteBooking');
+  if(btn) setBtnLoading(btn, true);
+
+  try{
+    const roomEntries = Object.entries(booking.rooms || {});
+    const updates = {};
+    updates['bookings/' + bookingId] = null;
+    roomEntries.forEach(([key]) => {
+      updates['bookingsByRoom/' + key + '/' + bookingId] = null;
+    });
+    await db.ref().update(updates);
+    await logActivity('DELETE_BOOKING', { bookingId, bookingNumber: booking.bookingNumber });
+    toastMsg('تم حذف الطلب', 'success');
+    closeModal();
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر حذف الطلب', 'error');
+    if(btn) setBtnLoading(btn, false);
+  }
+}
+
+/* =====================================================================
+   ACTIVITY LOG (Admin only)
+===================================================================== */
+function renderActivityLog(){
+  const logs = Object.entries(cache.activityLogs || {})
+    .sort((a,b) => (b[1].timestamp||0) - (a[1].timestamp||0))
+    .slice(0, 200);
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Activity Log</div></div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>الإجراء</th><th>المستخدم</th><th>التوقيت</th><th>التفاصيل</th></tr></thead>
+          <tbody>
+            ${logs.length === 0 ? '' : logs.map(([id, l]) => `
+              <tr>
+                <td><b>${escapeHtml(l.action)}</b></td>
+                <td>${escapeHtml(l.userName || l.userId || '—')}</td>
+                <td>${fmtTimestamp(l.timestamp)}</td>
+                <td style="font-size:12px;color:var(--color-text-muted);">${escapeHtml(JSON.stringify(l.details || {}))}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${logs.length === 0 ? '<div class="empty-state">لا يوجد سجل نشاط بعد</div>' : ''}
+    </div>
+  `;
+}
+
+/* =====================================================================
+   USERS MANAGEMENT (Admin only)
+   ملاحظة: لا يمكن لهذا التطبيق (Client SDK بدون Backend) إنشاء حسابات
+   Firebase Authentication جديدة لموظفين آخرين دون تسجيل الخروج من
+   حساب المدير الحالي. لذلك تُدار هنا "بيانات الملف الشخصي" في
+   /users/{uid} فقط. لإنشاء مستخدم جديد: أنشئ الحساب أولا من
+   Firebase Console (Authentication) ثم أضف UID هنا لتحديد صلاحياته.
+===================================================================== */
+function renderUsers(){
+  const list = Object.entries(cache.users || {});
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">المستخدمون</div>
+        <button class="btn btn-gold btn-sm" id="btnAddUser">+ إضافة مستخدم</button>
+      </div>
+      <p class="mini-note">
+        يجب إنشاء حساب الدخول (Email/Password) أولا من Firebase Console → Authentication،
+        ثم إضافة الـ UID هنا لتحديد الاسم والصلاحية.
+      </p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الدور</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+          <tbody>
+            ${list.length === 0 ? '' : list.map(([uid, u]) => `
+              <tr>
+                <td><b>${escapeHtml(u.name)}</b></td>
+                <td style="direction:ltr;text-align:left;">${escapeHtml(u.email)}</td>
+                <td>${u.role === 'admin' ? 'مدير' : 'موظف'}</td>
+                <td><span class="pill ${u.active !== false ? 'pill-active' : 'pill-inactive'}">${u.active !== false ? 'مفعّل' : 'معطّل'}</span></td>
+                <td class="row-actions">
+                  <button class="link-btn" onclick="openUserModal('${uid}')">تعديل</button>
+                  <button class="link-btn link-btn-danger" onclick="deleteUser('${uid}')">حذف</button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${list.length === 0 ? '<div class="empty-state">لا يوجد مستخدمون بعد</div>' : ''}
+    </div>
+  `;
+
+  document.getElementById('btnAddUser').addEventListener('click', () => openUserModal(null));
+}
+
+function openUserModal(uid){
+  const u = uid ? cache.users[uid] : { name:'', email:'', role:'staff', active:true };
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">${uid ? 'تعديل مستخدم' : 'إضافة مستخدم'}</div>
+        ${!uid ? `
+        <div class="field">
+          <label>UID (من Firebase Authentication) <span class="req-mark">*</span></label>
+          <input type="text" id="userUid" placeholder="مثال: gk3F...">
+        </div>` : ''}
+        <div class="field">
+          <label>الاسم <span class="req-mark">*</span></label>
+          <input type="text" id="userName" value="${escapeHtml(u.name)}">
+        </div>
+        <div class="field">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="userEmail" value="${escapeHtml(u.email || '')}">
+        </div>
+        <div class="field">
+          <label>الدور</label>
+          <select id="userRole">
+            <option value="staff" ${u.role==='staff'?'selected':''}>موظف (staff)</option>
+            <option value="admin" ${u.role==='admin'?'selected':''}>مدير (admin)</option>
+          </select>
+        </div>
+        <div class="checkbox-row field">
+          <input type="checkbox" id="userActive" ${u.active !== false ? 'checked' : ''}>
+          <label for="userActive">مفعّل</label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+          <button class="btn btn-primary" id="btnSaveUser">حفظ</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btnSaveUser').addEventListener('click', async () => {
+    const finalUid = uid || document.getElementById('userUid').value.trim();
+    const name = document.getElementById('userName').value.trim();
+    const email = document.getElementById('userEmail').value.trim();
+    const role = document.getElementById('userRole').value;
+    const active = document.getElementById('userActive').checked;
+
+    if(!finalUid){ toastMsg('يرجى إدخال UID', 'error'); return; }
+    if(!name){ toastMsg('يرجى إدخال الاسم', 'error'); return; }
+
+    const btn = document.getElementById('btnSaveUser');
+    setBtnLoading(btn, true);
+    try{
+      await db.ref('users/' + finalUid).update({
+        name, email, role, active, updatedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      closeModal();
+      toastMsg('تم الحفظ بنجاح', 'success');
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+      setBtnLoading(btn, false);
+    }
+  });
+}
+
+async function deleteUser(uid){
+  if(currentUser && uid === currentUser.uid){
+    toastMsg('لا يمكنك حذف حسابك الخاص', 'error');
+    return;
+  }
+  const u = cache.users[uid] || {};
+  const ok = await askConfirm(`سيتم حذف بيانات المستخدم "${u.name || uid}" من التطبيق (لن يستطيع الدخول بعدها). ملاحظة: هذا لا يحذف حساب الدخول (Email/Password) من Firebase Authentication، ويجب حذفه يدويا من هناك إذا أردت. هل تريد المتابعة؟`);
+  if(!ok) return;
+
+  try{
+    await db.ref('users/' + uid).remove();
+    await logActivity('DELETE_USER', { uid, name: u.name });
+    toastMsg('تم حذف المستخدم', 'success');
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر الحذف', 'error');
+  }
+}
+
+/* =====================================================================
+   SETTINGS (Admin only)
+===================================================================== */
+function renderSettings(){
+  const info = cache.hotelInfo || {};
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel" style="max-width:520px;">
+      <div class="panel-head"><div class="panel-title">إعدادات الفندق</div></div>
+      <div class="field">
+        <label>اسم الفندق</label>
+        <input type="text" id="stHotelName" value="${escapeHtml(info.name || '')}">
+      </div>
+      <div class="field">
+        <label>رابط الشعار (Logo URL)</label>
+        <input type="text" id="stLogoUrl" value="${escapeHtml(info.logoUrl || '')}">
+      </div>
+      <button class="btn btn-primary" id="btnSaveSettings">حفظ الإعدادات</button>
+    </div>
+  `;
+  document.getElementById('btnSaveSettings').addEventListener('click', async () => {
+    const name = document.getElementById('stHotelName').value.trim();
+    const logoUrl = document.getElementById('stLogoUrl').value.trim();
+    const btn = document.getElementById('btnSaveSettings');
+    setBtnLoading(btn, true);
+    try{
+      await db.ref('hotelInfo').update({ name, logoUrl });
+      toastMsg('تم حفظ الإعدادات', 'success');
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+    }finally{
+      setBtnLoading(btn, false);
+    }
+  });
+}
+</script>
+
+</body>
+</html>
