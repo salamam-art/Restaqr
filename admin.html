@@ -307,7 +307,7 @@
   .bk-card-created{font-size:11.5px;color:var(--color-text-muted);margin-top:8px;}
   .bk-card-actions{margin-top:12px;}
   @media (max-width:760px){
-    #bkTableWrap{display:none;}
+    .table-wrap{display:none;}
     .bk-cards{display:block;}
   }
 
@@ -616,6 +616,12 @@ function statusLabel(status){
 }
 function statusPillClass(status){
   return { pending:'pill-pending', confirmed:'pill-confirmed', cancelled:'pill-cancelled' }[status] || '';
+}
+
+// حذف نهائي مسموح فقط لطلب لم يُؤكد بعد (pending)، وللمدير (admin) فقط —
+// يطابق قواعد الأمان في Firebase Rules (bookings/bookingsByRoom)
+function canDeleteBooking(b){
+  return !!b && b.status === 'pending' && !!currentUser && currentUser.role === 'admin';
 }
 
 function roomsSummaryHtml(rooms){
@@ -1940,6 +1946,7 @@ function renderBookingsTable(pageKey){
             <td>${fmtTimestamp(b.createdAt)}</td>
             <td class="row-actions">
               <button class="link-btn" onclick="openBookingDetails('${id}')">عرض</button>
+              ${canDeleteBooking(b) ? `<button class="link-btn link-btn-danger" onclick="deleteBooking('${id}')">حذف</button>` : ''}
             </td>
           </tr>`).join('')}
       </tbody>
@@ -1964,6 +1971,7 @@ function renderBookingsTable(pageKey){
       <div class="bk-card-created">أُنشئ: ${fmtTimestamp(b.createdAt)}</div>
       <div class="bk-card-actions">
         <button class="btn btn-ghost btn-sm btn-block" onclick="openBookingDetails('${id}')">عرض التفاصيل</button>
+        ${canDeleteBooking(b) ? `<button class="btn btn-danger btn-sm btn-block" onclick="deleteBooking('${id}')">حذف الطلب</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -1979,6 +1987,7 @@ function openBookingDetails(bookingId){
   const canConfirm = b.status === 'pending';
   const canCancel = b.status === 'confirmed';
   const canEdit = b.status === 'pending';
+  const canDelete = canDeleteBooking(b);
 
   document.getElementById('modalRoot').innerHTML = `
     <div class="modal-overlay">
@@ -2006,6 +2015,7 @@ function openBookingDetails(bookingId){
           ${canEdit ? `<button class="btn btn-ghost" id="btnEditBooking">تعديل بيانات العميل</button>` : ''}
           ${canConfirm ? `<button class="btn btn-primary" id="btnConfirmBooking"><span class="spinner"></span><span class="btn-label">Confirm Booking</span></button>` : ''}
           ${canCancel ? `<button class="btn btn-danger" id="btnCancelBooking"><span class="spinner"></span><span class="btn-label">إلغاء الحجز</span></button>` : ''}
+          ${canDelete ? `<button class="btn btn-danger" id="btnDeleteBooking"><span class="spinner"></span><span class="btn-label">حذف الطلب نهائيا</span></button>` : ''}
         </div>
       </div>
     </div>
@@ -2020,6 +2030,9 @@ function openBookingDetails(bookingId){
   }
   if(canEdit){
     document.getElementById('btnEditBooking').addEventListener('click', () => openEditBookingModal(bookingId));
+  }
+  if(canDelete){
+    document.getElementById('btnDeleteBooking').addEventListener('click', () => deleteBooking(bookingId));
   }
 }
 
@@ -2331,6 +2344,44 @@ async function cancelBooking(bookingId){
     console.error(err);
     toastMsg('تعذر إلغاء الحجز', 'error');
     setBtnLoading(btn, false);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   DELETE BOOKING (حذف نهائي — لطلب "قيد الانتظار" فقط، ومدير فقط)
+   ملاحظة: هذا حذف حقيقي (remove) من /bookings و /bookingsByRoom، بخلاف
+   الإلغاء (status:'cancelled') الذي يُبقي على السجل. يتطلب تحديث Firebase
+   Rules للسماح بحذف عقدة كانت status:'pending' فقط ولمستخدم admin فقط
+   (راجع Rule.txt). لا حاجة للمس nightReservations لأن السعة لا تُحجز إلا
+   عند التأكيد (confirmBooking).
+--------------------------------------------------------------------- */
+async function deleteBooking(bookingId){
+  const booking = cache.bookings[bookingId];
+  if(!canDeleteBooking(booking)){
+    toastMsg('لا يمكن حذف هذا الطلب', 'error');
+    return;
+  }
+  const ok = await askConfirm(`سيتم حذف طلب الحجز رقم "${booking.bookingNumber}" نهائيا ولا يمكن التراجع عن ذلك. هل تريد المتابعة؟`);
+  if(!ok) return;
+
+  const btn = document.getElementById('btnDeleteBooking');
+  if(btn) setBtnLoading(btn, true);
+
+  try{
+    const roomEntries = Object.entries(booking.rooms || {});
+    const updates = {};
+    updates['bookings/' + bookingId] = null;
+    roomEntries.forEach(([key]) => {
+      updates['bookingsByRoom/' + key + '/' + bookingId] = null;
+    });
+    await db.ref().update(updates);
+    await logActivity('DELETE_BOOKING', { bookingId, bookingNumber: booking.bookingNumber });
+    toastMsg('تم حذف الطلب', 'success');
+    closeModal();
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر حذف الطلب', 'error');
+    if(btn) setBtnLoading(btn, false);
   }
 }
 

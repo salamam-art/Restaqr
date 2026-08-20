@@ -1316,8 +1316,10 @@ function buildNotesWithPreferences(){
     const label = block.dataset.roomLabel;
     const adults = block.querySelector('.pref-adults').value;
     const bedConfig = block.querySelector('.pref-bed-twin').checked ? 'سريران منفصلان' : 'سرير كبير مزدوج';
-    const childBed = block.querySelector('.pref-child-bed').checked ? 'مطلوب' : 'غير مطلوب';
-    lines.push(`${label} — الأفراد: ${adults} | السرير: ${bedConfig} | سرير أطفال: ${childBed}`);
+    const needsChildBed = block.querySelector('.pref-child-bed').checked;
+    // نكتب "سرير أطفال" فقط لو العميل طلبه فعلا، وما نكتبش أي حاجة لو مش محتاجه
+    const childBedPart = needsChildBed ? ' | سرير أطفال' : '';
+    lines.push(`${label} — الأفراد: ${adults} | ${bedConfig}${childBedPart}`);
   });
 
   const freeNotes = document.getElementById('customerNotes').value.trim();
