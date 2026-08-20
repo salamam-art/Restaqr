@@ -582,6 +582,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
 
+<!-- ===== EmailJS SDK (لإرسال إشعار بالحجز الجديد للموظفين) ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 <script>
 /* =====================================================================
    Firebase Configuration
@@ -603,6 +606,54 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
+
+/* =====================================================================
+   EmailJS Configuration
+   إرسال إيميل تلقائي لعدة موظفين عند وصول حجز جديد قيد الانتظار
+===================================================================== */
+const EMAILJS_PUBLIC_KEY  = "W7YJpQgVP3K5HT3eV";
+const EMAILJS_SERVICE_ID  = "service_68fknbm";
+const EMAILJS_TEMPLATE_ID = "template_6eei2xl";
+
+// قائمة إيميلات الموظفين اللي هيوصلهم إشعار كل حجز جديد
+const STAFF_NOTIFY_EMAILS = [
+  "reservations.portsaid@restahotels.com",
+  "nahid.nabil@restahotels.com",
+  "mohamed.zaki@restahotels.com",
+  "mohamed.asalam@restahotels.com",
+  "Ihab.mohamed@restahotels.com"
+];
+
+emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+// تنسيق الغرف المطلوبة كنص مقروء للإيميل
+function formatRoomsForEmail(roomsObj){
+  return Object.values(roomsObj)
+    .map(r => `${r.roomTypeName} - ${r.viewName} (${r.count})`)
+    .join('، ');
+}
+
+// إرسال إشعار بالإيميل لكل الموظفين — لا توقف أو تفشل عملية الحجز لو الإرسال فشل
+async function sendBookingNotificationEmail(bookingData, roomsObj){
+  const templateParams = {
+    booking_number: bookingData.bookingNumber,
+    customer_name: bookingData.customerName,
+    phone: bookingData.phone,
+    email: bookingData.email || '—',
+    arrival_date: bookingData.arrivalDate,
+    departure_date: bookingData.departureDate,
+    rooms: formatRoomsForEmail(roomsObj),
+    total_price: bookingData.totalPrice,
+    notes: bookingData.notes || '—',
+    to_email: STAFF_NOTIFY_EMAILS.join(',')
+  };
+
+  try{
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+  }catch(err){
+    console.error('EmailJS notification failed:', err);
+  }
+}
 
 /* =====================================================================
    State
@@ -1418,6 +1469,9 @@ async function submitBookingRequest(){
     });
 
     await db.ref().update(byRoomUpdates);
+
+    // إرسال إشعار إيميل للموظفين بتفاصيل الحجز الجديد (لا يعطّل نجاح الحجز لو فشل)
+    sendBookingNotificationEmail(bookingData, roomsObj);
 
     document.getElementById('confirmBookingNumber').textContent = bookingNumber;
     showStep('stepConfirm');
