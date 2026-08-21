@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>حجز الغرف</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --color-primary:#164A42;
+    --color-primary-dark:#0E332D;
+    --color-primary-light:#1F5F55;
+    --color-accent:#C9A961;
+    --color-accent-light:#E4CE95;
+    --color-bg:#FAF7F1;
+    --color-surface:#FFFFFF;
+    --color-text:#26251F;
+    --color-text-muted:#77746A;
+    --color-success:#2F7D4F;
+    --color-success-bg:#EAF6EE;
+    --color-danger:#B3403A;
+    --color-danger-bg:#FBEAE9;
+    --color-border:#E7E1D2;
+    --radius-sm:8px;
+    --radius-md:14px;
+    --radius-lg:22px;
+    --shadow-card:0 10px 30px -12px rgba(22,74,66,0.18);
+    --shadow-soft:0 2px 10px rgba(22,74,66,0.06);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Tajawal', system-ui, sans-serif;
+    background:
+      radial-gradient(1200px 600px at 100% -10%, rgba(201,169,97,0.10), transparent 60%),
+      radial-gradient(1000px 500px at -10% 110%, rgba(22,74,66,0.08), transparent 60%),
+      var(--color-bg);
+    color:var(--color-text);
+    min-height:100vh;
+    line-height:1.6;
+  }
+
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:28px 18px 80px;
+  }
+
+  /* ===== Header ===== */
+  .hotel-header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:26px;
+  }
+  .hotel-logo{
+    width:58px;height:58px;border-radius:50%;
+    background:linear-gradient(145deg, var(--color-primary), var(--color-primary-dark));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--color-accent-light);
+    font-weight:800;font-size:22px;
+    box-shadow:var(--shadow-soft);
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .hotel-logo img{width:100%;height:100%;object-fit:cover;}
+  .hotel-name{
+    font-size:15px;
+    color:var(--color-text-muted);
+    font-weight:500;
+    letter-spacing:.3px;
+  }
+  .page-title{
+    font-size:28px;
+    font-weight:800;
+    color:var(--color-primary-dark);
+    margin-top:2px;
+    position:relative;
+    display:inline-block;
+  }
+  .page-title::after{
+    content:"";
+    position:absolute;
+    right:0;bottom:-8px;
+    width:46px;height:4px;
+    border-radius:4px;
+    background:linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  }
+
+  /* ===== Cards / sections ===== */
+  .card{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card);
+    padding:24px;
+    margin-bottom:20px;
+  }
+  .section-title{
+    font-size:17px;
+    font-weight:800;
+    color:var(--color-primary-dark);
+    margin:0 0 16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .section-title .badge-num{
+    width:26px;height:26px;
+    border-radius:50%;
+    background:var(--color-primary);
+    color:#fff;
+    font-size:13px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+
+  /* ===== Form elements ===== */
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    color:var(--color-text-muted);
+    margin-bottom:6px;
+  }
+  .field{margin-bottom:16px;}
+  .req-mark{color:var(--color-danger);}
+  .field-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+  .field-label-row label{margin-bottom:0;}
+  .time-hint-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+    background:var(--color-bg);
+    border:1px solid var(--color-border);
+    border-radius:999px;
+    padding:6px 14px;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--color-primary-dark);
+  }
+  .checkbox-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .checkbox-row input{width:auto;}
+  .checkbox-row label{margin-bottom:0;}
+
+  input[type=date], input[type=text], input[type=tel], input[type=email], input[type=number], select, textarea{
+    width:100%;
+    padding:12px 14px;
+    border:1.5px solid var(--color-border);
+    border-radius:var(--radius-sm);
+    background:#fff;
+    font-family:inherit;
+    font-size:15px;
+    color:var(--color-text);
+    transition:border-color .15s, box-shadow .15s;
+    appearance:none;
+    -webkit-appearance:none;
+  }
+  select{
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1 1l6 6 6-6' stroke='%23164A42' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;
+    background-position:left 14px center;
+    padding-left:34px;
+  }
+  input:focus, select:focus, textarea:focus{
+    outline:none;
+    border-color:var(--color-primary-light);
+    box-shadow:0 0 0 3px rgba(22,74,66,0.12);
+  }
+  textarea{resize:vertical;min-height:80px;}
+
+  .dates-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+
+  /* ===== Room selection rows ===== */
+  .room-row{
+    border:1.5px solid var(--color-border);
+    border-radius:var(--radius-md);
+    padding:16px;
+    margin-bottom:14px;
+    position:relative;
+    background:#FDFCFA;
+  }
+  .room-row-grid{
+    display:grid;
+    grid-template-columns:1.3fr 1.3fr .8fr;
+    gap:12px;
+  }
+  .qty-stepper{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .qty-stepper input{
+    width:100%;
+    text-align:center;
+    padding:12px 4px;
+  }
+  .qty-btn{
+    flex:0 0 auto;
+    width:40px;
+    height:44px;
+    border:1.5px solid var(--color-border);
+    border-radius:var(--radius-sm);
+    background:#fff;
+    color:var(--color-primary);
+    font-size:20px;
+    font-weight:700;
+    line-height:1;
+    cursor:pointer;
+  }
+  .qty-btn:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+  }
+  .room-row-remove{
+    position:absolute;
+    top:10px;left:10px;
+    width:28px;height:28px;
+    border-radius:50%;
+    border:none;
+    background:var(--color-danger-bg);
+    color:var(--color-danger);
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    line-height:1;
+  }
+  .room-row-remove:hover{background:#F5D6D4;}
+
+  .btn-add-room{
+    width:100%;
+    padding:13px;
+    border-radius:var(--radius-sm);
+    border:1.5px dashed var(--color-accent);
+    background:rgba(201,169,97,0.08);
+    color:var(--color-primary-dark);
+    font-family:inherit;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .btn-add-room:hover{background:rgba(201,169,97,0.16);}
+
+  /* ===== Buttons ===== */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    padding:15px 18px;
+    border-radius:var(--radius-sm);
+    border:none;
+    font-family:inherit;
+    font-size:15.5px;
+    font-weight:800;
+    cursor:pointer;
+    transition:transform .1s, box-shadow .15s, opacity .15s;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{
+    background:linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color:#fff;
+    box-shadow:0 8px 20px -6px rgba(22,74,66,0.5);
+  }
+  .btn-primary:hover{box-shadow:0 10px 24px -6px rgba(22,74,66,0.6);}
+  .btn-gold{
+    background:linear-gradient(135deg, var(--color-accent), #B3924D);
+    color:#3A2E10;
+    box-shadow:0 8px 20px -6px rgba(201,169,97,0.55);
+  }
+  .btn-ghost{
+    background:transparent;
+    border:1.5px solid var(--color-border);
+    color:var(--color-text-muted);
+  }
+  .btn[disabled]{
+    opacity:.55;
+    cursor:not-allowed;
+    box-shadow:none;
+    transform:none;
+  }
+  .btn .spinner{
+    width:16px;height:16px;
+    border-radius:50%;
+    border:2.5px solid rgba(255,255,255,0.4);
+    border-top-color:#fff;
+    animation:spin .7s linear infinite;
+    display:none;
+  }
+  .btn.loading .spinner{display:inline-block;}
+  .btn.loading .btn-label{opacity:.85;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .btn-row{display:flex;gap:12px;}
+  .btn-row .btn{width:auto;flex:1;}
+
+  /* ===== Results ===== */
+  .result-item{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px 14px;
+    padding:14px 16px;
+    border-radius:var(--radius-md);
+    border:1.5px solid var(--color-border);
+    margin-bottom:10px;
+  }
+  .result-info{min-width:0;flex:1 1 140px;}
+  .result-info .rt{font-weight:800;font-size:15px;color:var(--color-primary-dark);word-break:break-word;}
+  .result-info .rv{font-size:13px;color:var(--color-text-muted);margin-top:2px;word-break:break-word;}
+  .result-nums{text-align:left;font-size:13px;color:var(--color-text-muted);flex:0 0 auto;}
+  .result-nums b{display:block;font-size:16px;color:var(--color-text);}
+  .result-status{
+    font-weight:800;
+    font-size:13px;
+    display:flex;align-items:center;gap:6px;
+    white-space:nowrap;
+    flex:0 0 auto;
+  }
+  .result-item.ok{border-color:#BFE3CC;background:var(--color-success-bg);}
+  .result-item.bad{border-color:#EFC2BF;background:var(--color-danger-bg);}
+  .result-status.ok{color:var(--color-success);}
+  .result-status.bad{color:var(--color-danger);}
+
+  .overall-msg{
+    text-align:center;
+    padding:16px;
+    border-radius:var(--radius-md);
+    font-weight:800;
+    font-size:15.5px;
+    margin:14px 0 18px;
+  }
+  .overall-msg.ok{background:var(--color-success-bg);color:var(--color-success);}
+  .overall-msg.bad{background:var(--color-danger-bg);color:var(--color-danger);}
+
+  /* ===== Confirmation ===== */
+  .confirm-box{
+    text-align:center;
+    padding:10px 0 6px;
+  }
+  .confirm-icon{
+    width:70px;height:70px;
+    border-radius:50%;
+    background:var(--color-success-bg);
+    color:var(--color-success);
+    font-size:34px;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 18px;
+  }
+  .booking-number{
+    font-size:22px;
+    font-weight:800;
+    color:var(--color-primary-dark);
+    background:#F4EFE2;
+    display:inline-block;
+    padding:10px 22px;
+    border-radius:var(--radius-sm);
+    letter-spacing:.5px;
+    margin:8px 0 14px;
+    direction:ltr;
+  }
+  .status-pill{
+    display:inline-block;
+    background:var(--color-accent-light);
+    color:#5A4416;
+    font-weight:700;
+    font-size:12.5px;
+    padding:5px 14px;
+    border-radius:20px;
+    margin-bottom:14px;
+  }
+
+  /* ===== Utility ===== */
+  .hint{font-size:12.5px;color:var(--color-text-muted);margin-top:6px;}
+  .phone-warning{
+    display:flex;align-items:flex-start;gap:8px;
+    background:var(--color-accent-light);
+    border:1px solid var(--color-accent);
+    border-radius:var(--radius-sm);
+    padding:10px 12px;
+    font-size:13px;
+    font-weight:700;
+    color:#5A4416;
+    margin-bottom:10px;
+    line-height:1.5;
+  }
+  .error-text{font-size:12.5px;color:var(--color-danger);margin-top:6px;display:none;}
+  .field.has-error input, .field.has-error select{border-color:var(--color-danger);}
+  .field.has-error .error-text{display:block;}
+  .hidden{display:none !important;}
+
+  /* ===== Toasts ===== */
+  #toast-container{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:9999;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    width:calc(100% - 32px);
+    max-width:420px;
+    align-items:center;
+  }
+  .toast{
+    background:var(--color-primary-dark);
+    color:#fff;
+    padding:13px 18px;
+    border-radius:var(--radius-md);
+    font-size:14px;
+    font-weight:600;
+    box-shadow:0 10px 25px -8px rgba(0,0,0,0.4);
+    width:100%;
+    text-align:center;
+    animation:toast-in .25s ease;
+  }
+  .toast.error{background:var(--color-danger);}
+  .toast.success{background:var(--color-success);}
+  @keyframes toast-in{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .page-loading{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--color-text-muted);
+  }
+
+  footer.app-footer{
+    text-align:center;
+    font-size:12px;
+    color:var(--color-text-muted);
+    margin-top:26px;
+  }
+
+  @media (max-width:520px){
+    .room-row-grid{grid-template-columns:1fr;}
+    .dates-grid{grid-template-columns:1fr;}
+    .page-title{font-size:24px;}
+    .btn-row{flex-direction:column;}
+  }
+  @media (max-width:380px){
+    .result-item{flex-direction:column;align-items:flex-start;}
+    .result-nums{text-align:right;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ===== Header ===== -->
+  <div class="hotel-header">
+    <div class="hotel-logo" id="hotelLogo">🏨</div>
+    <div>
+      <div class="hotel-name" id="hotelName">اسم الفندق</div>
+      <div class="page-title">حجز الغرف</div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 1: Dates + Rooms ===== -->
+  <div class="card" id="stepSearch">
+    <div class="section-title"><span class="badge-num">1</span> تواريخ الإقامة</div>
+
+    <div class="dates-grid">
+      <div class="field" id="fieldArrival">
+        <div class="field-label-row">
+          <label>تاريخ الوصول (Check-in) <span class="req-mark">*</span></label>
+          <span class="time-hint-badge">⏰ من الساعة ٢ عصرًا</span>
+        </div>
+        <input type="date" id="arrivalDate">
+        <div class="error-text" id="errArrival">يرجى اختيار تاريخ وصول صحيح (لا يمكن أن يكون في الماضي).</div>
+      </div>
+      <div class="field" id="fieldDeparture">
+        <div class="field-label-row">
+          <label>تاريخ المغادرة (Check-out) <span class="req-mark">*</span></label>
+          <span class="time-hint-badge">⏰ حتى الساعة ١٢ ظهرًا</span>
+        </div>
+        <input type="date" id="departureDate">
+        <div class="error-text" id="errDeparture">تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول.</div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:22px;"><span class="badge-num">2</span> اختيار الغرف</div>
+    <div id="roomRowsContainer"></div>
+    <button type="button" class="btn-add-room" id="btnAddRoom">+ إضافة غرفة</button>
+
+    <div style="margin-top:22px;">
+      <button type="button" class="btn btn-primary" id="btnSearchAvailability">
+        <span class="spinner"></span>
+        <span class="btn-label">بحث عن التوافر</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 2: Results ===== -->
+  <div class="card hidden" id="stepResults">
+    <div class="section-title"><span class="badge-num">3</span> نتيجة التوافر</div>
+    <div id="resultsContainer"></div>
+    <div id="overallMsg" class="overall-msg"></div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-ghost" id="btnBackToSearch">تعديل البحث</button>
+      <button type="button" class="btn btn-gold hidden" id="btnContinueBooking">متابعة الحجز</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 3: Customer info ===== -->
+  <div class="card hidden" id="stepCustomer">
+    <div class="section-title"><span class="badge-num">4</span> بيانات العميل</div>
+
+    <div class="field">
+      <label>الاسم الكامل <span class="req-mark">*</span></label>
+      <input type="text" id="customerName" placeholder="مثال: أحمد محمد">
+      <div class="error-text">يرجى إدخال الاسم الكامل.</div>
+    </div>
+
+    <div class="field">
+      <label>رقم الهاتف <span class="req-mark">*</span></label>
+      <div class="phone-warning">⚠️ رجاء التحقق جيدًا من رقم الموبايل، فسيتم التواصل معكم من خلاله فقط بخصوص الحجز.</div>
+      <input type="tel" id="customerPhone" placeholder="مثال: 01223719900" inputmode="numeric" maxlength="11" autocomplete="tel">
+      <div class="hint">11 رقم يبدأ بـ 010 / 011 / 012 / 015.</div>
+      <div class="error-text">رقم الهاتف مطلوب.</div>
+    </div>
+
+    <div class="field">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="customerEmail" placeholder="example@email.com">
+    </div>
+
+    <div class="section-title" style="margin-top:22px;">تفضيلات الإقامة</div>
+    <div id="roomPreferencesContainer"></div>
+
+    <div class="field">
+      <label>ملاحظات عامة على الحجز بالكامل</label>
+      <textarea id="customerNotes" placeholder="أي طلبات أو ملاحظات إضافية..."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-ghost" id="btnBackToResults">رجوع</button>
+      <button type="button" class="btn btn-primary" id="btnSubmitBooking">
+        <span class="spinner"></span>
+        <span class="btn-label">إرسال طلب الحجز</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 4: Confirmation ===== -->
+  <div class="card hidden" id="stepConfirm">
+    <div class="confirm-box">
+      <div class="confirm-icon">✓</div>
+      <div style="font-size:19px;font-weight:800;color:var(--color-primary-dark);">تم إرسال طلب الحجز بنجاح</div>
+      <div class="hint">رقم الطلب</div>
+      <div class="booking-number" id="confirmBookingNumber">—</div>
+      <div><span class="status-pill" id="confirmStatus">قيد الانتظار</span></div>
+      <p style="color:var(--color-text-muted);font-size:14px;max-width:420px;margin:6px auto 20px;">
+        سيقوم الفندق بمراجعة طلبكم والتواصل معكم لتأكيد الحجز.
+      </p>
+      <button type="button" class="btn btn-primary" id="btnNewBooking" style="max-width:280px;margin:0 auto;">حجز جديد</button>
+    </div>
+  </div>
+
+  <footer class="app-footer">جميع الحقوق محفوظة</footer>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- ===== Firebase SDK ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+
+<!-- ===== EmailJS SDK (لإرسال إشعار بالحجز الجديد للموظفين) ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+/* =====================================================================
+   Firebase Configuration
+   ضع Firebase Configuration هنا
+   (يجب أن يكون نفس Firebase Project المستخدم تماما في hotel-admin.html،
+   وإلا فلن يرى الضيف بيانات roomTypes/viewTypes/inventory... التي
+   يديرها الموظف/المدير من لوحة الإدارة)
+===================================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBa30GOqlojv1vj6DGAbRJ5ibf-OQUiXQ0",
+  authDomain: "resta-hotel-booking.firebaseapp.com",
+  databaseURL: "https://resta-hotel-booking-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "resta-hotel-booking",
+  storageBucket: "resta-hotel-booking.firebasestorage.app",
+  messagingSenderId: "1060340241429",
+  appId: "1:1060340241429:web:ce4240d23c2dd7fbc72a1c"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+/* =====================================================================
+   EmailJS Configuration
+   إرسال إيميل تلقائي لعدة موظفين عند وصول حجز جديد قيد الانتظار
+===================================================================== */
+const EMAILJS_PUBLIC_KEY  = "W7YJpQgVP3K5HT3eV";
+const EMAILJS_SERVICE_ID  = "service_68fknbm";
+const EMAILJS_TEMPLATE_ID = "template_6eei2xl";
+
+// قائمة إيميلات الموظفين اللي هيوصلهم إشعار كل حجز جديد
+const STAFF_NOTIFY_EMAILS = [
+  "reservations.portsaid@restahotels.com",
+  "nahid.nabil@restahotels.com",
+  "mohamed.zaki@restahotels.com",
+  "mohamed.asalam@restahotels.com",
+  "Ihab.mohamed@restahotels.com"
+];
+
+emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+// تنسيق الغرف المطلوبة كنص مقروء للإيميل
+function formatRoomsForEmail(roomsObj){
+  return Object.values(roomsObj)
+    .map(r => `${r.roomTypeName} - ${r.viewName} (${r.count})`)
+    .join('، ');
+}
+
+// إرسال إشعار بالإيميل لكل الموظفين — لا توقف أو تفشل عملية الحجز لو الإرسال فشل
+async function sendBookingNotificationEmail(bookingData, roomsObj){
+  const templateParams = {
+    booking_number: bookingData.bookingNumber,
+    customer_name: bookingData.customerName,
+    phone: bookingData.phone,
+    email: bookingData.email || '—',
+    arrival_date: bookingData.arrivalDate,
+    departure_date: bookingData.departureDate,
+    rooms: formatRoomsForEmail(roomsObj),
+    total_price: bookingData.totalPrice,
+    notes: bookingData.notes || '—',
+    to_email: STAFF_NOTIFY_EMAILS.join(',')
+  };
+
+  try{
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+  }catch(err){
+    console.error('EmailJS notification failed:', err);
+  }
+}
+
+/* =====================================================================
+   State
+===================================================================== */
+const state = {
+  roomTypes: {},      // { id: {name, order, active} }
+  viewTypes: {},       // { id: {name, order, active} }
+  roomRowCount: 0,
+  searchResults: [],   // filled after availability search
+  totalPrice: 0,        // إجمالي السعر المحسوب فى خطوة تفضيلات الإقامة
+  totalPriceIncomplete: false,
+  authReady: false,    // true بعد نجاح Anonymous Sign-In
+};
+
+/* =====================================================================
+   Anonymous Authentication
+   -----------------------------------------------------------------
+   FIX (Code Review): كل قواعد Realtime Database (hotelInfo, roomTypes,
+   viewTypes, inventory, outOfOrder, bookings, bookingsByRoom, counters)
+   تشترط auth != null. صفحة الضيف كانت لا تستخدم Firebase Auth إطلاقا،
+   وبالتالي كل قراءة/كتابة كانت سترفض بـ PERMISSION_DENIED. تم إصلاح ذلك
+   عبر Anonymous Sign-In قبل أي استخدام لقاعدة البيانات، مع تعطيل
+   العناصر التفاعلية حتى تكتمل عملية الدخول.
+===================================================================== */
+function setAppInteractive(enabled){
+  document.querySelectorAll('#btnAddRoom, #btnSearchAvailability, #btnSubmitBooking').forEach(el => {
+    if(el) el.disabled = !enabled;
+  });
+}
+
+function initAuthGate(){
+  setAppInteractive(false);
+
+  auth.onAuthStateChanged(user => {
+    if(user){
+      state.authReady = true;
+      setAppInteractive(true);
+      initReferenceDataListeners();
+    }
+  });
+
+  auth.signInAnonymously().catch(err => {
+    console.error('anonymous sign-in error', err);
+    toastMsg('تعذر الاتصال بالخادم، يرجى تحديث الصفحة والمحاولة مرة أخرى', 'error');
+  });
+}
+
+/* =====================================================================
+   Utilities
+===================================================================== */
+function toastMsg(msg, type){
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? (' ' + type) : '');
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transition = 'opacity .25s';
+    setTimeout(() => el.remove(), 250);
+  }, 3200);
+}
+
+function setBtnLoading(btn, loading){
+  if(!btn) return;
+  btn.disabled = loading;
+  btn.classList.toggle('loading', loading);
+}
+
+function formatDateInput(d){
+  // Date -> "YYYY-MM-DD"
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function todayStr(){
+  return formatDateInput(new Date());
+}
+
+// returns array of night-date strings within [arrival, departure)
+function getNightsInRange(arrivalStr, departureStr){
+  const nights = [];
+  let cur = new Date(arrivalStr + 'T00:00:00');
+  const end = new Date(departureStr + 'T00:00:00');
+  while(cur < end){
+    nights.push(formatDateInput(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return nights;
+}
+
+function comboKey(roomTypeId, viewId){
+  return `${roomTypeId}_${viewId}`;
+}
+
+// إطلالة بدون roomTypeIds (أو بقائمة فارغة) تُعتبر متاحة لكل أنواع الغرف (توافق مع البيانات القديمة)
+function viewAppliesToRoomType(vt, roomTypeId){
+  if(!vt || !roomTypeId) return false;
+  const ids = vt.roomTypeIds;
+  if(!ids || Object.keys(ids).length === 0) return true;
+  return !!ids[roomTypeId];
+}
+
+/* =====================================================================
+   Load reference data (room types / view types) - realtime
+===================================================================== */
+function initReferenceDataListeners(){
+  db.ref('hotelInfo').on('value', snap => {
+    const info = snap.val();
+    if(info){
+      if(info.name) document.getElementById('hotelName').textContent = info.name;
+      if(info.logoUrl){
+        document.getElementById('hotelLogo').innerHTML =
+          `<img src="${info.logoUrl}" alt="شعار الفندق">`;
+      }
+    }
+  }, err => console.error('hotelInfo error', err));
+
+  db.ref('roomTypes').on('value', snap => {
+    state.roomTypes = snap.val() || {};
+    refreshAllRoomTypeSelects();
+  }, err => {
+    console.error('roomTypes error', err);
+    toastMsg('تعذر تحميل أنواع الغرف', 'error');
+  });
+
+  db.ref('viewTypes').on('value', snap => {
+    state.viewTypes = snap.val() || {};
+    refreshAllViewTypeSelects();
+  }, err => {
+    console.error('viewTypes error', err);
+    toastMsg('تعذر تحميل أنواع الإطلالات', 'error');
+  });
+}
+
+function sortedEntries(obj){
+  return Object.entries(obj || {})
+    .filter(([id, v]) => v && v.active !== false)
+    .sort((a,b) => (a[1].order||0) - (b[1].order||0));
+}
+
+function refreshAllRoomTypeSelects(){
+  document.querySelectorAll('.select-room-type').forEach(sel => {
+    const currentVal = sel.value;
+    sel.innerHTML = '';
+    const entries = sortedEntries(state.roomTypes);
+    if(entries.length === 0){
+      sel.innerHTML = '<option value="">لا توجد أنواع غرف</option>';
+      return;
+    }
+    entries.forEach(([id, rt]) => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = rt.name;
+      sel.appendChild(opt);
+    });
+    if(currentVal && state.roomTypes[currentVal]) sel.value = currentVal;
+  });
+}
+
+function refreshViewSelectForRow(row){
+  const roomTypeId = row.querySelector('.select-room-type').value;
+  const sel = row.querySelector('.select-view-type');
+  const currentVal = sel.value;
+  sel.innerHTML = '';
+  const entries = sortedEntries(state.viewTypes).filter(([, vt]) => viewAppliesToRoomType(vt, roomTypeId));
+  if(entries.length === 0){
+    sel.innerHTML = '<option value="">لا توجد إطلالات لهذا النوع</option>';
+    return;
+  }
+  entries.forEach(([id, vt]) => {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = vt.name;
+    sel.appendChild(opt);
+  });
+  if(currentVal && entries.some(([id]) => id === currentVal)) sel.value = currentVal;
+}
+
+function refreshAllViewTypeSelects(){
+  document.querySelectorAll('.room-row').forEach(row => refreshViewSelectForRow(row));
+}
+
+/* =====================================================================
+   Room selection rows (dynamic)
+===================================================================== */
+function addRoomRow(){
+  state.roomRowCount++;
+  const rowId = 'room-row-' + state.roomRowCount;
+  const container = document.getElementById('roomRowsContainer');
+
+  const row = document.createElement('div');
+  row.className = 'room-row';
+  row.id = rowId;
+  row.innerHTML = `
+    <button type="button" class="room-row-remove" title="حذف">×</button>
+    <div class="room-row-grid">
+      <div class="field" style="margin-bottom:0;">
+        <label>نوع الغرفة</label>
+        <select class="select-room-type"></select>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>الإطلالة</label>
+        <select class="select-view-type"></select>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>عدد الغرف</label>
+        <div class="qty-stepper">
+          <button type="button" class="qty-btn qty-minus" aria-label="إنقاص عدد الغرف">−</button>
+          <input type="number" class="input-room-count" min="1" max="20" value="1" readonly>
+          <button type="button" class="qty-btn qty-plus" aria-label="زيادة عدد الغرف">+</button>
+        </div>
+      </div>
+    </div>
+  `;
+  container.appendChild(row);
+
+  row.querySelector('.room-row-remove').addEventListener('click', () => {
+    const rows = document.querySelectorAll('.room-row');
+    if(rows.length <= 1){
+      toastMsg('يجب اختيار غرفة واحدة على الأقل', 'error');
+      return;
+    }
+    row.remove();
+  });
+
+  row.querySelector('.select-room-type').addEventListener('change', () => refreshViewSelectForRow(row));
+
+  const qtyInput = row.querySelector('.input-room-count');
+  const btnQtyMinus = row.querySelector('.qty-minus');
+  const btnQtyPlus = row.querySelector('.qty-plus');
+  const updateQtyButtons = () => {
+    const val = parseInt(qtyInput.value, 10) || 1;
+    const max = parseInt(qtyInput.max, 10);
+    btnQtyMinus.disabled = val <= 1;
+    btnQtyPlus.disabled = val >= max;
+  };
+  btnQtyMinus.addEventListener('click', () => {
+    const val = parseInt(qtyInput.value, 10) || 1;
+    if(val > 1) qtyInput.value = val - 1;
+    updateQtyButtons();
+  });
+  btnQtyPlus.addEventListener('click', () => {
+    const val = parseInt(qtyInput.value, 10) || 1;
+    const max = parseInt(qtyInput.max, 10);
+    if(val < max) qtyInput.value = val + 1;
+    updateQtyButtons();
+  });
+  updateQtyButtons();
+
+  refreshAllRoomTypeSelects();
+  refreshAllViewTypeSelects();
+}
+
+function getRoomSelections(){
+  const rows = document.querySelectorAll('.room-row');
+  const selections = [];
+  rows.forEach(row => {
+    const roomTypeId = row.querySelector('.select-room-type').value;
+    const viewId = row.querySelector('.select-view-type').value;
+    const count = parseInt(row.querySelector('.input-room-count').value, 10) || 0;
+    if(roomTypeId && viewId && count > 0){
+      selections.push({ roomTypeId, viewId, count });
+    }
+  });
+  return selections;
+}
+
+/* =====================================================================
+   Date validation
+===================================================================== */
+function validateDates(){
+  const arrivalEl = document.getElementById('arrivalDate');
+  const departureEl = document.getElementById('departureDate');
+  const fieldArrival = document.getElementById('fieldArrival');
+  const fieldDeparture = document.getElementById('fieldDeparture');
+
+  fieldArrival.classList.remove('has-error');
+  fieldDeparture.classList.remove('has-error');
+
+  const arrival = arrivalEl.value;
+  const departure = departureEl.value;
+  const today = todayStr();
+
+  let valid = true;
+
+  if(!arrival || arrival < today){
+    fieldArrival.classList.add('has-error');
+    valid = false;
+  }
+  if(!departure || (arrival && departure <= arrival)){
+    fieldDeparture.classList.add('has-error');
+    valid = false;
+  }
+  return valid;
+}
+
+/* =====================================================================
+   Availability search
+   Available = Total Rooms - Confirmed Bookings - Out Of Order
+   Calculated per night, final = minimum across all nights.
+===================================================================== */
+async function fetchInventoryTotal(roomTypeId, viewId){
+  const key = comboKey(roomTypeId, viewId);
+  const snap = await db.ref('inventory/' + key + '/totalRooms').once('value');
+  return snap.val() || 0;
+}
+
+async function fetchPricingForCombo(roomTypeId, viewId){
+  const key = comboKey(roomTypeId, viewId);
+  const snap = await db.ref('pricing/' + key).once('value');
+  const val = snap.val();
+  return {
+    priceSingle: (val && typeof val.priceSingle === 'number') ? val.priceSingle : null,
+    priceDouble: (val && typeof val.priceDouble === 'number') ? val.priceDouble : null
+  };
+}
+
+async function fetchConfirmedBookingsForCombo(roomTypeId, viewId){
+  const key = comboKey(roomTypeId, viewId);
+  const snap = await db.ref('bookingsByRoom/' + key)
+    .orderByChild('status')
+    .equalTo('confirmed')
+    .once('value');
+  const result = [];
+  snap.forEach(child => {
+    result.push(child.val());
+  });
+  return result;
+}
+
+async function fetchOutOfOrderForCombo(roomTypeId, viewId){
+  const key = comboKey(roomTypeId, viewId);
+  const snap = await db.ref('outOfOrder/' + key).once('value');
+  const result = [];
+  snap.forEach(child => {
+    result.push(child.val());
+  });
+  return result;
+}
+
+// FIX (Code Review): إغلاق أيام التوافر (closures) من لوحة الإدارة لم يكن
+// له أي أثر هنا — العميل كان يرى الغرف متاحة رغم إغلاقها. تمت إضافة نفس
+// منطق getClosureForDate في تطبيق الأدمن: عقدة closures تُقرأ كاملة (لا
+// يوجد لها فهرسة حسب viewId)، وأي إغلاق تاريخه viewId === 'ALL' يقفل كل
+// الإطلالات، وإلا يقفل فقط الإطلالة المطابقة. المقارنة inclusive
+// (fromDate <= night <= toDate) لتطابق نفس سلوك الأدمن بالضبط.
+async function fetchClosures(){
+  const snap = await db.ref('closures').once('value');
+  const result = [];
+  snap.forEach(child => {
+    result.push(child.val());
+  });
+  return result;
+}
+
+function isClosedForNight(closures, viewId, night){
+  return closures.some(c => {
+    if(!c) return false;
+    if(c.viewId !== 'ALL' && c.viewId !== viewId) return false;
+    return c.fromDate <= night && night <= c.toDate;
+  });
+}
+
+// availability for a single room selection across the requested nights
+async function computeAvailabilityForSelection(sel, arrivalDate, departureDate){
+  const [total, confirmedBookings, oooList, closures] = await Promise.all([
+    fetchInventoryTotal(sel.roomTypeId, sel.viewId),
+    fetchConfirmedBookingsForCombo(sel.roomTypeId, sel.viewId),
+    fetchOutOfOrderForCombo(sel.roomTypeId, sel.viewId),
+    fetchClosures()
+  ]);
+
+  const nights = getNightsInRange(arrivalDate, departureDate);
+  let minAvailable = total;
+
+  nights.forEach(night => {
+    if(isClosedForNight(closures, sel.viewId, night)){
+      minAvailable = 0;
+      return;
+    }
+    let booked = 0;
+    confirmedBookings.forEach(b => {
+      if(b.arrivalDate <= night && night < b.departureDate){
+        booked += (b.count || 0);
+      }
+    });
+    let ooo = 0;
+    oooList.forEach(o => {
+      if(o.fromDate <= night && night < o.toDate){
+        ooo += (o.roomsCount || 0);
+      }
+    });
+    const availableThisNight = total - booked - ooo;
+    if(availableThisNight < minAvailable) minAvailable = availableThisNight;
+  });
+
+  return Math.max(minAvailable, 0);
+}
+
+async function runAvailabilitySearch(){
+  if(!state.authReady){
+    toastMsg('جاري الاتصال بالخادم، حاول بعد لحظات', 'error');
+    return;
+  }
+  if(!validateDates()){
+    toastMsg('يرجى تصحيح التواريخ المدخلة', 'error');
+    return;
+  }
+
+  const selections = getRoomSelections();
+  if(selections.length === 0){
+    toastMsg('يرجى اختيار غرفة واحدة على الأقل', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnSearchAvailability');
+  setBtnLoading(btn, true);
+
+  const arrivalDate = document.getElementById('arrivalDate').value;
+  const departureDate = document.getElementById('departureDate').value;
+
+  try{
+    const results = [];
+    for(const sel of selections){
+      const available = await computeAvailabilityForSelection(sel, arrivalDate, departureDate);
+      const pricing = await fetchPricingForCombo(sel.roomTypeId, sel.viewId);
+      results.push({
+        roomTypeId: sel.roomTypeId,
+        viewId: sel.viewId,
+        roomTypeName: (state.roomTypes[sel.roomTypeId] || {}).name || sel.roomTypeId,
+        viewName: (state.viewTypes[sel.viewId] || {}).name || sel.viewId,
+        requested: sel.count,
+        available,
+        ok: available >= sel.count,
+        priceSingle: pricing.priceSingle,
+        priceDouble: pricing.priceDouble
+      });
+    }
+
+    state.searchResults = results;
+    state.searchArrival = arrivalDate;
+    state.searchDeparture = departureDate;
+    renderResults(results);
+    showStep('stepResults');
+  }catch(err){
+    console.error(err);
+    toastMsg('حدث خطأ أثناء التحقق من التوافر، حاول مرة أخرى', 'error');
+  }finally{
+    setBtnLoading(btn, false);
+  }
+}
+
+function renderResults(results){
+  const container = document.getElementById('resultsContainer');
+  container.innerHTML = '';
+
+  let allOk = true;
+
+  results.forEach(r => {
+    if(!r.ok) allOk = false;
+    const item = document.createElement('div');
+    item.className = 'result-item ' + (r.ok ? 'ok' : 'bad');
+    item.innerHTML = `
+      <div class="result-info">
+        <div class="rt">${r.roomTypeName}</div>
+        <div class="rv">${r.viewName}</div>
+      </div>
+      <div class="result-nums">
+        المطلوب: <b>${r.requested}</b>
+        المتاح: <b>${r.available}</b>
+      </div>
+      <div class="result-status ${r.ok ? 'ok' : 'bad'}">
+        ${r.ok ? '✓ متاح' : '✕ غير متاح'}
+      </div>
+    `;
+    container.appendChild(item);
+  });
+
+  const overall = document.getElementById('overallMsg');
+  const continueBtn = document.getElementById('btnContinueBooking');
+  if(allOk){
+    overall.className = 'overall-msg ok';
+    overall.textContent = 'الغرف المطلوبة متاحة';
+    continueBtn.classList.remove('hidden');
+  }else{
+    overall.className = 'overall-msg bad';
+    overall.textContent = 'بعض الغرف المطلوبة غير متاحة، يرجى تعديل البحث';
+    continueBtn.classList.add('hidden');
+  }
+}
+
+/* =====================================================================
+   Step navigation
+===================================================================== */
+function showStep(stepId){
+  ['stepSearch','stepResults','stepCustomer','stepConfirm'].forEach(id => {
+    document.getElementById(id).classList.toggle('hidden', id !== stepId);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* =====================================================================
+   Customer form validation
+===================================================================== */
+function validatePhoneField(){
+  const phoneEl = document.getElementById('customerPhone');
+  const phoneField = phoneEl.closest('.field');
+  const phoneErrorEl = phoneField.querySelector('.error-text');
+  phoneField.classList.remove('has-error');
+  const phoneRaw = phoneEl.value.trim();
+  if(!phoneRaw){
+    phoneErrorEl.textContent = 'رقم الهاتف مطلوب.';
+    phoneField.classList.add('has-error');
+    return false;
+  }
+  if(!isValidEgyptianMobile(phoneRaw)){
+    phoneErrorEl.textContent = 'رقم الهاتف غير صحيح. يجب أن يتكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015 (مثال: 01223719900).';
+    phoneField.classList.add('has-error');
+    return false;
+  }
+  phoneEl.value = normalizeEgyptianMobile(phoneRaw);
+  return true;
+}
+
+function validateCustomerForm(){
+  let valid = true;
+
+  const nameEl = document.getElementById('customerName');
+  const nameField = nameEl.closest('.field');
+  nameField.classList.remove('has-error');
+  if(!nameEl.value.trim()){
+    nameField.classList.add('has-error');
+    valid = false;
+  }
+
+  if(!validatePhoneField()) valid = false;
+
+  return valid;
+}
+
+/* =====================================================================
+   التحقق من رقم الموبايل المصري
+   ------------------------------------------------------------------
+   رقم الهاتف هو الوسيلة الوحيدة للتواصل مع العميل، فلازم نتأكد إنه
+   رقم موبايل مصري كامل وصحيح الصيغة قبل قبول الحجز:
+   - 11 رقم بالظبط
+   - يبدأ بـ 01 ثم أحد الأرقام [0,1,2,5] (شبكات فودافون/اتصالات/أورانج/WE)
+   - نسمح كمان لو العميل كتب الرقم بصيغة دولية (+20xxxxxxxxxx أو
+     0020xxxxxxxxxx أو 20xxxxxxxxxx بدون الصفر المحلي) ونحوّله تلقائيا.
+===================================================================== */
+function normalizeEgyptianMobile(raw){
+  let digits = (raw || '').replace(/\D/g, '');
+  if(digits.startsWith('0020')) digits = digits.slice(4);
+  else if(digits.startsWith('20') && digits.length === 12) digits = digits.slice(2);
+  if(digits.length === 10 && digits.startsWith('1')) digits = '0' + digits;
+  return digits;
+}
+function isValidEgyptianMobile(raw){
+  const digits = normalizeEgyptianMobile(raw);
+  return /^01[0125]\d{8}$/.test(digits);
+}
+
+/* =====================================================================
+   تفضيلات الإقامة لكل غرفة على حدة
+   ------------------------------------------------------------------
+   المشكلة: عند حجز أكثر من غرفة (أو غرفة + جناح معا) كانت التفضيلات
+   (عدد الأفراد / ترتيب السرير / سرير أطفال) تُعرض مرة واحدة فقط وتُطبّق
+   على الحجز كله، رغم أن كل غرفة فعلية قد تحتاج تفضيلات مختلفة.
+
+   الحل: بعد تأكيد التوافر (نتيجة البحث فى state.searchResults) نُوسّع كل
+   تركيبة roomType+view ذات count>1 إلى غرف مفردة (غرفة 1، غرفة 2، ...)
+   ونعرض بلوك تفضيلات مستقل لكل غرفة فعلية. لا حاجة لتعديل قواعد Firebase:
+   لا يزال roomsObj/rooms يُبنى بنفس الشكل المجمّع بالضبط كما كان (matches
+   rules.json)، والتفضيلات الفردية تُدمج نصيا داخل حقل notes الحر الموجود
+   أصلا (نفس أسلوب الكود القديم، لكن سطر لكل غرفة بدل سطر واحد للحجز كله).
+===================================================================== */
+function isSuiteRoomTypeName(roomTypeName){
+  // اعتماد على اسم نوع الغرفة (لا يوجد حقل مخصص فى roomTypes يفرّق
+  // الأجنحة عن الغرف العادية فى قواعد Firebase الحالية).
+  return (roomTypeName || '').includes('جناح');
+}
+
+function renderRoomPreferenceBlocks(){
+  const container = document.getElementById('roomPreferencesContainer');
+  container.innerHTML = '';
+
+  const units = [];
+  (state.searchResults || []).forEach(r => {
+    for(let i = 1; i <= r.requested; i++){
+      units.push({
+        roomTypeName: r.roomTypeName,
+        viewName: r.viewName,
+        indexInGroup: i,
+        groupTotal: r.requested,
+        priceSingle: r.priceSingle,
+        priceDouble: r.priceDouble
+      });
+    }
+  });
+
+  units.forEach((u, idx) => {
+    const label = u.groupTotal > 1
+      ? `${u.roomTypeName} — ${u.viewName} (غرفة ${u.indexInGroup} من ${u.groupTotal})`
+      : `${u.roomTypeName} — ${u.viewName}`;
+    const isSuite = isSuiteRoomTypeName(u.roomTypeName);
+
+    const block = document.createElement('div');
+    block.className = 'field room-pref-block';
+    block.dataset.unitIdx = idx;
+    block.dataset.roomLabel = label;
+    block.dataset.priceSingle = (u.priceSingle === null || u.priceSingle === undefined) ? '' : u.priceSingle;
+    block.dataset.priceDouble = (u.priceDouble === null || u.priceDouble === undefined) ? '' : u.priceDouble;
+    block.style.cssText = 'border:1px solid var(--color-border,#e2ddd3);border-radius:var(--radius-md,10px);padding:14px;margin-bottom:14px;';
+    block.innerHTML = `
+      <div style="font-weight:700;margin-bottom:10px;">${label}</div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label>عدد الأفراد البالغين (بحد أقصى شخصين)</label>
+        <select class="pref-adults">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label>ترتيب السرير</label>
+        <div class="checkbox-row">
+          <input type="radio" name="prefBedConfig-${idx}" class="pref-bed-double" value="double" checked>
+          <label>سرير كبير مزدوج</label>
+        </div>
+        <div class="checkbox-row">
+          <input type="radio" name="prefBedConfig-${idx}" class="pref-bed-twin" value="twin" ${isSuite ? 'disabled' : ''}>
+          <label style="${isSuite ? 'color:var(--color-text-muted,#999);' : ''}">سريران منفصلان${isSuite ? ' (غير متاح فى الأجنحة)' : ''}</label>
+        </div>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:10px;">
+        <input type="checkbox" class="pref-child-bed">
+        <label>أحتاج سرير أطفال (Baby Cot)</label>
+      </div>
+
+      <div class="room-pref-price" style="font-size:13.5px;font-weight:700;color:var(--color-primary-dark);"></div>
+    `;
+    container.appendChild(block);
+
+    block.querySelector('.pref-adults').addEventListener('change', updateTotalPrice);
+  });
+
+  renderTotalPriceBox();
+  updateTotalPrice();
+}
+
+/* =====================================================================
+   حساب السعر الإجمالي بناء على نوع الغرفة/الإطلالة (سعر الليلة لكل
+   تركيبة، محدد من لوحة الإدارة فى pricing/{roomTypeId}_{viewId}) وعدد
+   الأفراد المختار لكل غرفة على حدة × عدد الليالى.
+===================================================================== */
+function renderTotalPriceBox(){
+  let box = document.getElementById('totalPriceBox');
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'totalPriceBox';
+    box.style.cssText = 'margin:6px 0 18px;padding:14px 16px;border-radius:var(--radius-md,10px);background:var(--color-bg);border:1px solid var(--color-border);font-weight:800;font-size:16px;color:var(--color-primary-dark);display:flex;justify-content:space-between;align-items:center;';
+    document.getElementById('roomPreferencesContainer').insertAdjacentElement('afterend', box);
+  }
+}
+
+function updateTotalPrice(){
+  const nights = getNightsInRange(state.searchArrival, state.searchDeparture).length || 0;
+  const blocks = document.querySelectorAll('#roomPreferencesContainer .room-pref-block');
+  let total = 0;
+  let missingPrice = false;
+
+  blocks.forEach(block => {
+    const adults = block.querySelector('.pref-adults').value;
+    const priceSingleRaw = block.dataset.priceSingle;
+    const priceDoubleRaw = block.dataset.priceDouble;
+    const price = adults === '1'
+      ? (priceSingleRaw === '' ? null : parseFloat(priceSingleRaw))
+      : (priceDoubleRaw === '' ? null : parseFloat(priceDoubleRaw));
+
+    const priceEl = block.querySelector('.room-pref-price');
+    if(price === null || isNaN(price)){
+      missingPrice = true;
+      if(priceEl) priceEl.textContent = 'السعر غير محدد لهذه التركيبة';
+    }else{
+      const subtotal = price * nights;
+      if(priceEl) priceEl.textContent = `${price} ج.م / الليلة × ${nights} ليالي = ${subtotal} ج.م`;
+      total += subtotal;
+    }
+  });
+
+  state.totalPrice = total;
+  state.totalPriceIncomplete = missingPrice;
+
+  const box = document.getElementById('totalPriceBox');
+  if(box){
+    box.innerHTML = missingPrice
+      ? `<span>الإجمالي التقديري</span><span>${total} ج.م <span style="font-weight:600;font-size:12.5px;color:var(--color-danger);">(بعض الغرف بدون سعر محدد)</span></span>`
+      : `<span>الإجمالي</span><span>${total} ج.م</span>`;
+  }
+}
+
+function buildNotesWithPreferences(){
+  const blocks = document.querySelectorAll('#roomPreferencesContainer .room-pref-block');
+  const lines = [];
+  blocks.forEach(block => {
+    const label = block.dataset.roomLabel;
+    const adults = block.querySelector('.pref-adults').value;
+    const bedConfig = block.querySelector('.pref-bed-twin').checked ? 'سريران منفصلان' : 'سرير كبير مزدوج';
+    const needsChildBed = block.querySelector('.pref-child-bed').checked;
+    // نكتب "سرير أطفال" فقط لو العميل طلبه فعلا، وما نكتبش أي حاجة لو مش محتاجه
+    const childBedPart = needsChildBed ? ' | سرير أطفال' : '';
+    lines.push(`${label} — الأفراد: ${adults} | ${bedConfig}${childBedPart}`);
+  });
+
+  const freeNotes = document.getElementById('customerNotes').value.trim();
+  const combined = [...lines, freeNotes].filter(Boolean).join('\n');
+  return combined.slice(0, 1000); // مطابقة لحد الطول المسموح به فى قواعد Firebase
+}
+
+/* =====================================================================
+   Booking number generation (transaction-based counter)
+   Format: BOOK-YYYYMMDD-000001
+===================================================================== */
+async function generateBookingNumber(){
+  const now = new Date();
+  const dateKey = formatDateInput(now).replace(/-/g, ''); // YYYYMMDD
+  const counterRef = db.ref('counters/bookingNumber/' + dateKey);
+
+  const txResult = await counterRef.transaction(current => {
+    return (current || 0) + 1;
+  });
+
+  const seq = txResult.snapshot.val();
+  const seqStr = String(seq).padStart(6, '0');
+  return `BOOK-${dateKey}-${seqStr}`;
+}
+
+/* =====================================================================
+   Submit booking request
+===================================================================== */
+async function submitBookingRequest(){
+  if(!state.authReady){
+    toastMsg('جاري الاتصال بالخادم، حاول بعد لحظات', 'error');
+    return;
+  }
+  if(!validateCustomerForm()){
+    toastMsg('يرجى تعبئة الحقول المطلوبة', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmitBooking');
+  setBtnLoading(btn, true);
+
+  try{
+    const bookingNumber = await generateBookingNumber();
+    const newBookingRef = db.ref('bookings').push();
+    const bookingId = newBookingRef.key;
+
+    // build rooms object keyed by combo
+    const roomsObj = {};
+    state.searchResults.forEach(r => {
+      const key = comboKey(r.roomTypeId, r.viewId);
+      roomsObj[key] = {
+        roomTypeId: r.roomTypeId,
+        roomTypeName: r.roomTypeName,
+        viewId: r.viewId,
+        viewName: r.viewName,
+        count: r.requested
+      };
+    });
+
+    const bookingData = {
+      bookingId,
+      bookingNumber,
+      customerName: document.getElementById('customerName').value.trim(),
+      phone: document.getElementById('customerPhone').value.trim(),
+      email: document.getElementById('customerEmail').value.trim(),
+      notes: buildNotesWithPreferences(),
+      arrivalDate: state.searchArrival,
+      departureDate: state.searchDeparture,
+      rooms: roomsObj,
+      totalPrice: state.totalPrice || 0,
+      status: 'pending',
+      createdAt: firebase.database.ServerValue.TIMESTAMP,
+      updatedAt: firebase.database.ServerValue.TIMESTAMP
+    };
+
+    // FIX: كانت الكتابة تتم كـ multi-path update واحد لمسارين مختلفين
+    // (bookings/ و bookingsByRoom/) معا. قاعدة bookingsByRoom تتحقق من
+    // مطابقة قيمها مع root.child('bookings')...، لكن تبيّن عمليا (بالاختبار
+    // المباشر) أن هذا الـ cross-reference لا يرى القيمة المكتوبة حديثا في
+    // نفس عملية الـ update، فيفشل التحقق بـ permission_denied. الحل: كتابة
+    // bookings أولا بشكل منفصل (يكتمل وتتحقق قواعده بمفرده)، ثم كتابة
+    // bookingsByRoom بعد نجاحها — بحيث يرى الـ root النسخة المكتوبة فعليا.
+    await db.ref('bookings/' + bookingId).set(bookingData);
+
+    // denormalized index per room/view combo for availability queries
+    const byRoomUpdates = {};
+    Object.values(roomsObj).forEach(r => {
+      const key = comboKey(r.roomTypeId, r.viewId);
+      byRoomUpdates['bookingsByRoom/' + key + '/' + bookingId] = {
+        bookingNumber,
+        arrivalDate: state.searchArrival,
+        departureDate: state.searchDeparture,
+        count: r.count,
+        status: 'pending'
+      };
+    });
+
+    await db.ref().update(byRoomUpdates);
+
+    // إرسال إشعار إيميل للموظفين بتفاصيل الحجز الجديد (لا يعطّل نجاح الحجز لو فشل)
+    sendBookingNotificationEmail(bookingData, roomsObj);
+
+    document.getElementById('confirmBookingNumber').textContent = bookingNumber;
+    showStep('stepConfirm');
+    toastMsg('تم إرسال طلب الحجز بنجاح', 'success');
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر إرسال طلب الحجز، حاول مرة أخرى', 'error');
+  }finally{
+    setBtnLoading(btn, false);
+  }
+}
+
+/* =====================================================================
+   Reset form for a new booking
+===================================================================== */
+function resetForNewBooking(){
+  document.getElementById('arrivalDate').value = '';
+  document.getElementById('departureDate').value = '';
+  document.getElementById('customerName').value = '';
+  document.getElementById('customerPhone').value = '';
+  document.getElementById('customerEmail').value = '';
+  document.getElementById('customerNotes').value = '';
+  document.getElementById('roomPreferencesContainer').innerHTML = '';
+  const oldTotalBox = document.getElementById('totalPriceBox');
+  if(oldTotalBox) oldTotalBox.remove();
+  document.getElementById('roomRowsContainer').innerHTML = '';
+  state.roomRowCount = 0;
+  addRoomRow();
+  state.searchResults = [];
+  state.totalPrice = 0;
+  state.totalPriceIncomplete = false;
+  showStep('stepSearch');
+}
+
+/* =====================================================================
+   Init
+===================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  initAuthGate();
+
+  // minimum arrival date = today
+  const today = todayStr();
+  document.getElementById('arrivalDate').min = today;
+  document.getElementById('departureDate').min = today;
+
+  document.getElementById('arrivalDate').addEventListener('change', () => {
+    const arrival = document.getElementById('arrivalDate').value;
+    document.getElementById('departureDate').min = arrival || today;
+  });
+
+  // يسمح فقط بكتابة أرقام، وبحد أقصى 11 خانة، أثناء كتابة رقم الهاتف
+  // (يمنع فورا إدخال حروف/رموز أو رقم أطول من رقم موبايل مصري صحيح)
+  const phoneInputEl = document.getElementById('customerPhone');
+  phoneInputEl.addEventListener('input', () => {
+    const cleaned = phoneInputEl.value.replace(/[^\d]/g, '').slice(0, 11);
+    if(cleaned !== phoneInputEl.value) phoneInputEl.value = cleaned;
+  });
+  phoneInputEl.addEventListener('blur', () => {
+    if(phoneInputEl.value.trim()) validatePhoneField();
+  });
+
+  addRoomRow();
+
+  document.getElementById('btnAddRoom').addEventListener('click', addRoomRow);
+  document.getElementById('btnSearchAvailability').addEventListener('click', runAvailabilitySearch);
+  document.getElementById('btnBackToSearch').addEventListener('click', () => showStep('stepSearch'));
+  document.getElementById('btnContinueBooking').addEventListener('click', () => {
+    renderRoomPreferenceBlocks();
+    showStep('stepCustomer');
+  });
+  document.getElementById('btnBackToResults').addEventListener('click', () => showStep('stepResults'));
+  document.getElementById('btnSubmitBooking').addEventListener('click', submitBookingRequest);
+  document.getElementById('btnNewBooking').addEventListener('click', resetForNewBooking);
+});
+</script>
+
+<div id="__dbgPanel" style="position:fixed;bottom:8px;left:8px;z-index:999999;background:#000;color:#0f0;font:11px monospace;padding:10px 12px;border-radius:10px;max-width:94vw;max-height:45vh;overflow:auto;direction:ltr;text-align:left;opacity:.97;box-shadow:0 4px 20px rgba(0,0,0,.5);">
+  <div style="color:#fff;font-weight:bold;margin-bottom:4px;">DEBUG PANEL (احذف قبل النشر النهائي)</div>
+</div>
+<script>
+(function(){
+  var el = document.getElementById('__dbgPanel');
+  function log(line){
+    var t = new Date().toLocaleTimeString();
+    var d = document.createElement('div');
+    d.textContent = '[' + t + '] ' + line;
+    el.appendChild(d);
+    el.scrollTop = el.scrollHeight;
+  }
+  log('UA: ' + navigator.userAgent);
+  log('online: ' + navigator.onLine);
+  try{
+    log('firebase loaded: ' + (typeof firebase !== 'undefined'));
+    log('auth object ready: ' + (typeof auth !== 'undefined'));
+    log('db object ready: ' + (typeof db !== 'undefined'));
+  }catch(e){ log('ERROR checking globals: ' + e.message); }
+
+  try{
+    db.ref('.info/connected').on('value', function(snap){
+      log('.info/connected = ' + snap.val());
+    }, function(err){
+      log('ERROR .info/connected: ' + err.code + ' - ' + err.message);
+    });
+  }catch(e){ log('EXCEPTION on .info/connected: ' + e.message); }
+
+  try{
+    auth.onAuthStateChanged(function(user){
+      log('onAuthStateChanged: ' + (user ? ('uid=' + user.uid + ' anon=' + user.isAnonymous) : 'no user'));
+    }, function(err){
+      log('ERROR onAuthStateChanged: ' + err.code + ' - ' + err.message);
+    });
+  }catch(e){ log('EXCEPTION auth listener: ' + e.message); }
+
+  setTimeout(function(){
+    try{
+      db.ref('hotelInfo').once('value').then(function(snap){
+        log('hotelInfo read OK, exists=' + snap.exists());
+      }).catch(function(err){
+        log('hotelInfo read FAILED: ' + err.code + ' - ' + err.message);
+      });
+    }catch(e){ log('EXCEPTION hotelInfo read: ' + e.message); }
+  }, 1500);
+
+  window.addEventListener('error', function(e){
+    log('window.onerror: ' + e.message + ' @ ' + (e.filename||'') + ':' + (e.lineno||''));
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    var r = e.reason;
+    log('unhandledrejection: ' + (r && r.message ? r.message : r));
+  });
+})();
+</script>
+</body>
+</html>
