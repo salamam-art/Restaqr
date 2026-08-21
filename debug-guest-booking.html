@@ -1577,15 +1577,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }catch(e){ log('EXCEPTION on .info/connected: ' + e.message); }
 
-  try{
-    auth.onAuthStateChanged(function(user){
-      log('onAuthStateChanged: ' + (user ? ('uid=' + user.uid + ' anon=' + user.isAnonymous) : 'no user'));
-    }, function(err){
-      log('ERROR onAuthStateChanged: ' + err.code + ' - ' + err.message);
-    });
-  }catch(e){ log('EXCEPTION auth listener: ' + e.message); }
-
-  setTimeout(function(){
+  var testedOnce = false;
+  function runReadTest(tag){
+    log('--- ' + tag + ' ---');
     ['hotelInfo','roomTypes','viewTypes','inventory','pricing'].forEach(function(path){
       try{
         db.ref(path).once('value').then(function(snap){
@@ -1597,7 +1591,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }catch(e){ log('EXCEPTION reading ' + path + ': ' + e.message); }
     });
-  }, 1500);
+  }
+
+  try{
+    auth.onAuthStateChanged(function(user){
+      log('onAuthStateChanged: ' + (user ? ('uid=' + user.uid + ' anon=' + user.isAnonymous) : 'no user'));
+      if(user && !testedOnce){
+        testedOnce = true;
+        setTimeout(function(){ runReadTest('TEST AFTER AUTH READY (uid=' + user.uid + ')'); }, 800);
+      }
+    }, function(err){
+      log('ERROR onAuthStateChanged: ' + err.code + ' - ' + err.message);
+    });
+  }catch(e){ log('EXCEPTION auth listener: ' + e.message); }
+
+  setTimeout(function(){ runReadTest('BLIND TEST AT +1500ms (regardless of auth state)'); }, 1500);
 
   window.addEventListener('error', function(e){
     log('window.onerror: ' + e.message + ' @ ' + (e.filename||'') + ':' + (e.lineno||''));
