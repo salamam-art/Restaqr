@@ -485,6 +485,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<!-- تُستخدم فقط لتحويل إيصال الحجز إلى ملف PDF لتحميله على الجهاز -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 /* =====================================================================
@@ -542,6 +545,7 @@ const ROUTES = {
   calendar:         { label: 'التوافر Calendar',       icon: '📅', roles: ['admin'] },
   bookingRequests:  { label: 'طلبات الحجز',            icon: '📝', roles: ['admin'] },
   confirmedBookings:{ label: 'الحجوزات المؤكدة',       icon: '✅', roles: ['admin'] },
+  cancelledBookings:{ label: 'الحجوزات الملغاة',       icon: '🗂️', roles: ['admin'] },
   outOfOrder:       { label: 'الغرف خارج الخدمة',      icon: '🚧', roles: ['admin'] },
   closures:         { label: 'إغلاق أيام التوافر',      icon: '⛔', roles: ['admin'] },
   activityLog:      { label: 'Activity Log',           icon: '🕒', roles: ['admin'] },
@@ -850,6 +854,7 @@ function renderRoute(routeKey){
     calendar: renderCalendar,
     bookingRequests: () => renderBookingsPage('bookingRequests'),
     confirmedBookings: () => renderBookingsPage('confirmedBookings'),
+    cancelledBookings: () => renderBookingsPage('cancelledBookings'),
     outOfOrder: renderOutOfOrder,
     closures: renderClosures,
     activityLog: renderActivityLog,
@@ -902,7 +907,7 @@ function attachListeners(){
   });
   db.ref('bookings').limitToLast(500).on('value', snap => {
     cache.bookings = snap.val() || {};
-    rerenderIfCurrent(['dashboard','bookingRequests','confirmedBookings','calendar']);
+    rerenderIfCurrent(['dashboard','bookingRequests','confirmedBookings','cancelledBookings','calendar']);
   });
   db.ref('users').on('value', snap => {
     cache.users = snap.val() || {};
@@ -930,7 +935,7 @@ document.addEventListener('visibilitychange', () => {
     // أعد رسم الصفحة الحالية فوراً
     rerenderIfCurrent(Object.keys(
       {dashboard:1,roomTypes:1,viewTypes:1,inventory:1,pricing:1,
-       calendar:1,bookingRequests:1,confirmedBookings:1,outOfOrder:1,
+       calendar:1,bookingRequests:1,confirmedBookings:1,cancelledBookings:1,outOfOrder:1,
        closures:1,activityLog:1,users:1,settings:1}
     ));
   }
@@ -1628,9 +1633,11 @@ function renderCalendarGrid(){
       const key = comboKey(inv.roomTypeId, inv.viewId);
       const comboTotal = inv.totalRooms || 0;
 
+      // FIX: التوافر لازم يعكس pending كمان مش confirmed بس، عشان يطابق
+      // نفس الحساب اللي بيشوفه العميل فى صفحة الحجز (guest-booking.html)
       let comboBooked = 0;
       Object.values(cache.bookings || {}).forEach(b => {
-        if(b.status === 'confirmed' && b.rooms && b.rooms[key]){
+        if(b.status !== 'cancelled' && b.rooms && b.rooms[key]){
           if(b.arrivalDate <= dateStr && dateStr < b.departureDate) comboBooked += b.rooms[key].count;
         }
       });
@@ -1951,16 +1958,21 @@ async function removeClosure(closureId){
 ===================================================================== */
 let bookingsFilterState = {
   bookingRequests: { status: 'pending', q: '', arrivalDate: '' },
-  confirmedBookings: { status: 'confirmed', q: '', arrivalDate: '' }
+  confirmedBookings: { status: 'confirmed', q: '', arrivalDate: '' },
+  cancelledBookings: { status: 'cancelled', q: '', arrivalDate: '' }
+};
+
+// إعدادات كل صفحة: العنوان وخيارات فلتر الحالة المعروضة
+const BOOKINGS_PAGE_CONFIG = {
+  bookingRequests:   { title: 'طلبات الحجز',        statusOptions: ['pending','confirmed','cancelled'] },
+  confirmedBookings: { title: 'الحجوزات المؤكدة',    statusOptions: ['confirmed','cancelled'] },
+  cancelledBookings: { title: 'الحجوزات الملغاة',    statusOptions: ['cancelled'] }
 };
 
 function renderBookingsPage(pageKey){
   const isRequests = pageKey === 'bookingRequests';
   const filt = bookingsFilterState[pageKey];
-  const title = isRequests ? 'طلبات الحجز' : 'الحجوزات المؤكدة';
-  const statusOptions = isRequests
-    ? ['pending','confirmed','cancelled']
-    : ['confirmed','cancelled'];
+  const { title, statusOptions } = BOOKINGS_PAGE_CONFIG[pageKey];
 
   document.getElementById('mainContent').innerHTML = `
     <div class="panel">
@@ -2108,6 +2120,7 @@ function openBookingDetails(bookingId){
         <div class="detail-row"><b>المغادرة</b><span>${b.departureDate}</span></div>
         <div class="detail-row"><b>الغرف</b><span style="text-align:left;">${roomsSummaryHtml(b.rooms)}</span></div>
         <div class="detail-row"><b>الإجمالي</b><span>${(typeof b.totalPrice === 'number') ? b.totalPrice + ' ج.م' : '—'}</span></div>
+        <div class="detail-row"><b>قيمة الليلة الأولى</b><span>${(typeof b.firstNightPrice === 'number') ? b.firstNightPrice + ' ج.م' : '—'}</span></div>
         <div class="detail-row" style="display:block;">
           <b>ملاحظات</b>
           <div style="white-space:pre-wrap;margin-top:6px;font-size:13.5px;">${escapeHtml(b.notes || '—')}</div>
@@ -2120,6 +2133,7 @@ function openBookingDetails(bookingId){
         <div class="modal-actions">
           <button class="btn btn-ghost" onclick="closeModal()">إغلاق</button>
           <button class="btn btn-ghost" id="btnPrintBooking">🖨️ طباعة</button>
+          <button class="btn btn-ghost" id="btnDownloadBooking"><span class="spinner"></span><span class="btn-label">⬇️ تحميل PDF</span></button>
           ${canEdit ? `<button class="btn btn-ghost" id="btnEditBooking">تعديل بيانات العميل</button>` : ''}
           ${canConfirm ? `<button class="btn btn-primary" id="btnConfirmBooking"><span class="spinner"></span><span class="btn-label">Confirm Booking</span></button>` : ''}
           ${canCancel ? `<button class="btn btn-danger" id="btnCancelBooking"><span class="spinner"></span><span class="btn-label">إلغاء الحجز</span></button>` : ''}
@@ -2130,6 +2144,7 @@ function openBookingDetails(bookingId){
   `;
 
   document.getElementById('btnPrintBooking').addEventListener('click', () => printBookingVoucher(bookingId));
+  document.getElementById('btnDownloadBooking').addEventListener('click', () => downloadBookingVoucherPdf(bookingId));
   if(canConfirm){
     document.getElementById('btnConfirmBooking').addEventListener('click', () => confirmBooking(bookingId));
   }
@@ -2150,13 +2165,14 @@ function openBookingDetails(bookingId){
    (يعمل لحالة "قيد الانتظار" و"مؤكد" على حد سواء)، ويستخدم اسم/شعار
    الفندق من hotelInfo إن وجدا.
 ===================================================================== */
-function printBookingVoucher(bookingId){
-  const b = cache.bookings[bookingId];
-  if(!b){ toastMsg('تعذر إيجاد الحجز', 'error'); return; }
-
+// يبني مستند HTML كامل (إيصال الحجز) — يُستخدم لكل من نافذة الطباعة
+// وتوليد ملف PDF لتحميله على الجهاز، بنفس التصميم بالضبط.
+// opts.forPdf=true يخفي زر "طباعة" لأنه غير مطلوب داخل الصورة الملتقطة لـ PDF.
+function buildVoucherDocumentHtml(b, opts){
+  opts = opts || {};
   const info = cache.hotelInfo || {};
   const hotelName = escapeHtml(info.name || 'الفندق');
-  const logoHtml = info.logoUrl ? `<img src="${escapeHtml(info.logoUrl)}" alt="logo" class="v-logo">` : '';
+  const logoHtml = info.logoUrl ? `<img src="${escapeHtml(info.logoUrl)}" alt="logo" class="v-logo" crossorigin="anonymous">` : '';
 
   const roomsRows = Object.values(b.rooms || {}).map(r => `
     <tr>
@@ -2165,13 +2181,9 @@ function printBookingVoucher(bookingId){
       <td>${r.count}</td>
     </tr>`).join('');
 
-  const printWin = window.open('', '_blank', 'width=800,height=900');
-  if(!printWin){
-    toastMsg('يرجى السماح بالنوافذ المنبثقة لطباعة الحجز', 'error');
-    return;
-  }
+  const noPrintButtonHtml = opts.forPdf ? '' : `<div class="v-noprint"><button onclick="window.print()">طباعة</button></div>`;
 
-  printWin.document.write(`
+  return `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -2185,6 +2197,7 @@ function printBookingVoucher(bookingId){
           padding: 32px;
           max-width: 700px;
           margin: 0 auto;
+          background: #ffffff;
         }
         .v-head {
           display: flex;
@@ -2228,7 +2241,7 @@ function printBookingVoucher(bookingId){
       </style>
     </head>
     <body>
-      <div class="v-noprint"><button onclick="window.print()">طباعة</button></div>
+      ${noPrintButtonHtml}
       <div class="v-head">
         <div class="v-hotel-name">${hotelName}</div>
         ${logoHtml}
@@ -2257,8 +2270,106 @@ function printBookingVoucher(bookingId){
       <div class="v-footer">تمت الطباعة بتاريخ ${new Date().toLocaleString('ar-EG')}</div>
     </body>
     </html>
-  `);
+  `;
+}
+
+function printBookingVoucher(bookingId){
+  const b = cache.bookings[bookingId];
+  if(!b){ toastMsg('تعذر إيجاد الحجز', 'error'); return; }
+
+  const printWin = window.open('', '_blank', 'width=800,height=900');
+  if(!printWin){
+    toastMsg('يرجى السماح بالنوافذ المنبثقة لطباعة الحجز', 'error');
+    return;
+  }
+
+  printWin.document.write(buildVoucherDocumentHtml(b));
   printWin.document.close();
+}
+
+/* =====================================================================
+   توليد ملف PDF لإيصال الحجز (نفس تصميم الطباعة تمامًا)
+   يُبنى داخل iframe مخفي ثم يُصوَّر بواسطة html2canvas ويُحوَّل لـ PDF
+   عبر jsPDF، مع دعم تقسيم الصفحات إذا كان المحتوى طويلًا.
+===================================================================== */
+async function generateVoucherPdfBlob(b){
+  const html = buildVoucherDocumentHtml(b, { forPdf: true });
+
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.left = '-10000px';
+  iframe.style.top = '0';
+  iframe.style.width = '760px';
+  iframe.style.height = '1120px';
+  iframe.style.border = '0';
+  document.body.appendChild(iframe);
+
+  try{
+    await new Promise((resolve, reject) => {
+      iframe.onload = resolve;
+      iframe.onerror = reject;
+      iframe.srcdoc = html;
+    });
+    // مهلة قصيرة لضمان اكتمال عرض الخطوط/الصور قبل التصوير
+    await new Promise(r => setTimeout(r, 250));
+
+    const target = iframe.contentDocument.body;
+    const canvas = await html2canvas(target, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pageWidth;
+    const imgHeight = canvas.height * (imgWidth / canvas.width);
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+    let heightLeft = imgHeight;
+    let position = 0;
+    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+    while(heightLeft > 0){
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+    return pdf.output('blob');
+  } finally {
+    document.body.removeChild(iframe);
+  }
+}
+
+/* =====================================================================
+   تحميل إيصال الحجز كملف PDF مباشرة على جهاز المستخدم (بدون بريد إلكتروني)
+===================================================================== */
+async function downloadBookingVoucherPdf(bookingId){
+  const b = cache.bookings[bookingId];
+  if(!b){ toastMsg('تعذر إيجاد الحجز', 'error'); return; }
+
+  const btn = document.getElementById('btnDownloadBooking');
+  setBtnLoading(btn, true);
+
+  try{
+    const blob = await generateVoucherPdfBlob(b);
+    const fileName = `Booking-${b.bookingNumber}.pdf`;
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+
+    toastMsg('تم تنزيل ملف PDF بنجاح', 'success');
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر تجهيز ملف PDF', 'error');
+  }finally{
+    setBtnLoading(btn, false);
+  }
 }
 
 function openEditBookingModal(bookingId){

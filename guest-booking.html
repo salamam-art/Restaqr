@@ -709,11 +709,12 @@
         <div class="transfer-row"><span class="t-label">رقم الحساب</span><span class="t-value">100014968347</span></div>
         <div class="transfer-row"><span class="t-label">الفرع</span><span class="t-value">Port Said – Egypt</span></div>
         <div class="transfer-row"><span class="t-label">اسم الحساب</span><span class="t-value">Resta Hotel Port Said</span></div>
-        <div class="transfer-row total"><span class="t-label">المبلغ (إجمالي الحجز)</span><span class="t-value" id="confirmTotalPrice">—</span></div>
+        <div class="transfer-row"><span class="t-label">إجمالي قيمة الحجز</span><span class="t-value" id="confirmTotalPrice">—</span></div>
+        <div class="transfer-row total"><span class="t-label">المبلغ المطلوب تحويله الآن</span><span class="t-value" id="confirmFirstNightPrice">—</span></div>
       </div>
       <p class="pending-note">
-        برجاء تحويل قيمة الحجز كاملة على الحساب أعلاه، ثم إرسال إثبات التحويل عبر واتساب.
-        ستظهر هذه الشاشة حتى يقوم الفندق بمراجعة الحجز وتأكيده.
+        برجاء تحويل <strong>قيمة الليلة الأولى فقط</strong> (لكل الغرف المحجوزة) على الحساب أعلاه لتأكيد الحجز، ثم إرسال إثبات التحويل عبر واتساب.
+        ويُدفع باقي المبلغ عند الوصول للفندق. ستظهر هذه الشاشة حتى يقوم الفندق بمراجعة الحجز وتأكيده.
       </p>
       <a href="#" target="_blank" rel="noopener" class="btn btn-whatsapp" id="btnWhatsappConfirm" style="margin-bottom:10px;">
         📲 إرسال تفاصيل الحجز عبر واتساب
@@ -1134,15 +1135,16 @@ async function fetchPricingForCombo(roomTypeId, viewId){
   };
 }
 
-async function fetchConfirmedBookingsForCombo(roomTypeId, viewId){
+// FIX: الحجز pending لازم يحجز فى التوافر فورا زى confirmed بالظبط (مش
+// بس بعد التأكيد)، عشان مايتحجزش نفس الغرفة مرتين وهى لسه قيد الانتظار.
+// بنجيب كل الحجوزات (بدون فلتر status) ونستبعد cancelled بس فى الكود.
+async function fetchActiveBookingsForCombo(roomTypeId, viewId){
   const key = comboKey(roomTypeId, viewId);
-  const snap = await db.ref('bookingsByRoom/' + key)
-    .orderByChild('status')
-    .equalTo('confirmed')
-    .once('value');
+  const snap = await db.ref('bookingsByRoom/' + key).once('value');
   const result = [];
   snap.forEach(child => {
-    result.push(child.val());
+    const b = child.val();
+    if(b && b.status !== 'cancelled') result.push(b);
   });
   return result;
 }
@@ -1182,9 +1184,9 @@ function isClosedForNight(closures, viewId, night){
 
 // availability for a single room selection across the requested nights
 async function computeAvailabilityForSelection(sel, arrivalDate, departureDate){
-  const [total, confirmedBookings, oooList, closures] = await Promise.all([
+  const [total, activeBookings, oooList, closures] = await Promise.all([
     fetchInventoryTotal(sel.roomTypeId, sel.viewId),
-    fetchConfirmedBookingsForCombo(sel.roomTypeId, sel.viewId),
+    fetchActiveBookingsForCombo(sel.roomTypeId, sel.viewId),
     fetchOutOfOrderForCombo(sel.roomTypeId, sel.viewId),
     fetchClosures()
   ]);
@@ -1198,7 +1200,7 @@ async function computeAvailabilityForSelection(sel, arrivalDate, departureDate){
       return;
     }
     let booked = 0;
-    confirmedBookings.forEach(b => {
+    activeBookings.forEach(b => {
       if(b.arrivalDate <= night && night < b.departureDate){
         booked += (b.count || 0);
       }
@@ -1488,6 +1490,7 @@ function updateTotalPrice(){
   const nights = getNightsInRange(state.searchArrival, state.searchDeparture).length || 0;
   const blocks = document.querySelectorAll('#roomPreferencesContainer .room-pref-block');
   let total = 0;
+  let firstNightTotal = 0;
   let missingPrice = false;
 
   blocks.forEach(block => {
@@ -1504,6 +1507,7 @@ function updateTotalPrice(){
       if(priceEl) priceEl.textContent = 'السعر غير محدد لهذه التركيبة';
     }else{
       const subtotal = price * nights;
+      firstNightTotal += price;
       if(priceEl) priceEl.textContent = `${price} ج.م / الليلة × ${nights} ليالي = ${subtotal} ج.م`;
       total += subtotal;
     }
@@ -1511,12 +1515,25 @@ function updateTotalPrice(){
 
   state.totalPrice = total;
   state.totalPriceIncomplete = missingPrice;
+  state.firstNightTotal = firstNightTotal;
 
   const box = document.getElementById('totalPriceBox');
   if(box){
-    box.innerHTML = missingPrice
-      ? `<span>الإجمالي التقديري</span><span>${total} ج.م <span style="font-weight:600;font-size:12.5px;color:var(--color-danger);">(بعض الغرف بدون سعر محدد)</span></span>`
-      : `<span>الإجمالي</span><span>${total} ج.م</span>`;
+    const missingNote = missingPrice
+      ? ` <span style="font-weight:600;font-size:12.5px;color:var(--color-danger);">(بعض الغرف بدون سعر محدد)</span>`
+      : '';
+    box.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
+        <span>${missingPrice ? 'الإجمالي التقديري' : 'الإجمالي'}</span><span>${total} ج.م${missingNote}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:8px;padding-top:8px;border-top:1px dashed var(--color-border);font-size:14px;font-weight:700;color:var(--color-primary);">
+        <span>قيمة الليلة الأولى (كل الغرف)</span><span>${firstNightTotal} ج.م</span>
+      </div>
+      <div style="width:100%;margin-top:6px;font-size:12.5px;font-weight:600;color:var(--color-danger);">
+        هذه هي القيمة المطلوب تحويلها لتأكيد الحجز
+      </div>`;
+    box.style.flexDirection = 'column';
+    box.style.alignItems = 'stretch';
   }
 }
 
@@ -1542,6 +1559,7 @@ function buildNotesWithPreferences(){
    WhatsApp message builder
 ===================================================================== */
 function buildWhatsappMessage(b){
+  const firstNight = (typeof b.firstNightPrice === 'number') ? b.firstNightPrice : b.totalPrice;
   const lines = [
     'مرحبا، بخصوص حجزي:',
     `رقم الحجز: ${b.bookingNumber}`,
@@ -1550,7 +1568,8 @@ function buildWhatsappMessage(b){
     `تاريخ الوصول: ${b.arrivalDate}`,
     `تاريخ المغادرة: ${b.departureDate}`,
     `الغرف: ${formatRoomsForEmail(b.rooms || {})}`,
-    `الإجمالي: ${b.totalPrice} ج.م`
+    `الإجمالي: ${b.totalPrice} ج.م`,
+    `المبلغ المراد تحويله (قيمة الليلة الأولى): ${firstNight} ج.م`
   ];
   return lines.join('\n');
 }
@@ -1612,9 +1631,11 @@ function listenToConfirmStatus(phone, bookingId){
   state.confirmStatusListenerRef = ref;
 }
 
-function setupConfirmScreen(bookingData, bookingId){
+function setupConfirmScreen(bookingData, bookingId, firstNightTotal){
   document.getElementById('confirmBookingNumber').textContent = bookingData.bookingNumber;
   document.getElementById('confirmTotalPrice').textContent = `${bookingData.totalPrice} ج.م`;
+  document.getElementById('confirmFirstNightPrice').textContent =
+    `${(firstNightTotal !== undefined && firstNightTotal !== null) ? firstNightTotal : bookingData.totalPrice} ج.م`;
   document.getElementById('btnWhatsappConfirm').href = buildWhatsappLink(bookingData);
 
   state.confirmBookingId = bookingId;
@@ -1658,6 +1679,7 @@ async function submitBookingRequest(){
   setBtnLoading(btn, true);
 
   try{
+    const firstNightTotal = state.firstNightTotal || 0;
     const bookingNumber = await generateBookingNumber();
     const newBookingRef = db.ref('bookings').push();
     const bookingId = newBookingRef.key;
@@ -1686,6 +1708,7 @@ async function submitBookingRequest(){
       departureDate: state.searchDeparture,
       rooms: roomsObj,
       totalPrice: state.totalPrice || 0,
+      firstNightPrice: state.firstNightTotal || 0,
       status: 'pending',
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       updatedAt: firebase.database.ServerValue.TIMESTAMP
@@ -1725,13 +1748,14 @@ async function submitBookingRequest(){
       departureDate: bookingData.departureDate,
       rooms: roomsObj,
       totalPrice: bookingData.totalPrice,
+      firstNightPrice: bookingData.firstNightPrice,
       status: 'pending'
     });
 
     // إرسال إشعار إيميل للموظفين بتفاصيل الحجز الجديد (لا يعطّل نجاح الحجز لو فشل)
     sendBookingNotificationEmail(bookingData, roomsObj);
 
-    setupConfirmScreen(bookingData, bookingId);
+    setupConfirmScreen(bookingData, bookingId, firstNightTotal);
     showStep('stepConfirm');
     toastMsg('تم إرسال طلب الحجز بنجاح', 'success');
   }catch(err){
@@ -1811,7 +1835,7 @@ function renderTrackBookingCard(bookingId, phone, b){
       <div class="transfer-row"><span class="t-label">رقم الحساب</span><span class="t-value">100014968347</span></div>
       <div class="transfer-row"><span class="t-label">الفرع</span><span class="t-value">Port Said – Egypt</span></div>
       <div class="transfer-row"><span class="t-label">اسم الحساب</span><span class="t-value">Resta Hotel Port Said</span></div>
-      <div class="transfer-row total"><span class="t-label">المبلغ</span><span class="t-value">${b.totalPrice} ج.م</span></div>
+      <div class="transfer-row total"><span class="t-label">المبلغ</span><span class="t-value">${(typeof b.firstNightPrice === 'number') ? b.firstNightPrice : b.totalPrice} ج.م</span></div>
     `;
     actionsEl.appendChild(transferBox);
 
