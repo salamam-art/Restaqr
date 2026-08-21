@@ -2620,13 +2620,17 @@ function renderSettings(){
   }catch(e){ log('EXCEPTION auth listener: ' + e.message); }
 
   setTimeout(function(){
-    try{
-      db.ref('hotelInfo').once('value').then(function(snap){
-        log('hotelInfo read OK, exists=' + snap.exists());
-      }).catch(function(err){
-        log('hotelInfo read FAILED: ' + err.code + ' - ' + err.message);
-      });
-    }catch(e){ log('EXCEPTION hotelInfo read: ' + e.message); }
+    ['hotelInfo','roomTypes','viewTypes','inventory','pricing','bookings'].forEach(function(path){
+      try{
+        db.ref(path).once('value').then(function(snap){
+          var v = snap.val();
+          var count = v ? Object.keys(v).length : 0;
+          log(path + ' read OK, exists=' + snap.exists() + ', keys=' + count);
+        }).catch(function(err){
+          log(path + ' read FAILED: ' + err.code + ' - ' + err.message);
+        });
+      }catch(e){ log('EXCEPTION reading ' + path + ': ' + e.message); }
+    });
   }, 1500);
 
   window.addEventListener('error', function(e){
