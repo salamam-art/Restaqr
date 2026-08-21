@@ -192,7 +192,7 @@
   }
   .room-row-grid{
     display:grid;
-    grid-template-columns:1.3fr 1.3fr .8fr;
+    grid-template-columns:1fr 1fr;
     gap:12px;
   }
   .qty-stepper{
@@ -861,14 +861,7 @@ function addRoomRow(){
         <label>الإطلالة</label>
         <select class="select-view-type"></select>
       </div>
-      <div class="field" style="margin-bottom:0;">
-        <label>عدد الغرف</label>
-        <div class="qty-stepper">
-          <button type="button" class="qty-btn qty-minus" aria-label="إنقاص عدد الغرف">−</button>
-          <input type="number" class="input-room-count" min="1" max="20" value="1" readonly>
-          <button type="button" class="qty-btn qty-plus" aria-label="زيادة عدد الغرف">+</button>
-        </div>
-      </div>
+      <input type="hidden" class="input-room-count" value="1">
     </div>
   `;
   container.appendChild(row);
@@ -883,28 +876,6 @@ function addRoomRow(){
   });
 
   row.querySelector('.select-room-type').addEventListener('change', () => refreshViewSelectForRow(row));
-
-  const qtyInput = row.querySelector('.input-room-count');
-  const btnQtyMinus = row.querySelector('.qty-minus');
-  const btnQtyPlus = row.querySelector('.qty-plus');
-  const updateQtyButtons = () => {
-    const val = parseInt(qtyInput.value, 10) || 1;
-    const max = parseInt(qtyInput.max, 10);
-    btnQtyMinus.disabled = val <= 1;
-    btnQtyPlus.disabled = val >= max;
-  };
-  btnQtyMinus.addEventListener('click', () => {
-    const val = parseInt(qtyInput.value, 10) || 1;
-    if(val > 1) qtyInput.value = val - 1;
-    updateQtyButtons();
-  });
-  btnQtyPlus.addEventListener('click', () => {
-    const val = parseInt(qtyInput.value, 10) || 1;
-    const max = parseInt(qtyInput.max, 10);
-    if(val < max) qtyInput.value = val + 1;
-    updateQtyButtons();
-  });
-  updateQtyButtons();
 
   refreshAllRoomTypeSelects();
   refreshAllViewTypeSelects();
