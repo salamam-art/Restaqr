@@ -309,7 +309,20 @@
   @media (max-width:760px){
     .table-wrap{display:none;}
     .bk-cards{display:block;}
+    .mob-cards{display:block;}
   }
+  .mob-cards{display:none;}
+  .mob-card{
+    background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--radius-md);padding:14px 16px;margin-bottom:10px;
+  }
+  .mob-card-title{font-weight:800;font-size:14.5px;color:var(--color-primary-dark);margin-bottom:6px;}
+  .mob-card-row{display:flex;justify-content:space-between;align-items:center;
+    font-size:13px;padding:4px 0;border-bottom:1px dashed var(--color-border);}
+  .mob-card-row:last-child{border-bottom:none;}
+  .mob-card-row b{color:var(--color-text-muted);font-size:12px;}
+  .mob-card-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;padding-top:8px;
+    border-top:1px solid var(--color-border);}
 
   .filters-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
   .filters-row .field{margin-bottom:0;min-width:160px;flex:1;}
@@ -1054,6 +1067,19 @@ function renderRoomTypes(){
           </tbody>
         </table>
       </div>
+      <div class="mob-cards">
+        ${rows.length === 0 ? '' : rows.map(([id, rt]) => `
+          <div class="mob-card">
+            <div class="mob-card-title">${escapeHtml(rt.name)}</div>
+            <div class="mob-card-row"><b>الوصف</b><span>${escapeHtml(rt.description || '—')}</span></div>
+            <div class="mob-card-row"><b>الحالة</b><span class="pill ${rt.active !== false ? 'pill-active' : 'pill-inactive'}">${rt.active !== false ? 'مفعّل' : 'معطّل'}</span></div>
+            <div class="mob-card-actions">
+              <button class="link-btn" onclick="openRoomTypeModal('${id}')">تعديل</button>
+              <button class="link-btn" onclick="toggleRoomTypeActive('${id}', ${rt.active === false})">${rt.active !== false ? 'تعطيل' : 'تفعيل'}</button>
+              <button class="link-btn link-btn-danger" onclick="deleteRoomType('${id}')">حذف</button>
+            </div>
+          </div>`).join('')}
+      </div>
       ${rows.length === 0 ? '<div class="empty-state">لا توجد أنواع غرف بعد</div>' : ''}
     </div>
   `;
@@ -1191,6 +1217,19 @@ function renderViewTypes(){
           </tbody>
         </table>
       </div>
+      <div class="mob-cards">
+        ${rows.length === 0 ? '' : rows.map(([id, vt]) => `
+          <div class="mob-card">
+            <div class="mob-card-title">${escapeHtml(vt.name)}</div>
+            <div class="mob-card-row"><b>أنواع الغرف</b><span>${escapeHtml(roomTypeNamesForView(vt))}</span></div>
+            <div class="mob-card-row"><b>الحالة</b><span class="pill ${vt.active !== false ? 'pill-active' : 'pill-inactive'}">${vt.active !== false ? 'مفعّل' : 'معطّل'}</span></div>
+            <div class="mob-card-actions">
+              <button class="link-btn" onclick="openViewTypeModal('${id}')">تعديل</button>
+              <button class="link-btn" onclick="toggleViewTypeActive('${id}', ${vt.active === false})">${vt.active !== false ? 'تعطيل' : 'تفعيل'}</button>
+              <button class="link-btn link-btn-danger" onclick="deleteViewType('${id}')">حذف</button>
+            </div>
+          </div>`).join('')}
+      </div>
       ${rows.length === 0 ? '<div class="empty-state">لا توجد إطلالات بعد</div>' : ''}
     </div>
   `;
@@ -1324,6 +1363,7 @@ function renderPricing(){
   let rowsHtml = '';
   let anyCombo = false;
 
+  let mobPrHtml = '';
   rTypes.forEach(([rtId, rt]) => {
     const vTypes = viewTypesForRoomType(rtId, vTypesAll);
     vTypes.forEach(([vtId, vt]) => {
@@ -1342,6 +1382,15 @@ function renderPricing(){
             <button class="link-btn" onclick="openPricingModal('${rtId}','${vtId}')">تعديل السعر</button>
           </td>
         </tr>`;
+      mobPrHtml += `
+        <div class="mob-card">
+          <div class="mob-card-title">${escapeHtml(rt.name)} / ${escapeHtml(vt.name)}</div>
+          <div class="mob-card-row"><b>فرد واحد</b><span>${single === null ? '<span style="color:var(--color-danger);">غير محدد</span>' : single + ' ج.م'}</span></div>
+          <div class="mob-card-row"><b>فردين</b><span>${double === null ? '<span style="color:var(--color-danger);">غير محدد</span>' : double + ' ج.م'}</span></div>
+          <div class="mob-card-actions">
+            <button class="link-btn" onclick="openPricingModal('${rtId}','${vtId}')">تعديل السعر</button>
+          </div>
+        </div>`;
     });
   });
 
@@ -1355,6 +1404,7 @@ function renderPricing(){
           <tbody>${rowsHtml || ''}</tbody>
         </table>
       </div>
+      <div class="mob-cards">${mobPrHtml || ''}</div>
       ${(rTypes.length === 0 || !anyCombo) ? '<div class="empty-state">أضف أنواع غرف وإطلالات، وحدد الإطلالات المرتبطة بكل نوع غرفة</div>' : ''}
     </div>
   `;
@@ -1419,6 +1469,7 @@ function renderInventory(){
   const rTypes = allRoomTypes();
   const vTypesAll = allViewTypes();
   let rowsHtml = '';
+  let mobInvHtml = '';
   let anyCombo = false;
 
   rTypes.forEach(([rtId, rt]) => {
@@ -1437,6 +1488,14 @@ function renderInventory(){
             <button class="link-btn" onclick="openInventoryModal('${rtId}','${vtId}')">تعديل العدد الإجمالي</button>
           </td>
         </tr>`;
+      mobInvHtml += `
+        <div class="mob-card">
+          <div class="mob-card-title">${escapeHtml(rt.name)} / ${escapeHtml(vt.name)}</div>
+          <div class="mob-card-row"><b>Total Rooms</b><span>${total}</span></div>
+          <div class="mob-card-actions">
+            <button class="link-btn" onclick="openInventoryModal('${rtId}','${vtId}')">تعديل العدد الإجمالي</button>
+          </div>
+        </div>`;
     });
   });
 
@@ -1450,6 +1509,7 @@ function renderInventory(){
           <tbody>${rowsHtml || ''}</tbody>
         </table>
       </div>
+      <div class="mob-cards">${mobInvHtml || ''}</div>
       ${(rTypes.length === 0 || !anyCombo) ? '<div class="empty-state">أضف أنواع غرف وإطلالات، وحدد الإطلالات المرتبطة بكل نوع غرفة</div>' : ''}
     </div>
   `;
@@ -2447,6 +2507,15 @@ function renderActivityLog(){
           </tbody>
         </table>
       </div>
+      <div class="mob-cards">
+        ${logs.length === 0 ? '' : logs.map(([id, l]) => `
+          <div class="mob-card">
+            <div class="mob-card-title">${escapeHtml(l.action)}</div>
+            <div class="mob-card-row"><b>المستخدم</b><span>${escapeHtml(l.userName || l.userId || '—')}</span></div>
+            <div class="mob-card-row"><b>التوقيت</b><span>${fmtTimestamp(l.timestamp)}</span></div>
+            <div class="mob-card-row"><b>التفاصيل</b><span style="font-size:11px;color:var(--color-text-muted);word-break:break-all;">${escapeHtml(JSON.stringify(l.details || {}))}</span></div>
+          </div>`).join('')}
+      </div>
       ${logs.length === 0 ? '<div class="empty-state">لا يوجد سجل نشاط بعد</div>' : ''}
     </div>
   `;
@@ -2490,6 +2559,19 @@ function renderUsers(){
               </tr>`).join('')}
           </tbody>
         </table>
+      </div>
+      <div class="mob-cards">
+        ${list.length === 0 ? '' : list.map(([uid, u]) => `
+          <div class="mob-card">
+            <div class="mob-card-title">${escapeHtml(u.name)}</div>
+            <div class="mob-card-row"><b>البريد</b><span style="direction:ltr;">${escapeHtml(u.email || '—')}</span></div>
+            <div class="mob-card-row"><b>الدور</b><span>مدير</span></div>
+            <div class="mob-card-row"><b>الحالة</b><span class="pill ${u.active !== false ? 'pill-active' : 'pill-inactive'}">${u.active !== false ? 'مفعّل' : 'معطّل'}</span></div>
+            <div class="mob-card-actions">
+              <button class="link-btn" onclick="openUserModal('${uid}')">تعديل</button>
+              <button class="link-btn link-btn-danger" onclick="deleteUser('${uid}')">حذف</button>
+            </div>
+          </div>`).join('')}
       </div>
       ${list.length === 0 ? '<div class="empty-state">لا يوجد مستخدمون بعد</div>' : ''}
     </div>
