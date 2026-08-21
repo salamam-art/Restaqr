@@ -1942,8 +1942,12 @@ async function runTrackSearch(phoneOverride){
       return;
     }
 
+    // ترتيب الحجوزات: الأحدث (وقت الإنشاء) أولا فى الأعلى، ثم الأقدم فى
+    // الأسفل. مفاتيح bookingId هنا هى مفاتيح push() من Firebase، وهي
+    // مرتبة زمنيا تصاعديا بطبيعتها (كل مفتاح جديد أكبر من اللي قبله)،
+    // فترتيبها تنازليا (b قبل a) يعطي الأحدث أولا بدقة.
     const entries = Object.entries(val).sort((a, b) =>
-      (a[1].arrivalDate || '').localeCompare(b[1].arrivalDate || '')
+      b[0].localeCompare(a[0])
     );
     entries.forEach(([bookingId, b]) => {
       container.appendChild(renderTrackBookingCard(bookingId, phone, b));
