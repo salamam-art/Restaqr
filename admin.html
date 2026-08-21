@@ -372,7 +372,34 @@
   .cal-cell.closed-avail{background:repeating-linear-gradient(135deg, var(--color-danger-bg), var(--color-danger-bg) 6px, #F6D7D5 6px, #F6D7D5 12px);border-color:var(--color-danger);}
   .cal-cell.closed-avail .cal-line b{color:var(--color-danger);}
   .cal-closed-badge{display:inline-block;background:var(--color-danger);color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-top:2px;line-height:1.35;white-space:normal;word-break:break-word;}
+  .cal-bk-badges{display:flex;flex-direction:column;gap:3px;margin-top:4px;}
+  .cal-bk-badge{display:inline-block;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;line-height:1.4;white-space:nowrap;}
+  .cal-bk-confirmed{background:var(--color-success-bg);color:var(--color-success);border:1px solid rgba(47,125,79,0.25);}
+  .cal-bk-pending{background:var(--color-warning-bg);color:var(--color-warning);border:1px solid rgba(184,121,28,0.25);}
   .cal-cell.empty{background:transparent;border:none;}
+  .cal-cell.today{
+    border:2.5px solid var(--color-accent);
+    box-shadow:0 0 0 3px rgba(201,169,97,0.18);
+    background:#FFFBF2;
+  }
+  .cal-cell.today .cal-day{color:var(--color-accent);position:relative;}
+  .cal-cell.today .cal-day::after{
+    content:'اليوم';
+    display:inline-block;
+    margin-right:5px;
+    font-size:9.5px;
+    font-weight:800;
+    background:var(--color-accent);
+    color:#3A2E10;
+    padding:1px 5px;
+    border-radius:5px;
+    vertical-align:middle;
+    line-height:1.5;
+  }
+  /* today combined with other states */
+  .cal-cell.today.low-avail{background:var(--color-danger-bg);}
+  .cal-cell.today.mid-avail{background:var(--color-warning-bg);}
+  .cal-cell.today.closed-avail{background:repeating-linear-gradient(135deg, var(--color-danger-bg), var(--color-danger-bg) 6px, #F6D7D5 6px, #F6D7D5 12px);}
 
   /* Responsive breakpoints: keep every day fully visible and readable
      on narrow Android/mobile screens instead of squeezing 7 columns
@@ -1618,6 +1645,7 @@ function renderCalendarGrid(){
   const combos = allInventoryCombos();
   const daysInMonth = new Date(year, month+1, 0).getDate();
   const firstWeekday = new Date(year, month, 1).getDay(); // 0=Sunday
+  const todayDateStr = todayStr(); // e.g. "2025-08-21"
 
   let cells = '';
   for(let i=0;i<firstWeekday;i++) cells += '<div class="cal-cell empty"></div>';
@@ -1628,6 +1656,20 @@ function renderCalendarGrid(){
     let total = 0, booked = 0, ooo = 0, available = 0;
     let closedCombos = 0;
     const closedViewNames = new Set();
+    let confirmedCount = 0, pendingCount = 0;
+
+    // حساب عدد الحجوزات (المؤكدة والمعلقة) لهذا اليوم بشكل مستقل عن الكومبو
+    const seenBookingIds = new Set();
+    Object.values(cache.bookings || {}).forEach(b => {
+      if(b.status === 'cancelled') return;
+      if(b.arrivalDate <= dateStr && dateStr < b.departureDate){
+        const bid = b.bookingNumber || '';
+        if(seenBookingIds.has(bid)) return;
+        seenBookingIds.add(bid);
+        if(b.status === 'confirmed') confirmedCount++;
+        else if(b.status === 'pending') pendingCount++;
+      }
+    });
 
     combos.forEach(inv => {
       const key = comboKey(inv.roomTypeId, inv.viewId);
@@ -1666,6 +1708,7 @@ function renderCalendarGrid(){
     if(combos.length && closedCombos === combos.length) cls = 'closed-avail';
     else if(available <= 0) cls = 'low-avail';
     else if(available <= Math.max(2, Math.round(total*0.15))) cls = 'mid-avail';
+    if(dateStr === todayDateStr) cls = (cls ? cls + ' today' : 'today');
 
     let closureBadge = '';
     if(closedCombos > 0){
@@ -1678,6 +1721,10 @@ function renderCalendarGrid(){
       closureBadge = `<span class="cal-closed-badge" title="${escapeHtml(label)}">${escapeHtml(label)}</span>`;
     }
 
+    let bookingBadges = '';
+    if(confirmedCount > 0) bookingBadges += `<span class="cal-bk-badge cal-bk-confirmed" title="حجوزات مؤكدة">✅ ${confirmedCount} مؤكد</span>`;
+    if(pendingCount > 0)   bookingBadges += `<span class="cal-bk-badge cal-bk-pending" title="حجوزات معلقة">⏳ ${pendingCount} معلق</span>`;
+
     cells += `
       <div class="cal-cell ${cls}">
         <div class="cal-day">${d}</div>
@@ -1685,6 +1732,7 @@ function renderCalendarGrid(){
         <div class="cal-line"><span>Booked</span><b>${booked}</b></div>
         <div class="cal-line"><span>OOO</span><b>${ooo}</b></div>
         <div class="cal-line"><span>Avail</span><b>${available}</b></div>
+        ${bookingBadges ? `<div class="cal-bk-badges">${bookingBadges}</div>` : ''}
         ${closureBadge}
       </div>`;
   }
