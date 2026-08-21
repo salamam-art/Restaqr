@@ -2026,8 +2026,7 @@ function renderBookingsPage(pageKey){
     <div class="panel">
       <div class="panel-head">
         <div class="panel-title">${title}</div>
-        ${isRequests ? '<button type="button" class="btn btn-ghost btn-sm" id="btnMigrateByPhone" style="width:auto;">🔄 استيراد الحجوزات القديمة لـ "تتبع حجزي"</button>' : ''}
-        ${isRequests ? '<button type="button" class="btn btn-ghost btn-sm" id="btnMigrateByRoom" style="width:auto;">🔄 استيراد فهرس التوافر للحجوزات القديمة</button>' : ''}
+
       </div>
       <div class="filters-row">
         <div class="field">
@@ -2050,13 +2049,6 @@ function renderBookingsPage(pageKey){
       <div class="bk-cards" id="bkCardsWrap"></div>
     </div>
   `;
-
-  if(isRequests){
-    const migrateBtn = document.getElementById('btnMigrateByPhone');
-    if(migrateBtn) migrateBtn.addEventListener('click', () => migrateBookingsByPhone(migrateBtn));
-    const migrateRoomBtn = document.getElementById('btnMigrateByRoom');
-    if(migrateRoomBtn) migrateRoomBtn.addEventListener('click', () => migrateBookingsByRoom(migrateRoomBtn));
-  }
 
   const rerender = () => {
     filt.q = document.getElementById('bkSearchQ').value.trim();
@@ -2577,122 +2569,6 @@ async function confirmBooking(bookingId){
     toastMsg('حدث خطأ أثناء تأكيد الحجز', 'error');
     setBtnLoading(btn, false);
   }
-}
-
-/* ---------------------------------------------------------------------
-   MIGRATE BOOKINGS -> bookingsByPhone (استيراد لمرة واحدة)
-   -----------------------------------------------------------------
-   bookingsByPhone عقدة جديدة أُضيفت لخدمة صفحة "تتبع حجزي" فى
-   guest-booking.html. الحجوزات التي تم إنشاؤها قبل هذا التحديث لا تملك
-   إدخالا مقابلا فيها (لم يُكتب وقتها)، فلن تظهر للعميل عند البحث برقم
-   هاتفه إلا بعد تشغيل هذه العملية. آمنة للتشغيل أكثر من مرة: تتخطى أي
-   حجز موجود له إدخال بالفعل ولا تكتب فوقه.
---------------------------------------------------------------------- */
-async function migrateBookingsByPhone(btn){
-  const entries = Object.entries(cache.bookings || {}).filter(([, b]) => b && b.phone);
-  if(entries.length === 0){
-    toastMsg('لا توجد حجوزات لاستيرادها', 'error');
-    return;
-  }
-  const ok = await askConfirm(`سيتم فحص ${entries.length} حجز، وإنشاء فهرس "تتبع حجزي" لأي حجز قديم لا يملكه بعد فقط. هل تريد المتابعة؟`);
-  if(!ok) return;
-
-  setBtnLoading(btn, true);
-  let created = 0, skipped = 0, failed = 0;
-
-  for(const [bookingId, b] of entries){
-    const ref = db.ref('bookingsByPhone/' + b.phone + '/' + bookingId);
-    try{
-      const snap = await ref.once('value');
-      if(snap.exists()){ skipped++; continue; }
-      await ref.set({
-        bookingId,
-        bookingNumber: b.bookingNumber,
-        customerName: b.customerName,
-        arrivalDate: b.arrivalDate,
-        departureDate: b.departureDate,
-        rooms: b.rooms || {},
-        totalPrice: b.totalPrice,
-        status: b.status
-      });
-      created++;
-    }catch(err){
-      console.error('migrate bookingsByPhone error for', bookingId, err);
-      failed++;
-    }
-  }
-
-  setBtnLoading(btn, false);
-  toastMsg(
-    `تم إنشاء ${created} فهرس جديد، تخطي ${skipped} موجود مسبقا${failed ? `، فشل ${failed}` : ''}`,
-    failed ? 'error' : 'success'
-  );
-  await logActivity('MIGRATE_BOOKINGS_BY_PHONE', { created, skipped, failed, total: entries.length });
-}
-
-/* ---------------------------------------------------------------------
-   MIGRATE BOOKINGS -> bookingsByRoom (استيراد لمرة واحدة)
-   -----------------------------------------------------------------
-   السبب: guest-booking.html يحسب "التوافر" اعتمادا بالكامل على قراءة
-   عقدة bookingsByRoom (الفهرس الوحيد المسموح للعميل بقراءته لحساب
-   Availability). أي حجز قديم كان موجودا فى /bookings قبل إضافة هذا
-   الفهرس ليس له إدخال مقابل فيه، فيكون غير مرئي إطلاقا لحساب التوافر
-   عند العميل — رغم أنه ظاهر ك "مؤكد" فى لوحة الإدارة. هذه الدالة تبني
-   الإدخالات الناقصة لكل الحجوزات الموجودة حاليا (نفس أسلوب
-   migrateBookingsByPhone تماما). آمنة للتشغيل أكثر من مرة: تتخطى أي
-   حجز/غرفة لها إدخال بالفعل ولا تكتب فوقه.
-
-   ملاحظة على قواعد Firebase: قاعدة إنشاء bookingsByRoom تشترط أن تكون
-   status='pending' عند أول كتابة (data.exists() === false)، بصرف النظر
-   عن الحالة الفعلية للحجز — فنكتب أولا status:'pending' (يطابق الشرط)،
-   ثم لو كانت الحالة الحقيقية فى /bookings مختلفة (confirmed/cancelled)
-   نعمل تحديث منفصل لحقل status فقط، تماما كما تفعل confirmBooking/
-   cancelBooking بالضبط.
---------------------------------------------------------------------- */
-async function migrateBookingsByRoom(btn){
-  const entries = Object.entries(cache.bookings || {}).filter(([, b]) => b && b.rooms && Object.keys(b.rooms).length);
-  if(entries.length === 0){
-    toastMsg('لا توجد حجوزات لاستيرادها', 'error');
-    return;
-  }
-  const ok = await askConfirm(`سيتم فحص ${entries.length} حجز، وإنشاء فهرس التوافر (bookingsByRoom) لأي حجز/غرفة قديمة لا يملكه بعد فقط. مهم: بدون هذا الفهرس تظهر الغرف "متاحة" للعميل فى صفحة الحجز حتى لو كانت محجوزة فعلا. هل تريد المتابعة؟`);
-  if(!ok) return;
-
-  setBtnLoading(btn, true);
-  let created = 0, skipped = 0, failed = 0;
-
-  for(const [bookingId, b] of entries){
-    const roomEntries = Object.entries(b.rooms || {});
-    for(const [key, r] of roomEntries){
-      const ref = db.ref('bookingsByRoom/' + key + '/' + bookingId);
-      try{
-        const snap = await ref.once('value');
-        if(snap.exists()){ skipped++; continue; }
-
-        await ref.set({
-          bookingNumber: b.bookingNumber,
-          arrivalDate: b.arrivalDate,
-          departureDate: b.departureDate,
-          count: r.count,
-          status: 'pending'
-        });
-        if(b.status !== 'pending'){
-          await ref.child('status').set(b.status);
-        }
-        created++;
-      }catch(err){
-        console.error('migrate bookingsByRoom error for', bookingId, key, err);
-        failed++;
-      }
-    }
-  }
-
-  setBtnLoading(btn, false);
-  toastMsg(
-    `تم إنشاء ${created} إدخال جديد، تخطي ${skipped} موجود مسبقا${failed ? `، فشل ${failed}` : ''}`,
-    failed ? 'error' : 'success'
-  );
-  await logActivity('MIGRATE_BOOKINGS_BY_ROOM', { created, skipped, failed, total: entries.length });
 }
 
 /* ---------------------------------------------------------------------
