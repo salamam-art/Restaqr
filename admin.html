@@ -517,14 +517,14 @@ let currentRoute = 'dashboard';
    Route definitions
 ===================================================================== */
 const ROUTES = {
-  dashboard:        { label: 'Dashboard',            icon: '📊', roles: ['admin','staff'] },
+  dashboard:        { label: 'Dashboard',            icon: '📊', roles: ['admin'] },
   roomTypes:        { label: 'إدارة أنواع الغرف',     icon: '🛏️', roles: ['admin'] },
   viewTypes:        { label: 'إدارة الإطلالات',       icon: '🌅', roles: ['admin'] },
   inventory:        { label: 'إدارة Inventory',        icon: '📦', roles: ['admin'] },
   pricing:          { label: 'إدارة الأسعار',           icon: '💰', roles: ['admin'] },
-  calendar:         { label: 'التوافر Calendar',       icon: '📅', roles: ['admin','staff'] },
-  bookingRequests:  { label: 'طلبات الحجز',            icon: '📝', roles: ['admin','staff'] },
-  confirmedBookings:{ label: 'الحجوزات المؤكدة',       icon: '✅', roles: ['admin','staff'] },
+  calendar:         { label: 'التوافر Calendar',       icon: '📅', roles: ['admin'] },
+  bookingRequests:  { label: 'طلبات الحجز',            icon: '📝', roles: ['admin'] },
+  confirmedBookings:{ label: 'الحجوزات المؤكدة',       icon: '✅', roles: ['admin'] },
   outOfOrder:       { label: 'الغرف خارج الخدمة',      icon: '🚧', roles: ['admin'] },
   closures:         { label: 'إغلاق أيام التوافر',      icon: '⛔', roles: ['admin'] },
   activityLog:      { label: 'Activity Log',           icon: '🕒', roles: ['admin'] },
@@ -730,13 +730,14 @@ auth.onAuthStateChanged(async (user) => {
   try{
     const snap = await db.ref('users/' + user.uid).once('value');
     const profile = snap.val();
-    if(!profile || profile.active === false || !['admin','staff'].includes(profile.role)){
+    if(!profile || profile.active === false){
       await auth.signOut();
       showLoginError('هذا الحساب غير مصرح له بالدخول إلى لوحة الإدارة');
       setBtnLoading(btn, false);
       return;
     }
-    currentUser = { uid: user.uid, name: profile.name || profile.email, email: profile.email || user.email, role: profile.role, active: profile.active };
+    // كل حساب مسجّل يعامَل كـ admin كامل الصلاحيات
+    currentUser = { uid: user.uid, name: profile.name || profile.email, email: profile.email || user.email, role: 'admin', active: profile.active };
 
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('appShell').classList.remove('hidden');
@@ -745,7 +746,7 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById('loginPassword').value = '';
 
     document.getElementById('sbUserName').textContent = currentUser.name;
-    document.getElementById('sbUserRole').textContent = currentUser.role === 'admin' ? 'مدير' : 'موظف';
+    document.getElementById('sbUserRole').textContent = 'مدير';
     document.getElementById('sbAvatar').textContent = (currentUser.name || '?').trim().charAt(0).toUpperCase();
 
     if(!sidebarInitialized){
@@ -868,16 +869,14 @@ function initAllListeners(){
     cache.bookings = snap.val() || {};
     rerenderIfCurrent(['dashboard','bookingRequests','confirmedBookings','calendar']);
   });
-  if(currentUser.role === 'admin'){
-    db.ref('users').on('value', snap => {
-      cache.users = snap.val() || {};
-      rerenderIfCurrent(['users']);
-    });
-    db.ref('activityLogs').limitToLast(200).on('value', snap => {
-      cache.activityLogs = snap.val() || {};
-      rerenderIfCurrent(['activityLog']);
-    });
-  }
+  db.ref('users').on('value', snap => {
+    cache.users = snap.val() || {};
+    rerenderIfCurrent(['users']);
+  });
+  db.ref('activityLogs').limitToLast(200).on('value', snap => {
+    cache.activityLogs = snap.val() || {};
+    rerenderIfCurrent(['activityLog']);
+  });
 }
 
 function rerenderIfCurrent(routes){
@@ -2445,7 +2444,7 @@ function renderUsers(){
               <tr>
                 <td><b>${escapeHtml(u.name)}</b></td>
                 <td style="direction:ltr;text-align:left;">${escapeHtml(u.email)}</td>
-                <td>${u.role === 'admin' ? 'مدير' : 'موظف'}</td>
+                <td>مدير</td>
                 <td><span class="pill ${u.active !== false ? 'pill-active' : 'pill-inactive'}">${u.active !== false ? 'مفعّل' : 'معطّل'}</span></td>
                 <td class="row-actions">
                   <button class="link-btn" onclick="openUserModal('${uid}')">تعديل</button>
@@ -2463,7 +2462,7 @@ function renderUsers(){
 }
 
 function openUserModal(uid){
-  const u = uid ? cache.users[uid] : { name:'', email:'', role:'staff', active:true };
+  const u = uid ? cache.users[uid] : { name:'', email:'', role:'admin', active:true };
   document.getElementById('modalRoot').innerHTML = `
     <div class="modal-overlay">
       <div class="modal-box">
@@ -2481,11 +2480,10 @@ function openUserModal(uid){
           <label>البريد الإلكتروني</label>
           <input type="email" id="userEmail" value="${escapeHtml(u.email || '')}">
         </div>
-        <div class="field">
+        <div class="field" style="display:none;">
           <label>الدور</label>
           <select id="userRole">
-            <option value="staff" ${u.role==='staff'?'selected':''}>موظف (staff)</option>
-            <option value="admin" ${u.role==='admin'?'selected':''}>مدير (admin)</option>
+            <option value="admin" selected>مدير (admin)</option>
           </select>
         </div>
         <div class="checkbox-row field">
