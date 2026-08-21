@@ -486,9 +486,10 @@ const firebaseConfig = {
   appId: "1:1060340241429:web:ce4240d23c2dd7fbc72a1c"
 };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
+// استخدام اسم مخصص للـ App Instance حتى لا تتشارك جلسة Auth مع صفحة العميل
+const adminApp = firebase.initializeApp(firebaseConfig, 'adminApp');
+const auth = adminApp.auth();
+const db = adminApp.database();
 
 /* =====================================================================
    Global State

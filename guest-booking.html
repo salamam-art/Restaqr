@@ -603,9 +603,10 @@ const firebaseConfig = {
   appId: "1:1060340241429:web:ce4240d23c2dd7fbc72a1c"
 };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
+// استخدام اسم مخصص للـ App Instance حتى لا تتشارك جلسة Auth مع لوحة الإدارة
+const guestApp = firebase.initializeApp(firebaseConfig, 'guestApp');
+const auth = guestApp.auth();
+const db = guestApp.database();
 
 /* =====================================================================
    EmailJS Configuration
@@ -695,10 +696,12 @@ function initAuthGate(){
     }
   });
 
-  auth.signInAnonymously().catch(err => {
-    console.error('anonymous sign-in error', err);
-    toastMsg('تعذر الاتصال بالخادم، يرجى تحديث الصفحة والمحاولة مرة أخرى', 'error');
-  });
+  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+    .then(() => auth.signInAnonymously())
+    .catch(err => {
+      console.error('anonymous sign-in error', err);
+      toastMsg('تعذر الاتصال بالخادم، يرجى تحديث الصفحة والمحاولة مرة أخرى', 'error');
+    });
 }
 
 /* =====================================================================
