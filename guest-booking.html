@@ -383,6 +383,138 @@
     border-radius:20px;
     margin-bottom:14px;
   }
+  .status-pill.confirmed{background:var(--color-success-bg);color:var(--color-success);}
+  .status-pill.cancelled{background:var(--color-danger-bg);color:var(--color-danger);}
+
+  /* ===== Transfer info / WhatsApp (pending confirmation) ===== */
+  .transfer-box{
+    text-align:right;
+    background:var(--color-bg);
+    border:1.5px solid var(--color-border);
+    border-radius:var(--radius-md);
+    padding:18px 18px 16px;
+    margin:16px 0;
+  }
+  .transfer-box .transfer-title{
+    font-weight:800;
+    font-size:14.5px;
+    color:var(--color-primary-dark);
+    margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .transfer-row{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    padding:7px 0;
+    border-bottom:1px dashed var(--color-border);
+    font-size:13.5px;
+  }
+  .transfer-row:last-child{border-bottom:none;}
+  .transfer-row .t-label{color:var(--color-text-muted);font-weight:700;}
+  .transfer-row .t-value{font-weight:800;color:var(--color-text);word-break:break-word;text-align:left;direction:ltr;}
+  .transfer-row.total .t-value{color:var(--color-primary-dark);font-size:15px;}
+  .btn-whatsapp{
+    background:#25D366;
+    color:#fff;
+    box-shadow:0 8px 20px -6px rgba(37,211,102,0.55);
+    text-decoration:none;
+  }
+  .pending-note{
+    font-size:12.5px;
+    color:var(--color-text-muted);
+    text-align:center;
+    margin:2px 0 4px;
+    line-height:1.6;
+  }
+  .confirmed-note{
+    background:var(--color-success-bg);
+    color:var(--color-success);
+    border-radius:var(--radius-md);
+    padding:12px 14px;
+    font-weight:700;
+    font-size:14px;
+    text-align:center;
+    margin:14px 0;
+  }
+  .cancelled-note{
+    background:var(--color-danger-bg);
+    color:var(--color-danger);
+    border-radius:var(--radius-md);
+    padding:12px 14px;
+    font-weight:700;
+    font-size:14px;
+    text-align:center;
+    margin:14px 0;
+  }
+
+  /* ===== Header nav (track link) ===== */
+  .header-nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:26px;
+  }
+  .track-link{
+    flex-shrink:0;
+    background:var(--color-surface);
+    border:1.5px solid var(--color-border);
+    color:var(--color-primary-dark);
+    font-weight:700;
+    font-size:13px;
+    padding:9px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .track-link:hover{background:var(--color-bg);}
+
+  /* ===== Track-my-booking page ===== */
+  .track-booking-card{
+    border:1.5px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    padding:20px;
+    margin-bottom:18px;
+    background:#FDFCFA;
+  }
+  .track-booking-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  .track-booking-num{
+    font-weight:800;
+    font-size:15.5px;
+    color:var(--color-primary-dark);
+    direction:ltr;
+    display:inline-block;
+  }
+  .track-booking-dates{
+    font-size:13px;
+    color:var(--color-text-muted);
+    margin-top:2px;
+  }
+  .track-booking-rooms{
+    font-size:13.5px;
+    color:var(--color-text);
+    margin:8px 0;
+    line-height:1.8;
+  }
+  .track-booking-total{
+    font-weight:800;
+    color:var(--color-primary-dark);
+    font-size:14.5px;
+    margin-bottom:6px;
+  }
+  .btn-danger-outline{
+    background:transparent;
+    border:1.5px solid var(--color-danger);
+    color:var(--color-danger);
+  }
 
   /* ===== Utility ===== */
   .hint{font-size:12.5px;color:var(--color-text-muted);margin-top:6px;}
@@ -463,12 +595,15 @@
 <div class="wrap">
 
   <!-- ===== Header ===== -->
-  <div class="hotel-header">
-    <div class="hotel-logo" id="hotelLogo">🏨</div>
-    <div>
-      <div class="hotel-name" id="hotelName">اسم الفندق</div>
-      <div class="page-title">حجز الغرف</div>
+  <div class="header-nav">
+    <div class="hotel-header" style="margin-bottom:0;">
+      <div class="hotel-logo" id="hotelLogo">🏨</div>
+      <div>
+        <div class="hotel-name" id="hotelName">اسم الفندق</div>
+        <div class="page-title" id="pageTitle">حجز الغرف</div>
+      </div>
     </div>
+    <button type="button" class="track-link" id="btnGoTrack">🔍 تتبع حجزي</button>
   </div>
 
   <!-- ===== STEP 1: Dates + Rooms ===== -->
@@ -560,15 +695,60 @@
   <!-- ===== STEP 4: Confirmation ===== -->
   <div class="card hidden" id="stepConfirm">
     <div class="confirm-box">
-      <div class="confirm-icon">✓</div>
-      <div style="font-size:19px;font-weight:800;color:var(--color-primary-dark);">تم إرسال طلب الحجز بنجاح</div>
+      <div class="confirm-icon" id="confirmIcon">✓</div>
+      <div style="font-size:19px;font-weight:800;color:var(--color-primary-dark);" id="confirmTitle">تم إرسال طلب الحجز بنجاح</div>
       <div class="hint">رقم الطلب</div>
       <div class="booking-number" id="confirmBookingNumber">—</div>
       <div><span class="status-pill" id="confirmStatus">قيد الانتظار</span></div>
-      <p style="color:var(--color-text-muted);font-size:14px;max-width:420px;margin:6px auto 20px;">
-        سيقوم الفندق بمراجعة طلبكم والتواصل معكم لتأكيد الحجز.
+    </div>
+
+    <div id="confirmPendingArea">
+      <div class="transfer-box">
+        <div class="transfer-title">💳 بيانات التحويل البنكي</div>
+        <div class="transfer-row"><span class="t-label">البنك</span><span class="t-value">C.I.B</span></div>
+        <div class="transfer-row"><span class="t-label">رقم الحساب</span><span class="t-value">100014968347</span></div>
+        <div class="transfer-row"><span class="t-label">الفرع</span><span class="t-value">Port Said – Egypt</span></div>
+        <div class="transfer-row"><span class="t-label">اسم الحساب</span><span class="t-value">Resta Hotel Port Said</span></div>
+        <div class="transfer-row total"><span class="t-label">المبلغ (إجمالي الحجز)</span><span class="t-value" id="confirmTotalPrice">—</span></div>
+      </div>
+      <p class="pending-note">
+        برجاء تحويل قيمة الحجز كاملة على الحساب أعلاه، ثم إرسال إثبات التحويل عبر واتساب.
+        ستظهر هذه الشاشة حتى يقوم الفندق بمراجعة الحجز وتأكيده.
       </p>
-      <button type="button" class="btn btn-primary" id="btnNewBooking" style="max-width:280px;margin:0 auto;">حجز جديد</button>
+      <a href="#" target="_blank" rel="noopener" class="btn btn-whatsapp" id="btnWhatsappConfirm" style="margin-bottom:10px;">
+        📲 إرسال تفاصيل الحجز عبر واتساب
+      </a>
+    </div>
+
+    <div id="confirmConfirmedArea" class="hidden">
+      <div class="confirmed-note">✅ تم تأكيد حجزك</div>
+    </div>
+
+    <div id="confirmCancelledArea" class="hidden">
+      <div class="cancelled-note">تم إلغاء هذا الحجز</div>
+    </div>
+
+    <button type="button" class="btn btn-primary" id="btnNewBooking" style="max-width:280px;margin:14px auto 0;">حجز جديد</button>
+  </div>
+
+  <!-- ===== TRACK MY BOOKING PAGE ===== -->
+  <div class="card hidden" id="stepTrack">
+    <div class="section-title">🔍 تتبع حجزي</div>
+    <div class="field">
+      <label>رقم الهاتف المستخدم فى الحجز <span class="req-mark">*</span></label>
+      <input type="tel" id="trackPhone" placeholder="مثال: 01223719900" inputmode="numeric" maxlength="11">
+    </div>
+    <div style="margin-top:6px;">
+      <button type="button" class="btn btn-primary" id="btnTrackSearch">
+        <span class="spinner"></span>
+        <span class="btn-label">بحث</span>
+      </button>
+    </div>
+
+    <div id="trackResultsContainer" style="margin-top:22px;"></div>
+
+    <div style="margin-top:18px;">
+      <button type="button" class="btn btn-ghost" id="btnBackFromTrack">رجوع لحجز جديد</button>
     </div>
   </div>
 
@@ -615,6 +795,9 @@ const db = guestApp.database();
 const EMAILJS_PUBLIC_KEY  = "W7YJpQgVP3K5HT3eV";
 const EMAILJS_SERVICE_ID  = "service_68fknbm";
 const EMAILJS_TEMPLATE_ID = "template_6eei2xl";
+
+// رقم واتساب الفندق لاستقبال إثبات التحويل وتفاصيل الحجز
+const HOTEL_WHATSAPP_NUMBER = "201144444859"; // 0114 4444 859 بالصيغة الدولية بدون +
 
 // قائمة إيميلات الموظفين اللي هيوصلهم إشعار كل حجز جديد
 const STAFF_NOTIFY_EMAILS = [
@@ -667,6 +850,9 @@ const state = {
   totalPrice: 0,        // إجمالي السعر المحسوب فى خطوة تفضيلات الإقامة
   totalPriceIncomplete: false,
   authReady: false,    // true بعد نجاح Anonymous Sign-In
+  confirmBookingId: null,   // الحجز المعروض حاليا فى شاشة التأكيد
+  confirmPhone: null,
+  confirmStatusListenerRef: null, // مرجع Firebase الحالي الذي نستمع له (لإلغاء الاشتراك القديم قبل أي استماع جديد)
 };
 
 /* =====================================================================
@@ -680,7 +866,7 @@ const state = {
    العناصر التفاعلية حتى تكتمل عملية الدخول.
 ===================================================================== */
 function setAppInteractive(enabled){
-  document.querySelectorAll('#btnAddRoom, #btnSearchAvailability, #btnSubmitBooking').forEach(el => {
+  document.querySelectorAll('#btnAddRoom, #btnSearchAvailability, #btnSubmitBooking, #btnTrackSearch, #btnGoTrack').forEach(el => {
     if(el) el.disabled = !enabled;
   });
 }
@@ -1126,7 +1312,7 @@ function renderResults(results){
    Step navigation
 ===================================================================== */
 function showStep(stepId){
-  ['stepSearch','stepResults','stepCustomer','stepConfirm'].forEach(id => {
+  ['stepSearch','stepResults','stepCustomer','stepConfirm','stepTrack'].forEach(id => {
     document.getElementById(id).classList.toggle('hidden', id !== stepId);
   });
   window.scrollTo({top:0, behavior:'smooth'});
@@ -1353,6 +1539,91 @@ function buildNotesWithPreferences(){
 }
 
 /* =====================================================================
+   WhatsApp message builder
+===================================================================== */
+function buildWhatsappMessage(b){
+  const lines = [
+    'مرحبا، بخصوص حجزي:',
+    `رقم الحجز: ${b.bookingNumber}`,
+    `الاسم: ${b.customerName || ''}`,
+    `الهاتف: ${b.phone || ''}`,
+    `تاريخ الوصول: ${b.arrivalDate}`,
+    `تاريخ المغادرة: ${b.departureDate}`,
+    `الغرف: ${formatRoomsForEmail(b.rooms || {})}`,
+    `الإجمالي: ${b.totalPrice} ج.م`
+  ];
+  return lines.join('\n');
+}
+
+function buildWhatsappLink(b){
+  return `https://wa.me/${HOTEL_WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsappMessage(b))}`;
+}
+
+/* =====================================================================
+   Confirmation screen (شاشة ما بعد الحجز)
+   -----------------------------------------------------------------
+   تفضل شاشة "قيد الانتظار" (بيانات التحويل + واتساب) ظاهرة حتى يضغط
+   الموظف "تأكيد" من لوحة الإدارة، فتتحول تلقائيا (بدون Reload) عبر
+   الاستماع الحي لـ bookingsByPhone/$phone/$bookingId/status، وهو مسار
+   مسموح بقراءته لأي مستخدم مسجّل دخول (خلافا لـ /bookings المقصور على
+   الموظفين).
+===================================================================== */
+function renderConfirmStatus(status){
+  const icon = document.getElementById('confirmIcon');
+  const title = document.getElementById('confirmTitle');
+  const statusPill = document.getElementById('confirmStatus');
+  const pendingArea = document.getElementById('confirmPendingArea');
+  const confirmedArea = document.getElementById('confirmConfirmedArea');
+  const cancelledArea = document.getElementById('confirmCancelledArea');
+
+  statusPill.className = 'status-pill' + (status === 'confirmed' ? ' confirmed' : status === 'cancelled' ? ' cancelled' : '');
+  statusPill.textContent = status === 'confirmed' ? 'مؤكد ✅' : status === 'cancelled' ? 'ملغي' : 'قيد الانتظار';
+
+  pendingArea.classList.toggle('hidden', status !== 'pending');
+  confirmedArea.classList.toggle('hidden', status !== 'confirmed');
+  cancelledArea.classList.toggle('hidden', status !== 'cancelled');
+
+  if(status === 'confirmed'){
+    icon.textContent = '✅';
+    title.textContent = 'تم تأكيد حجزك';
+  }else if(status === 'cancelled'){
+    icon.textContent = '✕';
+    title.textContent = 'تم إلغاء الحجز';
+  }else{
+    icon.textContent = '✓';
+    title.textContent = 'تم إرسال طلب الحجز بنجاح';
+  }
+}
+
+function stopConfirmStatusListener(){
+  if(state.confirmStatusListenerRef){
+    state.confirmStatusListenerRef.off();
+    state.confirmStatusListenerRef = null;
+  }
+}
+
+function listenToConfirmStatus(phone, bookingId){
+  stopConfirmStatusListener();
+  const ref = db.ref('bookingsByPhone/' + phone + '/' + bookingId + '/status');
+  ref.on('value', snap => {
+    const status = snap.val();
+    if(status) renderConfirmStatus(status);
+  }, err => console.error('confirm status listener error', err));
+  state.confirmStatusListenerRef = ref;
+}
+
+function setupConfirmScreen(bookingData, bookingId){
+  document.getElementById('confirmBookingNumber').textContent = bookingData.bookingNumber;
+  document.getElementById('confirmTotalPrice').textContent = `${bookingData.totalPrice} ج.م`;
+  document.getElementById('btnWhatsappConfirm').href = buildWhatsappLink(bookingData);
+
+  state.confirmBookingId = bookingId;
+  state.confirmPhone = bookingData.phone;
+  renderConfirmStatus('pending');
+  listenToConfirmStatus(bookingData.phone, bookingId);
+}
+
+/* =====================================================================
    Booking number generation (transaction-based counter)
    Format: BOOK-YYYYMMDD-000001
 ===================================================================== */
@@ -1444,10 +1715,23 @@ async function submitBookingRequest(){
 
     await db.ref().update(byRoomUpdates);
 
+    // فهرس bookingsByPhone — يُكتب بعد نجاح /bookings لنفس سبب bookingsByRoom
+    // أعلاه (تجنب مشكلة الـ cross-reference ضمن نفس multi-path update)
+    await db.ref('bookingsByPhone/' + bookingData.phone + '/' + bookingId).set({
+      bookingId,
+      bookingNumber,
+      customerName: bookingData.customerName,
+      arrivalDate: bookingData.arrivalDate,
+      departureDate: bookingData.departureDate,
+      rooms: roomsObj,
+      totalPrice: bookingData.totalPrice,
+      status: 'pending'
+    });
+
     // إرسال إشعار إيميل للموظفين بتفاصيل الحجز الجديد (لا يعطّل نجاح الحجز لو فشل)
     sendBookingNotificationEmail(bookingData, roomsObj);
 
-    document.getElementById('confirmBookingNumber').textContent = bookingNumber;
+    setupConfirmScreen(bookingData, bookingId);
     showStep('stepConfirm');
     toastMsg('تم إرسال طلب الحجز بنجاح', 'success');
   }catch(err){
@@ -1462,6 +1746,9 @@ async function submitBookingRequest(){
    Reset form for a new booking
 ===================================================================== */
 function resetForNewBooking(){
+  stopConfirmStatusListener();
+  state.confirmBookingId = null;
+  state.confirmPhone = null;
   document.getElementById('arrivalDate').value = '';
   document.getElementById('departureDate').value = '';
   document.getElementById('customerName').value = '';
@@ -1478,6 +1765,156 @@ function resetForNewBooking(){
   state.totalPrice = 0;
   state.totalPriceIncomplete = false;
   showStep('stepSearch');
+}
+
+/* =====================================================================
+   Track my booking (تتبع حجزي)
+   -----------------------------------------------------------------
+   يقرأ العميل حجوزاته عبر bookingsByPhone/$phone (مسموح لأي مستخدم
+   مسجّل دخول). لو عنده أكتر من حجز بنفس الرقم يظهرو كلهم. الإلغاء الذاتي
+   مسموح فقط للحجوزات "pending" (تحويل الحالة إلى cancelled فى /bookings
+   أولا، ثم bookingsByRoom، ثم bookingsByPhone - بنفس ترتيب الكتابة
+   المتبع فى admin.html لتفادي مشكلة الـ cross-reference).
+===================================================================== */
+function trackStatusLabel(status){
+  return { pending: 'قيد الانتظار', confirmed: 'مؤكد ✅', cancelled: 'ملغي' }[status] || status;
+}
+
+function renderTrackBookingCard(bookingId, phone, b){
+  const card = document.createElement('div');
+  card.className = 'track-booking-card';
+
+  const roomsText = formatRoomsForEmail(b.rooms || {});
+  const statusClass = b.status === 'confirmed' ? 'confirmed' : b.status === 'cancelled' ? 'cancelled' : '';
+
+  card.innerHTML = `
+    <div class="track-booking-head">
+      <div>
+        <div class="track-booking-num">${b.bookingNumber || '—'}</div>
+        <div class="track-booking-dates">${b.arrivalDate} → ${b.departureDate}</div>
+      </div>
+      <span class="status-pill ${statusClass}">${trackStatusLabel(b.status)}</span>
+    </div>
+    <div class="track-booking-rooms">${roomsText || '—'}</div>
+    <div class="track-booking-total">الإجمالي: ${b.totalPrice} ج.م</div>
+    <div id="track-actions-${bookingId}"></div>
+  `;
+
+  const actionsEl = card.querySelector(`#track-actions-${bookingId}`);
+
+  if(b.status === 'pending'){
+    const transferBox = document.createElement('div');
+    transferBox.className = 'transfer-box';
+    transferBox.innerHTML = `
+      <div class="transfer-title">💳 بيانات التحويل البنكي</div>
+      <div class="transfer-row"><span class="t-label">البنك</span><span class="t-value">C.I.B</span></div>
+      <div class="transfer-row"><span class="t-label">رقم الحساب</span><span class="t-value">100014968347</span></div>
+      <div class="transfer-row"><span class="t-label">الفرع</span><span class="t-value">Port Said – Egypt</span></div>
+      <div class="transfer-row"><span class="t-label">اسم الحساب</span><span class="t-value">Resta Hotel Port Said</span></div>
+      <div class="transfer-row total"><span class="t-label">المبلغ</span><span class="t-value">${b.totalPrice} ج.م</span></div>
+    `;
+    actionsEl.appendChild(transferBox);
+
+    const waLink = document.createElement('a');
+    waLink.href = buildWhatsappLink(Object.assign({ phone }, b));
+    waLink.target = '_blank';
+    waLink.rel = 'noopener';
+    waLink.className = 'btn btn-whatsapp';
+    waLink.style.marginBottom = '10px';
+    waLink.textContent = '📲 إرسال تفاصيل الحجز عبر واتساب';
+    actionsEl.appendChild(waLink);
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'btn btn-danger-outline';
+    cancelBtn.textContent = 'إلغاء الحجز';
+    cancelBtn.addEventListener('click', () => cancelTrackedBooking(phone, bookingId, b, cancelBtn));
+    actionsEl.appendChild(cancelBtn);
+  }else if(b.status === 'confirmed'){
+    const note = document.createElement('div');
+    note.className = 'confirmed-note';
+    note.textContent = '✅ تم تأكيد حجزك';
+    actionsEl.appendChild(note);
+  }else{
+    const note = document.createElement('div');
+    note.className = 'cancelled-note';
+    note.textContent = 'تم إلغاء هذا الحجز';
+    actionsEl.appendChild(note);
+  }
+
+  return card;
+}
+
+async function cancelTrackedBooking(phone, bookingId, b, btn){
+  const ok = window.confirm(`هل تريد إلغاء الحجز رقم "${b.bookingNumber}"؟`);
+  if(!ok) return;
+
+  setBtnLoading(btn, true);
+  try{
+    // FIX: نفس ترتيب الكتابة المتبع فى admin.html/guest-booking.html —
+    // تحديث /bookings أولا (المرجع الجذري)، ثم bookingsByRoom، ثم
+    // bookingsByPhone، حتى تنجح قواعد التحقق المرتبطة بـ root.child('bookings')
+    await db.ref('bookings/' + bookingId).update({
+      status: 'cancelled',
+      updatedAt: firebase.database.ServerValue.TIMESTAMP
+    });
+
+    const byRoomUpdates = {};
+    Object.entries(b.rooms || {}).forEach(([key]) => {
+      byRoomUpdates['bookingsByRoom/' + key + '/' + bookingId + '/status'] = 'cancelled';
+    });
+    if(Object.keys(byRoomUpdates).length){
+      await db.ref().update(byRoomUpdates);
+    }
+
+    await db.ref('bookingsByPhone/' + phone + '/' + bookingId + '/status').set('cancelled');
+
+    toastMsg('تم إلغاء الحجز', 'success');
+    runTrackSearch(phone);
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر إلغاء الحجز، حاول مرة أخرى', 'error');
+    setBtnLoading(btn, false);
+  }
+}
+
+async function runTrackSearch(phoneOverride){
+  const phoneEl = document.getElementById('trackPhone');
+  const phone = (phoneOverride || phoneEl.value).trim();
+  const container = document.getElementById('trackResultsContainer');
+
+  if(!/^\d{11}$/.test(phone)){
+    toastMsg('يرجى إدخال رقم هاتف صحيح (11 رقم)', 'error');
+    return;
+  }
+  if(!phoneOverride) phoneEl.value = phone;
+
+  const btn = document.getElementById('btnTrackSearch');
+  setBtnLoading(btn, true);
+  container.innerHTML = '<div class="page-loading">جاري البحث...</div>';
+
+  try{
+    const snap = await db.ref('bookingsByPhone/' + phone).once('value');
+    const val = snap.val();
+    container.innerHTML = '';
+
+    if(!val){
+      container.innerHTML = '<div class="overall-msg bad">لا توجد حجوزات مرتبطة بهذا الرقم.</div>';
+      return;
+    }
+
+    const entries = Object.entries(val).sort((a, b) =>
+      (a[1].arrivalDate || '').localeCompare(b[1].arrivalDate || '')
+    );
+    entries.forEach(([bookingId, b]) => {
+      container.appendChild(renderTrackBookingCard(bookingId, phone, b));
+    });
+  }catch(err){
+    console.error(err);
+    container.innerHTML = '<div class="overall-msg bad">تعذر تحميل الحجوزات، حاول مرة أخرى.</div>';
+  }finally{
+    setBtnLoading(btn, false);
+  }
 }
 
 /* =====================================================================
@@ -1519,6 +1956,23 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnBackToResults').addEventListener('click', () => showStep('stepResults'));
   document.getElementById('btnSubmitBooking').addEventListener('click', submitBookingRequest);
   document.getElementById('btnNewBooking').addEventListener('click', resetForNewBooking);
+
+  // ===== تتبع حجزي =====
+  const trackPhoneEl = document.getElementById('trackPhone');
+  trackPhoneEl.addEventListener('input', () => {
+    const cleaned = trackPhoneEl.value.replace(/[^\d]/g, '').slice(0, 11);
+    if(cleaned !== trackPhoneEl.value) trackPhoneEl.value = cleaned;
+  });
+  trackPhoneEl.addEventListener('keydown', e => {
+    if(e.key === 'Enter') runTrackSearch();
+  });
+
+  document.getElementById('btnGoTrack').addEventListener('click', () => {
+    document.getElementById('trackResultsContainer').innerHTML = '';
+    showStep('stepTrack');
+  });
+  document.getElementById('btnTrackSearch').addEventListener('click', () => runTrackSearch());
+  document.getElementById('btnBackFromTrack').addEventListener('click', () => showStep('stepSearch'));
 });
 </script>
 </body>
