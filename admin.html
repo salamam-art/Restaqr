@@ -2026,7 +2026,7 @@ function renderBookingsPage(pageKey){
     <div class="panel">
       <div class="panel-head">
         <div class="panel-title">${title}</div>
-        ${isRequests ? '<button type="button" class="btn btn-ghost btn-sm" id="btnMigrateByPhone" style="width:auto;">🔄 استيراد الحجوزات القديمة لـ "تتبع حجزي"</button>' : ''}
+
       </div>
       <div class="filters-row">
         <div class="field">
@@ -2049,11 +2049,6 @@ function renderBookingsPage(pageKey){
       <div class="bk-cards" id="bkCardsWrap"></div>
     </div>
   `;
-
-  if(isRequests){
-    const migrateBtn = document.getElementById('btnMigrateByPhone');
-    if(migrateBtn) migrateBtn.addEventListener('click', () => migrateBookingsByPhone(migrateBtn));
-  }
 
   const rerender = () => {
     filt.q = document.getElementById('bkSearchQ').value.trim();
@@ -2574,57 +2569,6 @@ async function confirmBooking(bookingId){
     toastMsg('حدث خطأ أثناء تأكيد الحجز', 'error');
     setBtnLoading(btn, false);
   }
-}
-
-/* ---------------------------------------------------------------------
-   MIGRATE BOOKINGS -> bookingsByPhone (استيراد لمرة واحدة)
-   -----------------------------------------------------------------
-   bookingsByPhone عقدة جديدة أُضيفت لخدمة صفحة "تتبع حجزي" فى
-   guest-booking.html. الحجوزات التي تم إنشاؤها قبل هذا التحديث لا تملك
-   إدخالا مقابلا فيها (لم يُكتب وقتها)، فلن تظهر للعميل عند البحث برقم
-   هاتفه إلا بعد تشغيل هذه العملية. آمنة للتشغيل أكثر من مرة: تتخطى أي
-   حجز موجود له إدخال بالفعل ولا تكتب فوقه.
---------------------------------------------------------------------- */
-async function migrateBookingsByPhone(btn){
-  const entries = Object.entries(cache.bookings || {}).filter(([, b]) => b && b.phone);
-  if(entries.length === 0){
-    toastMsg('لا توجد حجوزات لاستيرادها', 'error');
-    return;
-  }
-  const ok = await askConfirm(`سيتم فحص ${entries.length} حجز، وإنشاء فهرس "تتبع حجزي" لأي حجز قديم لا يملكه بعد فقط. هل تريد المتابعة؟`);
-  if(!ok) return;
-
-  setBtnLoading(btn, true);
-  let created = 0, skipped = 0, failed = 0;
-
-  for(const [bookingId, b] of entries){
-    const ref = db.ref('bookingsByPhone/' + b.phone + '/' + bookingId);
-    try{
-      const snap = await ref.once('value');
-      if(snap.exists()){ skipped++; continue; }
-      await ref.set({
-        bookingId,
-        bookingNumber: b.bookingNumber,
-        customerName: b.customerName,
-        arrivalDate: b.arrivalDate,
-        departureDate: b.departureDate,
-        rooms: b.rooms || {},
-        totalPrice: b.totalPrice,
-        status: b.status
-      });
-      created++;
-    }catch(err){
-      console.error('migrate bookingsByPhone error for', bookingId, err);
-      failed++;
-    }
-  }
-
-  setBtnLoading(btn, false);
-  toastMsg(
-    `تم إنشاء ${created} فهرس جديد، تخطي ${skipped} موجود مسبقا${failed ? `، فشل ${failed}` : ''}`,
-    failed ? 'error' : 'success'
-  );
-  await logActivity('MIGRATE_BOOKINGS_BY_PHONE', { created, skipped, failed, total: entries.length });
 }
 
 /* ---------------------------------------------------------------------
