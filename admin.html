@@ -497,6 +497,7 @@ const db = adminApp.database();
 let currentUser = null;   // { uid, name, email, role, active }
 let connected = true;
 let sidebarInitialized = false;
+let listenersAttached = false;
 
 const cache = {
   hotelInfo: {},
@@ -721,6 +722,8 @@ auth.onAuthStateChanged(async (user) => {
   const btn = document.getElementById('btnLogin');
   if(!user){
     currentUser = null;
+    detachListeners();
+    sidebarInitialized = false;
     document.getElementById('appShell').classList.add('hidden');
     document.getElementById('loginScreen').classList.remove('hidden');
     setBtnLoading(btn, false);
@@ -751,14 +754,18 @@ auth.onAuthStateChanged(async (user) => {
 
     if(!sidebarInitialized){
       buildSidebar();
-      initAllListeners();
       initConnectionListener();
       sidebarInitialized = true;
       await logActivity('LOGIN', { email: currentUser.email });
     }
+    // أعد تشغيل الـ listeners في كل مرة يتحقق فيها الـ auth
+    // (يعالج حالة الموبايل لما التطبيق يرجع من الـ background)
+    attachListeners();
     navigate(currentRoute);
   }catch(err){
     console.error(err);
+    detachListeners();
+    sidebarInitialized = false;
     await auth.signOut();
     showLoginError('حدث خطأ أثناء تحميل بيانات المستخدم');
     setBtnLoading(btn, false);
@@ -839,8 +846,20 @@ function renderRoute(routeKey){
 
 /* =====================================================================
    Realtime Listeners (populate cache, re-render current route on change)
+   attachListeners() تُستدعى في كل مرة يُؤكَّد فيها الـ auth state
+   لضمان إعادة الاتصال بعد رجوع التطبيق من الـ background على الموبايل
 ===================================================================== */
-function initAllListeners(){
+function detachListeners(){
+  const paths = ['roomTypes','viewTypes','inventory','pricing','outOfOrder',
+                 'closures','bookings','users','activityLogs'];
+  paths.forEach(p => db.ref(p).off());
+  listenersAttached = false;
+}
+
+function attachListeners(){
+  if(listenersAttached) return; // already attached in this session
+  listenersAttached = true;
+
   db.ref('roomTypes').on('value', snap => {
     cache.roomTypes = snap.val() || {};
     rerenderIfCurrent(['dashboard','roomTypes','inventory','pricing','calendar','outOfOrder']);
@@ -882,6 +901,24 @@ function initAllListeners(){
 function rerenderIfCurrent(routes){
   if(routes.includes(currentRoute)) renderRoute(currentRoute);
 }
+
+/* =====================================================================
+   Page Visibility — إعادة الاتصال عند رجوع التطبيق من الـ background
+   (مهم جداً على الموبايل حيث يعلّق المتصفح الاتصالات)
+===================================================================== */
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && currentUser){
+    // أعد تشغيل الـ listeners إن كانت انقطعت
+    listenersAttached = false;
+    attachListeners();
+    // أعد رسم الصفحة الحالية فوراً
+    rerenderIfCurrent(Object.keys(
+      {dashboard:1,roomTypes:1,viewTypes:1,inventory:1,pricing:1,
+       calendar:1,bookingRequests:1,confirmedBookings:1,outOfOrder:1,
+       closures:1,activityLog:1,users:1,settings:1}
+    ));
+  }
+});
 
 function activeRoomTypes(){
   return Object.entries(cache.roomTypes || {}).filter(([,v]) => v && v.active !== false).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
