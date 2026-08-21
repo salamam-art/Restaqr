@@ -1242,8 +1242,23 @@ async function runAvailabilitySearch(){
 
   try{
     const results = [];
+    // FIX: كل صف "غرفة" فى الشاشة يمثل غرفة واحدة (count=1 دائما)، والعميل
+    // يضيف صفا جديدا لكل غرفة إضافية من نفس التركيبة (نوع غرفة + إطلالة).
+    // كان كل صف يُفحص بمعزل عن باقي الصفوف فى نفس عملية البحث، فيقرأ نفس
+    // رصيد قاعدة البيانات لكل صف على حدة من غير خصم ما "طلبته" الصفوف السابقة
+    // فى نفس البحث — فتظهر مثلا 5 صفوف لنفس التركيبة "متاحة" كلها رغم أن
+    // المتاح الفعلي أقل من ذلك بكثير. الحل: نحسب توافر كل تركيبة مرة واحدة
+    // فقط (poolByCombo) ثم نخصم منها تباعا مع كل صف بنفس التركيبة، بحيث
+    // يعكس كل صف الرصيد المتبقي فعليا بعد الصفوف التي قبله.
+    const poolByCombo = {};
     for(const sel of selections){
-      const available = await computeAvailabilityForSelection(sel, arrivalDate, departureDate);
+      const key = comboKey(sel.roomTypeId, sel.viewId);
+      if(!(key in poolByCombo)){
+        poolByCombo[key] = await computeAvailabilityForSelection(sel, arrivalDate, departureDate);
+      }
+      const available = poolByCombo[key];
+      const ok = available >= sel.count;
+      if(ok) poolByCombo[key] -= sel.count;
       const pricing = await fetchPricingForCombo(sel.roomTypeId, sel.viewId);
       results.push({
         roomTypeId: sel.roomTypeId,
@@ -1252,7 +1267,7 @@ async function runAvailabilitySearch(){
         viewName: (state.viewTypes[sel.viewId] || {}).name || sel.viewId,
         requested: sel.count,
         available,
-        ok: available >= sel.count,
+        ok,
         priceSingle: pricing.priceSingle,
         priceDouble: pricing.priceDouble
       });
