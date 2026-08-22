@@ -582,7 +582,6 @@ function buildCard(pkg) {
   const photosHTML = imgs.length ? `
     <div class="pkg-photos${imgs.length > 1 ? ' has-two' : ''}">
       ${imgs.map(src => `<div class="pkg-photo-item"><img src="${src}" alt="نماذج من أصناف باقة ${pkg.name}" loading="lazy"></div>`).join('')}
-      <div class="pkg-photos-caption">نماذج من الأصناف المقدمة</div>
     </div>
   ` : '';
 
