@@ -1546,34 +1546,52 @@ function updateTotalPrice(){
     try{ seasonalList = JSON.parse(block.dataset.seasonal || '[]'); }catch(e){ seasonalList = []; }
 
     const priceEl = block.querySelector('.room-pref-price');
-    let subtotal = 0;
-    let firstNightPrice = null;
-    let blockMissing = false;
-    let usedSeasonal = false;
 
-    nights.forEach((night, idx) => {
+    // نبني قائمة "شرائح" لليالي المتتالية بنفس السعر (عادي أو موسمي)، بدل
+    // سطر واحد مجمّع، عشان يظهر بوضوح سعر أول ليلة وأي ليالي بسعر موسمي مختلف.
+    const segments = [];
+    let blockMissing = false;
+    nights.forEach(night => {
       const isSeasonal = seasonalList.some(sp => sp && sp.fromDate <= night && night <= sp.toDate);
       const price = resolveNightPrice(seasonalList, basePriceSingle, basePriceDouble, adults, night);
       if(price === null || price === undefined || isNaN(price)){
         blockMissing = true;
+        return;
+      }
+      const last = segments[segments.length - 1];
+      if(last && last.price === price && last.seasonal === isSeasonal){
+        last.count += 1;
       }else{
-        subtotal += price;
-        if(isSeasonal) usedSeasonal = true;
-        if(idx === 0) firstNightPrice = price;
+        segments.push({ price, seasonal: isSeasonal, count: 1 });
       }
     });
 
     if(blockMissing){
       missingPrice = true;
-      if(priceEl) priceEl.textContent = 'السعر غير محدد لهذه التركيبة';
+      if(priceEl) priceEl.innerHTML = 'السعر غير محدد لهذه التركيبة';
     }else{
-      firstNightTotal += (firstNightPrice || 0);
-      if(priceEl){
-        priceEl.textContent = usedSeasonal
-          ? `${subtotal} ج.م لـ ${nights.length} ليالي (يشمل أسعار موسمية)`
-          : `${firstNightPrice} ج.م / الليلة × ${nights.length} ليالي = ${subtotal} ج.م`;
-      }
+      const subtotal = segments.reduce((sum, s) => sum + (s.price * s.count), 0);
+      const firstNightPrice = segments.length ? segments[0].price : 0;
+      firstNightTotal += firstNightPrice;
       total += subtotal;
+
+      if(priceEl){
+        const linesHtml = segments.map((s, i) => {
+          const lineTotal = s.price * s.count;
+          let label;
+          if(s.count > 1){
+            label = `${s.seasonal ? 'أسعار موسمية' : 'أسعار عادية'} — ${s.count} ليالي × ${s.price} ج.م`;
+          }else{
+            label = i === 0 ? 'الليلة الأولى' : (s.seasonal ? 'ليلة بسعر موسمي' : 'ليلة');
+            label += ` — ${s.price} ج.م`;
+          }
+          return `<div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;padding:2px 0;color:var(--color-text);"><span>${label}</span><span>${lineTotal} ج.م</span></div>`;
+        }).join('');
+        priceEl.innerHTML = linesHtml + `
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:800;margin-top:4px;padding-top:4px;border-top:1px dashed var(--color-border);color:var(--color-primary-dark);">
+            <span>إجمالي الغرفة (${nights.length} ليالي)</span><span>${subtotal} ج.م</span>
+          </div>`;
+      }
     }
   });
 
