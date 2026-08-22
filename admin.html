@@ -1754,6 +1754,22 @@ function renderOutOfOrder(){
   });
   entries.sort((a,b) => (a.fromDate || '').localeCompare(b.fromDate || ''));
 
+  const mobOOOHtml = entries.map(e => {
+    const rt = cache.roomTypes[e.roomTypeId] || {};
+    const vt = cache.viewTypes[e.viewId] || {};
+    return `
+      <div class="mob-card">
+        <div class="mob-card-title">${escapeHtml(rt.name || e.roomTypeId)} / ${escapeHtml(vt.name || e.viewId)}</div>
+        <div class="mob-card-row"><b>العدد</b><span>${e.roomsCount}</span></div>
+        <div class="mob-card-row"><b>من</b><span>${e.fromDate}</span></div>
+        <div class="mob-card-row"><b>إلى</b><span>${e.toDate}</span></div>
+        <div class="mob-card-row"><b>السبب</b><span>${escapeHtml(e.reason || '—')}</span></div>
+        <div class="mob-card-actions">
+          <button class="link-btn" onclick="removeOutOfOrder('${e.key}','${e.oooId}')">حذف</button>
+        </div>
+      </div>`;
+  }).join('');
+
   document.getElementById('mainContent').innerHTML = `
     <div class="panel">
       <div class="panel-head">
@@ -1781,6 +1797,7 @@ function renderOutOfOrder(){
           </tbody>
         </table>
       </div>
+      <div class="mob-cards">${mobOOOHtml || ''}</div>
       ${entries.length === 0 ? '<div class="empty-state">لا توجد غرف خارج الخدمة حاليا</div>' : ''}
     </div>
   `;
@@ -1894,6 +1911,20 @@ function renderClosures(){
     .map(([id, c]) => ({ id, ...c }))
     .sort((a,b) => (a.fromDate || '').localeCompare(b.fromDate || ''));
 
+  const mobClosureHtml = entries.map(e => {
+    const viewLabel = e.viewId === 'ALL' ? 'كل الإطلالات (مدينة + قناة)' : ((cache.viewTypes[e.viewId] || {}).name || e.viewId);
+    return `
+      <div class="mob-card">
+        <div class="mob-card-title">${escapeHtml(viewLabel)}</div>
+        <div class="mob-card-row"><b>من</b><span>${e.fromDate}</span></div>
+        <div class="mob-card-row"><b>إلى</b><span>${e.toDate}</span></div>
+        <div class="mob-card-row"><b>السبب</b><span>${escapeHtml(e.reason || '—')}</span></div>
+        <div class="mob-card-actions">
+          <button class="link-btn" onclick="removeClosure('${e.id}')">حذف</button>
+        </div>
+      </div>`;
+  }).join('');
+
   document.getElementById('mainContent').innerHTML = `
     <div class="panel">
       <div class="panel-head">
@@ -1921,6 +1952,7 @@ function renderClosures(){
           </tbody>
         </table>
       </div>
+      <div class="mob-cards">${mobClosureHtml || ''}</div>
       ${entries.length === 0 ? '<div class="empty-state">لا توجد تواريخ مغلقة حاليا</div>' : ''}
     </div>
   `;
