@@ -1136,6 +1136,30 @@ async function fetchPricingForCombo(roomTypeId, viewId){
   };
 }
 
+// أسعار موسمية: فترات تواريخ محددة من لوحة الإدارة (seasonalPricing/{comboKey})
+// تحل محل السعر الأساسي لأي ليلة واقعة داخلها فقط، وترجع تلقائيا للسعر
+// الأساسي بعد نهاية الفترة.
+async function fetchSeasonalPricingForCombo(roomTypeId, viewId){
+  const key = comboKey(roomTypeId, viewId);
+  const snap = await db.ref('seasonalPricing/' + key).once('value');
+  const result = [];
+  snap.forEach(child => {
+    const v = child.val();
+    if(v) result.push(v);
+  });
+  return result;
+}
+
+// يرجّع سعر ليلة واحدة معينة لتركيبة ما: يبحث أولا عن فترة موسمية تغطى
+// هذه الليلة بالتحديد، وإلا يرجع السعر الأساسي.
+function resolveNightPrice(seasonalList, basePriceSingle, basePriceDouble, adults, night){
+  const match = (seasonalList || []).find(sp => sp && sp.fromDate <= night && night <= sp.toDate);
+  if(match){
+    return adults === '1' ? match.priceSingle : match.priceDouble;
+  }
+  return adults === '1' ? basePriceSingle : basePriceDouble;
+}
+
 // FIX: الحجز pending لازم يحجز فى التوافر فورا زى confirmed بالظبط (مش
 // بس بعد التأكيد)، عشان مايتحجزش نفس الغرفة مرتين وهى لسه قيد الانتظار.
 // بنجيب كل الحجوزات (بدون فلتر status) ونستبعد cancelled بس فى الكود.
@@ -1261,6 +1285,7 @@ async function runAvailabilitySearch(){
       const ok = available >= sel.count;
       if(ok) poolByCombo[key] -= sel.count;
       const pricing = await fetchPricingForCombo(sel.roomTypeId, sel.viewId);
+      const seasonalPricing = await fetchSeasonalPricingForCombo(sel.roomTypeId, sel.viewId);
       results.push({
         roomTypeId: sel.roomTypeId,
         viewId: sel.viewId,
@@ -1270,7 +1295,8 @@ async function runAvailabilitySearch(){
         available,
         ok,
         priceSingle: pricing.priceSingle,
-        priceDouble: pricing.priceDouble
+        priceDouble: pricing.priceDouble,
+        seasonalPricing
       });
     }
 
@@ -1430,7 +1456,8 @@ function renderRoomPreferenceBlocks(){
         indexInGroup: i,
         groupTotal: r.requested,
         priceSingle: r.priceSingle,
-        priceDouble: r.priceDouble
+        priceDouble: r.priceDouble,
+        seasonalPricing: r.seasonalPricing
       });
     }
   });
@@ -1447,6 +1474,7 @@ function renderRoomPreferenceBlocks(){
     block.dataset.roomLabel = label;
     block.dataset.priceSingle = (u.priceSingle === null || u.priceSingle === undefined) ? '' : u.priceSingle;
     block.dataset.priceDouble = (u.priceDouble === null || u.priceDouble === undefined) ? '' : u.priceDouble;
+    block.dataset.seasonal = JSON.stringify(u.seasonalPricing || []);
     block.style.cssText = 'border:1px solid var(--color-border,#e2ddd3);border-radius:var(--radius-md,10px);padding:14px;margin-bottom:14px;';
     block.innerHTML = `
       <div style="font-weight:700;margin-bottom:10px;">${label}</div>
@@ -1503,7 +1531,7 @@ function renderTotalPriceBox(){
 }
 
 function updateTotalPrice(){
-  const nights = getNightsInRange(state.searchArrival, state.searchDeparture).length || 0;
+  const nights = getNightsInRange(state.searchArrival, state.searchDeparture);
   const blocks = document.querySelectorAll('#roomPreferencesContainer .room-pref-block');
   let total = 0;
   let firstNightTotal = 0;
@@ -1513,19 +1541,58 @@ function updateTotalPrice(){
     const adults = block.querySelector('.pref-adults').value;
     const priceSingleRaw = block.dataset.priceSingle;
     const priceDoubleRaw = block.dataset.priceDouble;
-    const price = adults === '1'
-      ? (priceSingleRaw === '' ? null : parseFloat(priceSingleRaw))
-      : (priceDoubleRaw === '' ? null : parseFloat(priceDoubleRaw));
+    const basePriceSingle = priceSingleRaw === '' ? null : parseFloat(priceSingleRaw);
+    const basePriceDouble = priceDoubleRaw === '' ? null : parseFloat(priceDoubleRaw);
+    let seasonalList = [];
+    try{ seasonalList = JSON.parse(block.dataset.seasonal || '[]'); }catch(e){ seasonalList = []; }
 
     const priceEl = block.querySelector('.room-pref-price');
-    if(price === null || isNaN(price)){
+
+    // نبني قائمة "شرائح" لليالي المتتالية بنفس السعر (عادي أو موسمي)، بدل
+    // سطر واحد مجمّع، عشان يظهر بوضوح سعر أول ليلة وأي ليالي بسعر موسمي مختلف.
+    const segments = [];
+    let blockMissing = false;
+    nights.forEach(night => {
+      const isSeasonal = seasonalList.some(sp => sp && sp.fromDate <= night && night <= sp.toDate);
+      const price = resolveNightPrice(seasonalList, basePriceSingle, basePriceDouble, adults, night);
+      if(price === null || price === undefined || isNaN(price)){
+        blockMissing = true;
+        return;
+      }
+      const last = segments[segments.length - 1];
+      if(last && last.price === price && last.seasonal === isSeasonal){
+        last.count += 1;
+      }else{
+        segments.push({ price, seasonal: isSeasonal, count: 1 });
+      }
+    });
+
+    if(blockMissing){
       missingPrice = true;
-      if(priceEl) priceEl.textContent = 'السعر غير محدد لهذه التركيبة';
+      if(priceEl) priceEl.innerHTML = 'السعر غير محدد لهذه التركيبة';
     }else{
-      const subtotal = price * nights;
-      firstNightTotal += price;
-      if(priceEl) priceEl.textContent = `${price} ج.م / الليلة × ${nights} ليالي = ${subtotal} ج.م`;
+      const subtotal = segments.reduce((sum, s) => sum + (s.price * s.count), 0);
+      const firstNightPrice = segments.length ? segments[0].price : 0;
+      firstNightTotal += firstNightPrice;
       total += subtotal;
+
+      if(priceEl){
+        const linesHtml = segments.map((s, i) => {
+          const lineTotal = s.price * s.count;
+          let label;
+          if(s.count > 1){
+            label = `${s.seasonal ? 'أسعار موسمية' : 'أسعار عادية'} — ${s.count} ليالي × ${s.price} ج.م`;
+          }else{
+            label = i === 0 ? 'الليلة الأولى' : (s.seasonal ? 'ليلة بسعر موسمي' : 'ليلة');
+            label += ` — ${s.price} ج.م`;
+          }
+          return `<div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;padding:2px 0;color:var(--color-text);"><span>${label}</span><span>${lineTotal} ج.م</span></div>`;
+        }).join('');
+        priceEl.innerHTML = linesHtml + `
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:800;margin-top:4px;padding-top:4px;border-top:1px dashed var(--color-border);color:var(--color-primary-dark);">
+            <span>إجمالي الغرفة (${nights.length} ليالي)</span><span>${subtotal} ج.م</span>
+          </div>`;
+      }
     }
   });
 

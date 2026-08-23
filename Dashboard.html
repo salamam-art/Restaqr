@@ -552,6 +552,7 @@ const cache = {
   viewTypes: {},      // { id: {name, description, active, order, createdAt, updatedAt} }
   inventory: {},      // { comboKey: {roomTypeId, viewId, totalRooms, updatedAt} }
   pricing: {},          // { comboKey: {roomTypeId, viewId, priceSingle, priceDouble, updatedAt} }
+  seasonalPricing: {}, // { comboKey: { id: {roomTypeId, viewId, fromDate, toDate, priceSingle, priceDouble, reason, createdAt} } }
   outOfOrder: {},      // { comboKey: { oooId: {...} } }
   closures: {},        // { closureId: {viewId:'ALL'|id, fromDate, toDate, reason, createdAt} }
   bookings: {},        // { bookingId: {...} }
@@ -570,6 +571,7 @@ const ROUTES = {
   viewTypes:        { label: 'إدارة الإطلالات',       icon: '🌅', roles: ['admin'] },
   inventory:        { label: 'إدارة Inventory',        icon: '📦', roles: ['admin'] },
   pricing:          { label: 'إدارة الأسعار',           icon: '💰', roles: ['admin'] },
+  seasonalPricing:  { label: 'الأسعار الموسمية',        icon: '🗓️', roles: ['admin'] },
   calendar:         { label: 'التوافر Calendar',       icon: '📅', roles: ['admin'] },
   bookingRequests:  { label: 'طلبات الحجز',            icon: '📝', roles: ['admin'] },
   confirmedBookings:{ label: 'الحجوزات المؤكدة',       icon: '✅', roles: ['admin'] },
@@ -879,6 +881,7 @@ function renderRoute(routeKey){
     viewTypes: renderViewTypes,
     inventory: renderInventory,
     pricing: renderPricing,
+    seasonalPricing: renderSeasonalPricing,
     calendar: renderCalendar,
     bookingRequests: () => renderBookingsPage('bookingRequests'),
     confirmedBookings: () => renderBookingsPage('confirmedBookings'),
@@ -899,7 +902,7 @@ function renderRoute(routeKey){
    لضمان إعادة الاتصال بعد رجوع التطبيق من الـ background على الموبايل
 ===================================================================== */
 function detachListeners(){
-  const paths = ['roomTypes','viewTypes','inventory','pricing','outOfOrder',
+  const paths = ['roomTypes','viewTypes','inventory','pricing','seasonalPricing','outOfOrder',
                  'closures','bookings','users','activityLogs'];
   paths.forEach(p => db.ref(p).off());
   listenersAttached = false;
@@ -924,6 +927,10 @@ function attachListeners(){
   db.ref('pricing').on('value', snap => {
     cache.pricing = snap.val() || {};
     rerenderIfCurrent(['pricing']);
+  });
+  db.ref('seasonalPricing').on('value', snap => {
+    cache.seasonalPricing = snap.val() || {};
+    rerenderIfCurrent(['seasonalPricing']);
   });
   db.ref('outOfOrder').on('value', snap => {
     cache.outOfOrder = snap.val() || {};
@@ -1496,6 +1503,191 @@ function openPricingModal(roomTypeId, viewId){
       setBtnLoading(btn, false);
     }
   });
+}
+
+/* =====================================================================
+   SEASONAL PRICING (أسعار مؤقتة لفترة محددة، ترجع تلقائيا للسعر الأساسي
+   بعد انتهاء الفترة — بدون تعديل pricing الأساسي)
+===================================================================== */
+function allSeasonalPricingEntries(){
+  const out = [];
+  Object.entries(cache.seasonalPricing || {}).forEach(([key, list]) => {
+    Object.entries(list || {}).forEach(([id, sp]) => {
+      out.push({ key, id, ...sp });
+    });
+  });
+  out.sort((a,b) => (a.fromDate || '').localeCompare(b.fromDate || ''));
+  return out;
+}
+
+function renderSeasonalPricing(){
+  const rTypes = allRoomTypes();
+  const entries = allSeasonalPricingEntries();
+
+  const mobSpHtml = entries.map(e => {
+    const rt = cache.roomTypes[e.roomTypeId] || {};
+    const vt = cache.viewTypes[e.viewId] || {};
+    return `
+      <div class="mob-card">
+        <div class="mob-card-title">${escapeHtml(rt.name || e.roomTypeId)} / ${escapeHtml(vt.name || e.viewId)}</div>
+        <div class="mob-card-row"><b>من</b><span>${e.fromDate}</span></div>
+        <div class="mob-card-row"><b>إلى</b><span>${e.toDate}</span></div>
+        <div class="mob-card-row"><b>فرد واحد</b><span>${e.priceSingle} ج.م</span></div>
+        <div class="mob-card-row"><b>فردين</b><span>${e.priceDouble} ج.م</span></div>
+        <div class="mob-card-row"><b>السبب</b><span>${escapeHtml(e.reason || '—')}</span></div>
+        <div class="mob-card-actions">
+          <button class="link-btn" onclick="removeSeasonalPricing('${e.key}','${e.id}')">حذف</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">الأسعار الموسمية</div>
+        <button class="btn btn-gold btn-sm" id="btnAddSeasonalPricing">+ إضافة فترة سعر موسمي</button>
+      </div>
+      <p class="mini-note">
+        حدد سعرا مختلفا لتركيبة معينة (نوع غرفة + إطلالة) خلال فترة تواريخ محددة (مثلا الصيف أو الأعياد). بعد نهاية الفترة يرجع السعر تلقائيا للسعر الأساسي المحدد فى "إدارة الأسعار" دون أى تعديل عليه.
+      </p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>نوع الغرفة</th><th>الإطلالة</th><th>من</th><th>إلى</th><th>فرد واحد</th><th>فردين</th><th>السبب</th><th>إجراءات</th></tr></thead>
+          <tbody>
+            ${entries.length === 0 ? '' : entries.map(e => {
+              const rt = cache.roomTypes[e.roomTypeId] || {};
+              const vt = cache.viewTypes[e.viewId] || {};
+              return `
+              <tr>
+                <td>${escapeHtml(rt.name || e.roomTypeId)}</td>
+                <td>${escapeHtml(vt.name || e.viewId)}</td>
+                <td>${e.fromDate}</td>
+                <td>${e.toDate}</td>
+                <td>${e.priceSingle} ج.م</td>
+                <td>${e.priceDouble} ج.م</td>
+                <td>${escapeHtml(e.reason || '—')}</td>
+                <td><button class="link-btn" onclick="removeSeasonalPricing('${e.key}','${e.id}')">حذف</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="mob-cards">${mobSpHtml || ''}</div>
+      ${entries.length === 0 ? '<div class="empty-state">لا توجد أسعار موسمية حاليا</div>' : ''}
+    </div>
+  `;
+
+  document.getElementById('btnAddSeasonalPricing').addEventListener('click', () => openSeasonalPricingModal(rTypes));
+}
+
+function openSeasonalPricingModal(rTypes){
+  if(rTypes.length === 0){
+    toastMsg('أضف أنواع غرف أولا', 'error');
+    return;
+  }
+  const initialVTypes = viewTypesForRoomType(rTypes[0][0], allViewTypes());
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">إضافة فترة سعر موسمي</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>نوع الغرفة</label>
+            <select id="spRoomType">${rTypes.map(([id,rt]) => `<option value="${id}">${escapeHtml(rt.name)}</option>`).join('')}</select>
+          </div>
+          <div class="field">
+            <label>الإطلالة</label>
+            <select id="spViewType">${initialVTypes.length ? initialVTypes.map(([id,vt]) => `<option value="${id}">${escapeHtml(vt.name)}</option>`).join('') : '<option value="">لا توجد إطلالات لهذا النوع</option>'}</select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>من تاريخ <span class="req-mark">*</span></label>
+            <input type="date" id="spFrom" min="${todayStr()}">
+          </div>
+          <div class="field">
+            <label>إلى تاريخ <span class="req-mark">*</span></label>
+            <input type="date" id="spTo" min="${todayStr()}">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>سعر الليلة لفرد واحد (ج.م) <span class="req-mark">*</span></label>
+            <input type="number" id="spPriceSingle" min="0" step="1">
+          </div>
+          <div class="field">
+            <label>سعر الليلة لفردين (ج.م) <span class="req-mark">*</span></label>
+            <input type="number" id="spPriceDouble" min="0" step="1">
+          </div>
+        </div>
+        <div class="field">
+          <label>السبب</label>
+          <input type="text" id="spReason" placeholder="مثال: أسعار الصيف، فترة الأعياد">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+          <button class="btn btn-primary" id="btnSaveSeasonalPricing">حفظ</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('spRoomType').addEventListener('change', () => {
+    const rtId = document.getElementById('spRoomType').value;
+    const vTypes = viewTypesForRoomType(rtId, allViewTypes());
+    document.getElementById('spViewType').innerHTML = vTypes.length
+      ? vTypes.map(([id,vt]) => `<option value="${id}">${escapeHtml(vt.name)}</option>`).join('')
+      : '<option value="">لا توجد إطلالات لهذا النوع</option>';
+  });
+
+  document.getElementById('btnSaveSeasonalPricing').addEventListener('click', async () => {
+    const roomTypeId = document.getElementById('spRoomType').value;
+    const viewId = document.getElementById('spViewType').value;
+    const fromDate = document.getElementById('spFrom').value;
+    const toDate = document.getElementById('spTo').value;
+    const priceSingle = parseFloat(document.getElementById('spPriceSingle').value);
+    const priceDouble = parseFloat(document.getElementById('spPriceDouble').value);
+    const reason = document.getElementById('spReason').value.trim();
+
+    if(!viewId){ toastMsg('لا توجد إطلالات متاحة لنوع الغرفة المختار', 'error'); return; }
+    if(!fromDate || !toDate || toDate < fromDate){ toastMsg('يرجى إدخال تواريخ صحيحة (إلى لا يسبق من)', 'error'); return; }
+    if(isNaN(priceSingle) || priceSingle < 0 || isNaN(priceDouble) || priceDouble < 0){ toastMsg('يرجى إدخال سعرين صحيحين', 'error'); return; }
+
+    const key = comboKey(roomTypeId, viewId);
+
+    // منع التعارض: لا يسمح بفترتين موسميتين متداخلتين لنفس التركيبة
+    const existing = Object.values(cache.seasonalPricing[key] || {});
+    const overlaps = existing.some(sp => sp.fromDate <= toDate && fromDate <= sp.toDate);
+    if(overlaps){
+      toastMsg('يوجد تعارض تواريخ مع فترة سعر موسمي أخرى لنفس التركيبة', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btnSaveSeasonalPricing');
+    setBtnLoading(btn, true);
+    try{
+      const ref = db.ref('seasonalPricing/' + key).push();
+      await ref.set({
+        roomTypeId, viewId, fromDate, toDate, priceSingle, priceDouble,
+        reason: reason || '', createdAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      await logActivity('CREATE_SEASONAL_PRICING', { comboKey: key, fromDate, toDate, priceSingle, priceDouble });
+      closeModal();
+      toastMsg('تم إضافة فترة السعر الموسمي', 'success');
+    }catch(err){
+      console.error(err);
+      toastMsg('تعذر الحفظ', 'error');
+      setBtnLoading(btn, false);
+    }
+  });
+}
+
+async function removeSeasonalPricing(key, id){
+  const ok = await askConfirm('هل تريد حذف فترة السعر الموسمي دي؟ السعر هيرجع للسعر الأساسي فورا.');
+  if(!ok) return;
+  await db.ref('seasonalPricing/' + key + '/' + id).remove();
+  await logActivity('DELETE_SEASONAL_PRICING', { comboKey: key, id });
+  toastMsg('تم الحذف', 'success');
 }
 
 /* =====================================================================
