@@ -364,6 +364,32 @@
   .cal-cell{
     border:1px solid var(--color-border);border-radius:10px;padding:8px 6px;min-height:80px;
     font-size:11.5px;background:#FDFCFA;min-width:0;overflow:hidden;box-sizing:border-box;
+    position:relative;
+  }
+  .cal-cell.cal-selectable{cursor:pointer;transition:transform .1s ease, box-shadow .15s ease;}
+  .cal-cell.cal-selectable:hover{box-shadow:0 0 0 2px rgba(22,74,66,0.25);}
+  .cal-cell.cal-past{opacity:.55;}
+  .cal-cell.cal-selected{outline:2.5px solid var(--color-primary);outline-offset:-2.5px;box-shadow:0 0 0 3px rgba(22,74,66,0.2);}
+  .cal-sel-check{
+    position:absolute;top:5px;left:5px;width:17px;height:17px;border-radius:50%;
+    background:var(--color-primary);color:#fff;font-size:10.5px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .cal-sel-toolbar{
+    display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px;
+    padding:12px 14px;border:1.5px solid var(--color-primary-light);border-radius:12px;
+    background:var(--color-success-bg);
+  }
+  .cal-sel-info{font-weight:800;color:var(--color-primary-dark);font-size:13.5px;white-space:nowrap;}
+  .cal-sel-controls{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 260px;}
+  .cal-sel-controls select, .cal-sel-controls input{
+    padding:9px 10px;border:1.5px solid var(--color-border);border-radius:8px;
+    font-size:13px;background:var(--color-surface);color:var(--color-text);min-width:150px;flex:1 1 150px;
+  }
+  .cal-sel-actions{display:flex;flex-wrap:wrap;gap:8px;}
+  @media (max-width:640px){
+    .cal-sel-toolbar{flex-direction:column;align-items:stretch;}
+    .cal-sel-actions .btn{flex:1 1 auto;}
   }
   .cal-cell .cal-day{font-weight:800;font-size:13px;color:var(--color-primary-dark);margin-bottom:4px;}
   .cal-cell .cal-line{display:flex;justify-content:space-between;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1790,6 +1816,60 @@ function openInventoryModal(roomTypeId, viewId){
 ===================================================================== */
 let calState = { year: new Date().getFullYear(), month: new Date().getMonth() };
 
+// تحديد أيام من الكالندر مباشرة لإغلاقها أو فتحها دفعة واحدة
+// (يوم واحد بمفرده، أو مجموعة أيام متصلة يتم تجميعها تلقائيا لفترات متصلة)
+let calSelectedDates = new Set();
+let calSelViewId = 'ALL';
+let calSelReason = '';
+
+function toggleCalDaySelect(dateStr){
+  if(dateStr < todayStr()) return; // منع تحديد أيام فى الماضي
+  if(calSelectedDates.has(dateStr)) calSelectedDates.delete(dateStr);
+  else calSelectedDates.add(dateStr);
+  renderCalendarGrid();
+}
+
+function clearCalSelection(){
+  calSelectedDates.clear();
+  renderCalendarGrid();
+}
+
+function addOneDay(dateStr){
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + 1);
+  const yy = dt.getUTCFullYear();
+  const mm = String(dt.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(dt.getUTCDate()).padStart(2, '0');
+  return `${yy}-${mm}-${dd}`;
+}
+
+// يبني كل تواريخ الأيام بين تاريخين (شاملة الطرفين) كسلاسل نصية YYYY-MM-DD
+function dateRangeArray(fromDate, toDate){
+  const out = [];
+  let cur = fromDate;
+  while(cur <= toDate){
+    out.push(cur);
+    cur = addOneDay(cur);
+  }
+  return out;
+}
+
+// يجمع مصفوفة تواريخ (غير مرتبة بالضرورة) فى أقل عدد من الفترات المتصلة [from,to]
+function groupContiguousDates(dates){
+  const sorted = [...dates].sort();
+  const ranges = [];
+  let start = sorted[0], prev = sorted[0];
+  for(let i=1;i<sorted.length;i++){
+    const d = sorted[i];
+    if(d === addOneDay(prev)){ prev = d; continue; }
+    ranges.push([start, prev]);
+    start = d; prev = d;
+  }
+  ranges.push([start, prev]);
+  return ranges;
+}
+
 // كل تركيبات (نوع غرفة + إطلالة) التي لها Inventory مُعرّف
 // ملاحظة: بيتم استبعاد أي سجل Inventory قديم/يتيم (orphaned) بقي مرتبط
 // بنوع غرفة أو إطلالة تم حذفها أو فك ربطها، حتى لا يُحتسب ضمن مجموع الكالندر
@@ -1825,6 +1905,7 @@ function renderCalendar(){
     const [y,m] = document.getElementById('calMonth').value.split('-');
     calState.year = parseInt(y,10);
     calState.month = parseInt(m,10) - 1;
+    calSelectedDates.clear(); // الأيام المحددة خاصة بالشهر المعروض فقط
     renderCalendarGrid();
   };
   document.getElementById('calMonth').addEventListener('change', rebuild);
@@ -1836,6 +1917,7 @@ function renderCalendar(){
 function renderCalendarGrid(){
   const { year, month } = calState;
   const combos = allInventoryCombos();
+  const vTypes = allViewTypes();
   const daysInMonth = new Date(year, month+1, 0).getDate();
   const firstWeekday = new Date(year, month, 1).getDay(); // 0=Sunday
   const todayDateStr = todayStr(); // e.g. "2025-08-21"
@@ -1903,6 +1985,14 @@ function renderCalendarGrid(){
     else if(available <= Math.max(2, Math.round(total*0.15))) cls = 'mid-avail';
     if(dateStr === todayDateStr) cls = (cls ? cls + ' today' : 'today');
 
+    const isPast = dateStr < todayDateStr;
+    const isSelected = calSelectedDates.has(dateStr);
+    if(isPast) cls += ' cal-past';
+    else cls += ' cal-selectable';
+    if(isSelected) cls += ' cal-selected';
+    const clickAttr = isPast ? '' : ` onclick="toggleCalDaySelect('${dateStr}')"`;
+    const selCheck = isSelected ? '<div class="cal-sel-check">✓</div>' : '';
+
     let closureBadge = '';
     if(closedCombos > 0){
       // كل الإطلالات الفعلية الموجودة في هذا اليوم (مش كل الإطلالات المُعرّفة في النظام)
@@ -1919,7 +2009,8 @@ function renderCalendarGrid(){
     if(pendingCount > 0)   bookingBadges += `<span class="cal-bk-badge cal-bk-pending" title="حجوزات معلقة">⏳ ${pendingCount} معلق</span>`;
 
     cells += `
-      <div class="cal-cell ${cls}">
+      <div class="cal-cell ${cls}"${clickAttr} title="${isPast ? '' : 'اضغط لتحديد هذا اليوم'}">
+        ${selCheck}
         <div class="cal-day">${d}</div>
         <div class="cal-line"><span>Total</span><b>${total}</b></div>
         <div class="cal-line"><span>Booked</span><b>${booked}</b></div>
@@ -1930,7 +2021,109 @@ function renderCalendarGrid(){
       </div>`;
   }
 
-  document.getElementById('calGridWrap').innerHTML = `<div class="cal-grid">${cells}</div>`;
+  const selCount = calSelectedDates.size;
+  const toolbarHtml = selCount === 0 ? '' : `
+    <div class="cal-sel-toolbar">
+      <div class="cal-sel-info">تم تحديد <b>${selCount}</b> ${selCount === 1 ? 'يوم' : 'أيام'}</div>
+      <div class="cal-sel-controls">
+        <select id="calSelViewType">
+          <option value="ALL" ${calSelViewId==='ALL'?'selected':''}>كل الإطلالات (مدينة + قناة)</option>
+          ${vTypes.map(([id,vt]) => `<option value="${id}" ${calSelViewId===id?'selected':''}>${escapeHtml(vt.name)}</option>`).join('')}
+        </select>
+        <input type="text" id="calSelReason" placeholder="السبب (اختياري، للإغلاق فقط)" value="${escapeHtml(calSelReason)}">
+      </div>
+      <div class="cal-sel-actions">
+        <button class="btn btn-danger btn-sm" id="btnCloseSelDays">⛔ إغلاق الأيام المحددة</button>
+        <button class="btn btn-gold btn-sm" id="btnOpenSelDays">✅ فتح الأيام المحددة</button>
+        <button class="btn btn-ghost btn-sm" id="btnClearSelDays">إلغاء التحديد</button>
+      </div>
+    </div>`;
+
+  document.getElementById('calGridWrap').innerHTML = `<div class="cal-grid">${cells}</div>${toolbarHtml}`;
+
+  if(selCount > 0){
+    document.getElementById('calSelViewType').addEventListener('change', e => { calSelViewId = e.target.value; });
+    document.getElementById('calSelReason').addEventListener('input', e => { calSelReason = e.target.value; });
+    document.getElementById('btnCloseSelDays').addEventListener('click', closeSelectedCalDays);
+    document.getElementById('btnOpenSelDays').addEventListener('click', openSelectedCalDays);
+    document.getElementById('btnClearSelDays').addEventListener('click', clearCalSelection);
+  }
+}
+
+// إغلاق كل الأيام المحددة فى الكالندر دفعة واحدة (تُقسَّم تلقائيا إلى
+// أقل عدد من فترات closures متصلة وتُحفظ كل فترة كسجل closure منفصل)
+async function closeSelectedCalDays(){
+  if(calSelectedDates.size === 0) return;
+  const viewId = calSelViewId;
+  const reason = (calSelReason || '').trim();
+  const ranges = groupContiguousDates([...calSelectedDates]);
+
+  const btn = document.getElementById('btnCloseSelDays');
+  setBtnLoading(btn, true);
+  try{
+    for(const [fromDate, toDate] of ranges){
+      const ref = db.ref('closures').push();
+      await ref.set({
+        viewId, fromDate, toDate,
+        reason: reason || '', createdAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      await logActivity('CREATE_CLOSURE', { viewId, fromDate, toDate });
+    }
+    calSelectedDates.clear();
+    renderCalendarGrid();
+    toastMsg('تم إغلاق الأيام المحددة بنجاح', 'success');
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر إغلاق الأيام المحددة', 'error');
+    setBtnLoading(btn, false);
+  }
+}
+
+// فتح (إعادة توافر) الأيام المحددة فقط لأي closures تخص نفس الإطلالة
+// المختارة فى شريط التحديد — مع تقسيم أي closure أوسع من التحديد بحيث
+// تبقى الأيام غير المحددة مغلقة كما هى (بسجلات closures جديدة بنفس البيانات)
+async function openSelectedCalDays(){
+  if(calSelectedDates.size === 0) return;
+  const viewId = calSelViewId;
+
+  const affected = Object.entries(cache.closures || {})
+    .filter(([, c]) => c && c.viewId === viewId)
+    .filter(([, c]) => dateRangeArray(c.fromDate, c.toDate).some(d => calSelectedDates.has(d)));
+
+  if(affected.length === 0){
+    toastMsg('لا توجد أيام مغلقة لهذه الإطلالة ضمن الأيام المحددة', 'error');
+    return;
+  }
+
+  const ok = await askConfirm(`هل تريد فتح التوافر فى الأيام المحددة (${calSelectedDates.size}) لهذه الإطلالة؟`);
+  if(!ok) return;
+
+  const btn = document.getElementById('btnOpenSelDays');
+  setBtnLoading(btn, true);
+  try{
+    for(const [closureId, c] of affected){
+      const remainingDays = dateRangeArray(c.fromDate, c.toDate).filter(d => !calSelectedDates.has(d));
+      await db.ref('closures/' + closureId).remove();
+      if(remainingDays.length){
+        const ranges = groupContiguousDates(remainingDays);
+        for(const [fromDate, toDate] of ranges){
+          const ref = db.ref('closures').push();
+          await ref.set({
+            viewId: c.viewId, fromDate, toDate,
+            reason: c.reason || '', createdAt: firebase.database.ServerValue.TIMESTAMP
+          });
+        }
+      }
+      await logActivity('DELETE_CLOSURE', { closureId, note: 'فتح جزء من الأيام عبر الكالندر' });
+    }
+    calSelectedDates.clear();
+    renderCalendarGrid();
+    toastMsg('تم فتح الأيام المحددة بنجاح', 'success');
+  }catch(err){
+    console.error(err);
+    toastMsg('تعذر فتح الأيام المحددة', 'error');
+    setBtnLoading(btn, false);
+  }
 }
 
 /* =====================================================================
