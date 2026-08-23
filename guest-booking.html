@@ -609,6 +609,17 @@
 
   <!-- ===== STEP 1: Dates + Rooms ===== -->
   <div class="card" id="stepSearch">
+    <button type="button" class="track-link" id="btnToggleMonthlyAvailability" style="margin-bottom:14px;">📅 عرض الأيام المتاحة خلال شهر معين</button>
+    <div class="field hidden" id="monthlyAvailabilityPanel" style="margin-bottom:22px;">
+      <label>اختر الشهر</label>
+      <input type="month" id="monthlyAvailabilityMonth">
+      <button type="button" class="btn btn-primary" id="btnMonthlyAvailabilitySearch" style="margin-top:10px;">
+        <span class="spinner"></span>
+        <span class="btn-label">عرض الأيام المتاحة</span>
+      </button>
+      <div id="monthlyAvailabilityResults" class="hidden" style="margin-top:14px;"></div>
+    </div>
+
     <div class="section-title"><span class="badge-num">1</span> تواريخ الإقامة</div>
 
     <div class="dates-grid">
@@ -868,7 +879,7 @@ const state = {
    العناصر التفاعلية حتى تكتمل عملية الدخول.
 ===================================================================== */
 function setAppInteractive(enabled){
-  document.querySelectorAll('#btnAddRoom, #btnSearchAvailability, #btnSubmitBooking, #btnTrackSearch, #btnGoTrack').forEach(el => {
+  document.querySelectorAll('#btnAddRoom, #btnSearchAvailability, #btnSubmitBooking, #btnTrackSearch, #btnGoTrack, #btnMonthlyAvailabilitySearch').forEach(el => {
     if(el) el.disabled = !enabled;
   });
 }
@@ -1205,6 +1216,124 @@ function isClosedForNight(closures, viewId, night){
     if(c.viewId !== 'ALL' && c.viewId !== viewId) return false;
     return c.fromDate <= night && night <= c.toDate;
   });
+}
+
+/* =====================================================================
+   Monthly availability preview (اختياري، قبل بدء البحث بالتواريخ)
+   يعرض للعميل، لكل تركيبة (نوع غرفة + إطلالة) نشطة، الأيام المتاحة
+   خلال شهر يختاره هو، بنفس منطق "Available = Total - Confirmed/Pending - OOO"
+   المستخدم فى computeAvailabilityForSelection، لكن لكل يوم على حدة
+   بدلا من نطاق تواريخ واحد.
+===================================================================== */
+function getDaysInMonth(monthStr){
+  // monthStr بصيغة 'YYYY-MM' من <input type="month">
+  const [y, m] = monthStr.split('-').map(Number);
+  const daysCount = new Date(y, m, 0).getDate();
+  const days = [];
+  for(let d = 1; d <= daysCount; d++){
+    days.push(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+  }
+  return days;
+}
+
+function getActiveCombos(){
+  const combos = [];
+  sortedEntries(state.roomTypes).forEach(([rtId, rt]) => {
+    sortedEntries(state.viewTypes).forEach(([vId, vt]) => {
+      if(viewAppliesToRoomType(vt, rtId)){
+        combos.push({ roomTypeId: rtId, viewId: vId, roomTypeName: rt.name, viewName: vt.name });
+      }
+    });
+  });
+  return combos;
+}
+
+async function computeMonthlyAvailabilityForCombo(roomTypeId, viewId, monthDays, closures){
+  const [total, activeBookings, oooList] = await Promise.all([
+    fetchInventoryTotal(roomTypeId, viewId),
+    fetchActiveBookingsForCombo(roomTypeId, viewId),
+    fetchOutOfOrderForCombo(roomTypeId, viewId)
+  ]);
+
+  const availableDays = [];
+  monthDays.forEach(day => {
+    if(isClosedForNight(closures, viewId, day)) return;
+    let booked = 0;
+    activeBookings.forEach(b => {
+      if(b.arrivalDate <= day && day < b.departureDate) booked += (b.count || 0);
+    });
+    let ooo = 0;
+    oooList.forEach(o => {
+      if(o.fromDate <= day && day < o.toDate) ooo += (o.roomsCount || 0);
+    });
+    const availableThisDay = total - booked - ooo;
+    if(availableThisDay > 0) availableDays.push({ day, available: availableThisDay });
+  });
+
+  return availableDays;
+}
+
+async function runMonthlyAvailabilitySearch(){
+  const monthEl = document.getElementById('monthlyAvailabilityMonth');
+  const monthStr = monthEl.value;
+  if(!monthStr){
+    toastMsg('يرجى اختيار الشهر أولا', 'error');
+    return;
+  }
+  if(!state.authReady){
+    toastMsg('جاري الاتصال بالخادم، حاول بعد لحظات', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnMonthlyAvailabilitySearch');
+  setBtnLoading(btn, true);
+
+  try{
+    const combos = getActiveCombos();
+    const today = todayStr();
+    const monthDays = getDaysInMonth(monthStr).filter(day => day >= today);
+    const closures = await fetchClosures();
+
+    const results = [];
+    for(const combo of combos){
+      const availableDays = await computeMonthlyAvailabilityForCombo(combo.roomTypeId, combo.viewId, monthDays, closures);
+      if(availableDays.length > 0){
+        results.push({ ...combo, availableDays });
+      }
+    }
+
+    renderMonthlyAvailabilityResults(results);
+  }catch(err){
+    console.error(err);
+    toastMsg('حدث خطأ أثناء تحميل التوافر الشهري', 'error');
+  }finally{
+    setBtnLoading(btn, false);
+  }
+}
+
+function renderMonthlyAvailabilityResults(results){
+  const container = document.getElementById('monthlyAvailabilityResults');
+  container.classList.remove('hidden');
+
+  if(results.length === 0){
+    container.innerHTML = '<div class="overall-msg bad">لا توجد غرف متاحة خلال هذا الشهر</div>';
+    return;
+  }
+
+  container.innerHTML = results.map(r => {
+    const daysLabel = r.availableDays.map(d => Number(d.day.split('-')[2])).join('، ');
+    return `
+      <div class="result-item ok" style="flex-direction:column;align-items:stretch;">
+        <div class="result-info">
+          <div class="rt">${r.roomTypeName}</div>
+          <div class="rv">${r.viewName}</div>
+        </div>
+        <div style="margin-top:8px;font-size:14px;color:var(--color-text);">
+          الأيام المتاحة: ${daysLabel}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 // availability for a single room selection across the requested nights
@@ -2059,6 +2188,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btnAddRoom').addEventListener('click', addRoomRow);
   document.getElementById('btnSearchAvailability').addEventListener('click', runAvailabilitySearch);
+  document.getElementById('btnToggleMonthlyAvailability').addEventListener('click', () => {
+    document.getElementById('monthlyAvailabilityPanel').classList.toggle('hidden');
+  });
+  document.getElementById('btnMonthlyAvailabilitySearch').addEventListener('click', runMonthlyAvailabilitySearch);
   document.getElementById('btnBackToSearch').addEventListener('click', () => showStep('stepSearch'));
   document.getElementById('btnContinueBooking').addEventListener('click', () => {
     renderRoomPreferenceBlocks();
