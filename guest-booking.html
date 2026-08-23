@@ -471,6 +471,25 @@
   }
   .track-link:hover{background:var(--color-bg);}
 
+  .conn-status{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:700;
+    color:var(--color-text-muted);
+    margin-bottom:10px;
+  }
+  .conn-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--color-text-muted);
+    flex-shrink:0;
+  }
+  .conn-dot.online{background:var(--color-success);}
+  .conn-dot.offline{background:var(--color-danger);}
+
   /* ===== Track-my-booking page ===== */
   .track-booking-card{
     border:1.5px solid var(--color-border);
@@ -594,6 +613,11 @@
 <body>
 
 <div class="wrap">
+
+  <div class="conn-status" id="connStatus">
+    <span class="conn-dot" id="connDot"></span>
+    <span id="connText">جارٍ الاتصال...</span>
+  </div>
 
   <!-- ===== Header ===== -->
   <div class="header-nav">
@@ -901,6 +925,21 @@ function initAuthGate(){
       console.error('anonymous sign-in error', err);
       toastMsg('تعذر الاتصال بالخادم، يرجى تحديث الصفحة والمحاولة مرة أخرى', 'error');
     });
+}
+
+// أيقونة "متصل / غير متصل" أعلى الصفحة: تعتمد على عقدة '.info/connected'
+// الخاصة بـ Firebase Realtime Database، التي تعكس حالة الاتصال الفعلية
+// بالخادم (وليس مجرد وجود إنترنت عبر navigator.onLine)، وتتحدث تلقائيا
+// عند انقطاع الاتصال أو استعادته دون الحاجة لأي إجراء من المستخدم.
+function initConnectionStatusListener(){
+  const dot = document.getElementById('connDot');
+  const text = document.getElementById('connText');
+  db.ref('.info/connected').on('value', snap => {
+    const connected = snap.val() === true;
+    dot.classList.toggle('online', connected);
+    dot.classList.toggle('offline', !connected);
+    text.textContent = connected ? 'متصل' : 'غير متصل';
+  });
 }
 
 /* =====================================================================
@@ -2162,6 +2201,7 @@ async function runTrackSearch(phoneOverride){
 ===================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
   initAuthGate();
+  initConnectionStatusListener();
 
   // minimum arrival date = today
   const today = todayStr();
