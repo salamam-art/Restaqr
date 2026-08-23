@@ -449,38 +449,6 @@
     margin:14px 0;
   }
 
-  /* ===== Language toggle ===== */
-  .lang-toggle-row{
-    display:flex;
-    justify-content:flex-end;
-    margin-bottom:10px;
-  }
-  .lang-toggle{
-    display:inline-flex;
-    align-items:center;
-    background:var(--color-surface);
-    border:1.5px solid var(--color-border);
-    border-radius:999px;
-    padding:3px;
-    gap:2px;
-  }
-  .lang-toggle button{
-    border:none;
-    background:transparent;
-    font-family:inherit;
-    font-size:12.5px;
-    font-weight:800;
-    padding:6px 14px;
-    border-radius:999px;
-    cursor:pointer;
-    color:var(--color-text-muted);
-    transition:background .15s, color .15s;
-  }
-  .lang-toggle button.active{
-    background:var(--color-primary);
-    color:#fff;
-  }
-
   /* ===== Header nav (track link) ===== */
   .header-nav{
     display:flex;
@@ -646,16 +614,9 @@
 
 <div class="wrap">
 
-  <div class="lang-toggle-row">
-    <div class="lang-toggle" id="langToggle">
-      <button type="button" id="langBtnEn" data-lang="en">EN</button>
-      <button type="button" id="langBtnAr" data-lang="ar">AR</button>
-    </div>
-  </div>
-
   <div class="conn-status" id="connStatus">
     <span class="conn-dot" id="connDot"></span>
-    <span id="connText" data-i18n="connConnecting">جارٍ الاتصال...</span>
+    <span id="connText">جارٍ الاتصال...</span>
   </div>
 
   <!-- ===== Header ===== -->
@@ -664,105 +625,105 @@
       <div class="hotel-logo" id="hotelLogo">🏨</div>
       <div>
         <div class="hotel-name" id="hotelName">اسم الفندق</div>
-        <div class="page-title" id="pageTitle" data-i18n="pageTitle">حجز الغرف</div>
+        <div class="page-title" id="pageTitle">حجز الغرف</div>
       </div>
     </div>
-    <button type="button" class="track-link" id="btnGoTrack" data-i18n="btnGoTrack">🔍 تتبع حجزي</button>
+    <button type="button" class="track-link" id="btnGoTrack">🔍 تتبع حجزي</button>
   </div>
 
   <!-- ===== STEP 1: Dates + Rooms ===== -->
   <div class="card" id="stepSearch">
-    <button type="button" class="track-link" id="btnToggleMonthlyAvailability" style="margin-bottom:14px;" data-i18n="btnToggleMonthly">📅 عرض الأيام المتاحة خلال شهر معين</button>
+    <button type="button" class="track-link" id="btnToggleMonthlyAvailability" style="margin-bottom:14px;">📅 عرض الأيام المتاحة خلال شهر معين</button>
     <div class="field hidden" id="monthlyAvailabilityPanel" style="margin-bottom:22px;">
-      <label data-i18n="labelChooseMonth">اختر الشهر</label>
+      <label>اختر الشهر</label>
       <input type="month" id="monthlyAvailabilityMonth">
       <button type="button" class="btn btn-primary" id="btnMonthlyAvailabilitySearch" style="margin-top:10px;">
         <span class="spinner"></span>
-        <span class="btn-label" data-i18n="btnShowMonthlyDays">عرض الأيام المتاحة</span>
+        <span class="btn-label">عرض الأيام المتاحة</span>
       </button>
       <div id="monthlyAvailabilityResults" class="hidden" style="margin-top:14px;"></div>
     </div>
 
-    <div class="section-title"><span class="badge-num">1</span> <span data-i18n="sectionStayDates">تواريخ الإقامة</span></div>
+    <div class="section-title"><span class="badge-num">1</span> تواريخ الإقامة</div>
 
     <div class="dates-grid">
       <div class="field" id="fieldArrival">
         <div class="field-label-row">
-          <label><span data-i18n="labelArrival">تاريخ الوصول (Check-in)</span> <span class="req-mark">*</span></label>
-          <span class="time-hint-badge" data-i18n="hintArrivalTime">⏰ من الساعة ٢ عصرًا</span>
+          <label>تاريخ الوصول (Check-in) <span class="req-mark">*</span></label>
+          <span class="time-hint-badge">⏰ من الساعة ٢ عصرًا</span>
         </div>
         <input type="date" id="arrivalDate">
-        <div class="error-text" id="errArrival" data-i18n="errArrival">يرجى اختيار تاريخ وصول صحيح (لا يمكن أن يكون في الماضي).</div>
+        <div class="error-text" id="errArrival">يرجى اختيار تاريخ وصول صحيح (لا يمكن أن يكون في الماضي).</div>
       </div>
       <div class="field" id="fieldDeparture">
         <div class="field-label-row">
-          <label><span data-i18n="labelDeparture">تاريخ المغادرة (Check-out)</span> <span class="req-mark">*</span></label>
-          <span class="time-hint-badge" data-i18n="hintDepartureTime">⏰ حتى الساعة ١٢ ظهرًا</span>
+          <label>تاريخ المغادرة (Check-out) <span class="req-mark">*</span></label>
+          <span class="time-hint-badge">⏰ حتى الساعة ١٢ ظهرًا</span>
         </div>
         <input type="date" id="departureDate">
-        <div class="error-text" id="errDeparture" data-i18n="errDeparture">تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول.</div>
+        <div class="error-text" id="errDeparture">تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول.</div>
       </div>
     </div>
 
-    <div class="section-title" style="margin-top:22px;"><span class="badge-num">2</span> <span data-i18n="sectionChooseRooms">اختيار الغرف</span></div>
+    <div class="section-title" style="margin-top:22px;"><span class="badge-num">2</span> اختيار الغرف</div>
     <div id="roomRowsContainer"></div>
-    <button type="button" class="btn-add-room" id="btnAddRoom" data-i18n="btnAddRoom">+ إضافة غرفة</button>
+    <button type="button" class="btn-add-room" id="btnAddRoom">+ إضافة غرفة</button>
 
     <div style="margin-top:22px;">
       <button type="button" class="btn btn-primary" id="btnSearchAvailability">
         <span class="spinner"></span>
-        <span class="btn-label" data-i18n="btnSearchAvailability">بحث عن التوافر</span>
+        <span class="btn-label">بحث عن التوافر</span>
       </button>
     </div>
   </div>
 
   <!-- ===== STEP 2: Results ===== -->
   <div class="card hidden" id="stepResults">
-    <div class="section-title"><span class="badge-num">3</span> <span data-i18n="sectionAvailabilityResult">نتيجة التوافر</span></div>
+    <div class="section-title"><span class="badge-num">3</span> نتيجة التوافر</div>
     <div id="resultsContainer"></div>
     <div id="overallMsg" class="overall-msg"></div>
     <div class="btn-row">
-      <button type="button" class="btn btn-ghost" id="btnBackToSearch" data-i18n="btnEditSearch">تعديل البحث</button>
-      <button type="button" class="btn btn-gold hidden" id="btnContinueBooking" data-i18n="btnContinueBooking">متابعة الحجز</button>
+      <button type="button" class="btn btn-ghost" id="btnBackToSearch">تعديل البحث</button>
+      <button type="button" class="btn btn-gold hidden" id="btnContinueBooking">متابعة الحجز</button>
     </div>
   </div>
 
   <!-- ===== STEP 3: Customer info ===== -->
   <div class="card hidden" id="stepCustomer">
-    <div class="section-title"><span class="badge-num">4</span> <span data-i18n="sectionCustomerInfo">بيانات العميل</span></div>
+    <div class="section-title"><span class="badge-num">4</span> بيانات العميل</div>
 
     <div class="field">
-      <label><span data-i18n="labelFullName">الاسم الكامل</span> <span class="req-mark">*</span></label>
-      <input type="text" id="customerName" placeholder="مثال: أحمد محمد" data-i18n-placeholder="phFullName">
-      <div class="error-text" data-i18n="errFullName">يرجى إدخال الاسم الكامل.</div>
+      <label>الاسم الكامل <span class="req-mark">*</span></label>
+      <input type="text" id="customerName" placeholder="مثال: أحمد محمد">
+      <div class="error-text">يرجى إدخال الاسم الكامل.</div>
     </div>
 
     <div class="field">
-      <label><span data-i18n="labelPhone">رقم الهاتف</span> <span class="req-mark">*</span></label>
-      <div class="phone-warning" data-i18n="phoneWarning">⚠️ رجاء التحقق جيدًا من رقم الموبايل، فسيتم التواصل معكم من خلاله فقط بخصوص الحجز.</div>
-      <input type="tel" id="customerPhone" placeholder="مثال: 01223719900" inputmode="numeric" maxlength="11" autocomplete="tel" data-i18n-placeholder="phPhone">
-      <div class="hint" data-i18n="hintPhoneFormat">11 رقم يبدأ بـ 010 / 011 / 012 / 015.</div>
-      <div class="error-text" data-i18n="errPhoneRequired">رقم الهاتف مطلوب.</div>
+      <label>رقم الهاتف <span class="req-mark">*</span></label>
+      <div class="phone-warning">⚠️ رجاء التحقق جيدًا من رقم الموبايل، فسيتم التواصل معكم من خلاله فقط بخصوص الحجز.</div>
+      <input type="tel" id="customerPhone" placeholder="مثال: 01223719900" inputmode="numeric" maxlength="11" autocomplete="tel">
+      <div class="hint">11 رقم يبدأ بـ 010 / 011 / 012 / 015.</div>
+      <div class="error-text">رقم الهاتف مطلوب.</div>
     </div>
 
     <div class="field">
-      <label data-i18n="labelEmail">البريد الإلكتروني</label>
+      <label>البريد الإلكتروني</label>
       <input type="email" id="customerEmail" placeholder="example@email.com">
     </div>
 
-    <div class="section-title" style="margin-top:22px;" data-i18n="sectionStayPreferences">تفضيلات الإقامة</div>
+    <div class="section-title" style="margin-top:22px;">تفضيلات الإقامة</div>
     <div id="roomPreferencesContainer"></div>
 
     <div class="field">
-      <label data-i18n="labelGeneralNotes">ملاحظات عامة على الحجز بالكامل</label>
-      <textarea id="customerNotes" placeholder="أي طلبات أو ملاحظات إضافية..." data-i18n-placeholder="phNotes"></textarea>
+      <label>ملاحظات عامة على الحجز بالكامل</label>
+      <textarea id="customerNotes" placeholder="أي طلبات أو ملاحظات إضافية..."></textarea>
     </div>
 
     <div class="btn-row">
-      <button type="button" class="btn btn-ghost" id="btnBackToResults" data-i18n="btnBack">رجوع</button>
+      <button type="button" class="btn btn-ghost" id="btnBackToResults">رجوع</button>
       <button type="button" class="btn btn-primary" id="btnSubmitBooking">
         <span class="spinner"></span>
-        <span class="btn-label" data-i18n="btnSubmitBooking">إرسال طلب الحجز</span>
+        <span class="btn-label">إرسال طلب الحجز</span>
       </button>
     </div>
   </div>
@@ -771,64 +732,64 @@
   <div class="card hidden" id="stepConfirm">
     <div class="confirm-box">
       <div class="confirm-icon" id="confirmIcon">✓</div>
-      <div style="font-size:19px;font-weight:800;color:var(--color-primary-dark);" id="confirmTitle" data-i18n="confirmTitlePending">تم إرسال طلب الحجز بنجاح</div>
-      <div class="hint" data-i18n="labelRequestNumber">رقم الطلب</div>
+      <div style="font-size:19px;font-weight:800;color:var(--color-primary-dark);" id="confirmTitle">تم إرسال طلب الحجز بنجاح</div>
+      <div class="hint">رقم الطلب</div>
       <div class="booking-number" id="confirmBookingNumber">—</div>
-      <div><span class="status-pill" id="confirmStatus" data-i18n="statusPending">قيد الانتظار</span></div>
+      <div><span class="status-pill" id="confirmStatus">قيد الانتظار</span></div>
     </div>
 
     <div id="confirmPendingArea">
       <div class="transfer-box">
-        <div class="transfer-title" data-i18n="transferTitle">💳 بيانات التحويل البنكي</div>
-        <div class="transfer-row"><span class="t-label" data-i18n="transferBank">البنك</span><span class="t-value">C.I.B</span></div>
-        <div class="transfer-row"><span class="t-label" data-i18n="transferAccountNum">رقم الحساب</span><span class="t-value">100014968347</span></div>
-        <div class="transfer-row"><span class="t-label" data-i18n="transferBranch">الفرع</span><span class="t-value">Port Said – Egypt</span></div>
-        <div class="transfer-row"><span class="t-label" data-i18n="transferAccountName">اسم الحساب</span><span class="t-value">Resta Hotel Port Said</span></div>
-        <div class="transfer-row"><span class="t-label" data-i18n="transferTotalPrice">إجمالي قيمة الحجز</span><span class="t-value" id="confirmTotalPrice">—</span></div>
-        <div class="transfer-row total"><span class="t-label" data-i18n="transferAmountNow">المبلغ المطلوب تحويله الآن</span><span class="t-value" id="confirmFirstNightPrice">—</span></div>
+        <div class="transfer-title">💳 بيانات التحويل البنكي</div>
+        <div class="transfer-row"><span class="t-label">البنك</span><span class="t-value">C.I.B</span></div>
+        <div class="transfer-row"><span class="t-label">رقم الحساب</span><span class="t-value">100014968347</span></div>
+        <div class="transfer-row"><span class="t-label">الفرع</span><span class="t-value">Port Said – Egypt</span></div>
+        <div class="transfer-row"><span class="t-label">اسم الحساب</span><span class="t-value">Resta Hotel Port Said</span></div>
+        <div class="transfer-row"><span class="t-label">إجمالي قيمة الحجز</span><span class="t-value" id="confirmTotalPrice">—</span></div>
+        <div class="transfer-row total"><span class="t-label">المبلغ المطلوب تحويله الآن</span><span class="t-value" id="confirmFirstNightPrice">—</span></div>
       </div>
-      <p class="pending-note" data-i18n="pendingNote">
+      <p class="pending-note">
         برجاء تحويل <strong>قيمة الليلة الأولى فقط</strong> (لكل الغرف المحجوزة) على الحساب أعلاه لتأكيد الحجز، ثم إرسال إثبات التحويل عبر واتساب.
         ويُدفع باقي المبلغ عند الوصول للفندق. ستظهر هذه الشاشة حتى يقوم الفندق بمراجعة الحجز وتأكيده.
       </p>
-      <a href="#" target="_blank" rel="noopener" class="btn btn-whatsapp" id="btnWhatsappConfirm" style="margin-bottom:10px;" data-i18n="btnWhatsappSend">
+      <a href="#" target="_blank" rel="noopener" class="btn btn-whatsapp" id="btnWhatsappConfirm" style="margin-bottom:10px;">
         📲 إرسال تفاصيل الحجز عبر واتساب
       </a>
     </div>
 
     <div id="confirmConfirmedArea" class="hidden">
-      <div class="confirmed-note" data-i18n="confirmedNote">✅ تم تأكيد حجزك</div>
+      <div class="confirmed-note">✅ تم تأكيد حجزك</div>
     </div>
 
     <div id="confirmCancelledArea" class="hidden">
-      <div class="cancelled-note" data-i18n="cancelledNote">تم إلغاء هذا الحجز</div>
+      <div class="cancelled-note">تم إلغاء هذا الحجز</div>
     </div>
 
-    <button type="button" class="btn btn-primary" id="btnNewBooking" style="max-width:280px;margin:14px auto 0;" data-i18n="btnNewBooking">حجز جديد</button>
+    <button type="button" class="btn btn-primary" id="btnNewBooking" style="max-width:280px;margin:14px auto 0;">حجز جديد</button>
   </div>
 
   <!-- ===== TRACK MY BOOKING PAGE ===== -->
   <div class="card hidden" id="stepTrack">
-    <div class="section-title" data-i18n="trackSectionTitle">🔍 تتبع حجزي</div>
+    <div class="section-title">🔍 تتبع حجزي</div>
     <div class="field">
-      <label><span data-i18n="labelTrackPhone">رقم الهاتف المستخدم فى الحجز</span> <span class="req-mark">*</span></label>
-      <input type="tel" id="trackPhone" placeholder="مثال: 01223719900" inputmode="numeric" maxlength="11" data-i18n-placeholder="phPhone">
+      <label>رقم الهاتف المستخدم فى الحجز <span class="req-mark">*</span></label>
+      <input type="tel" id="trackPhone" placeholder="مثال: 01223719900" inputmode="numeric" maxlength="11">
     </div>
     <div style="margin-top:6px;">
       <button type="button" class="btn btn-primary" id="btnTrackSearch">
         <span class="spinner"></span>
-        <span class="btn-label" data-i18n="btnSearch">بحث</span>
+        <span class="btn-label">بحث</span>
       </button>
     </div>
 
     <div id="trackResultsContainer" style="margin-top:22px;"></div>
 
     <div style="margin-top:18px;">
-      <button type="button" class="btn btn-ghost" id="btnBackFromTrack" data-i18n="btnBackToNewBooking">رجوع لحجز جديد</button>
+      <button type="button" class="btn btn-ghost" id="btnBackFromTrack">رجوع لحجز جديد</button>
     </div>
   </div>
 
-  <footer class="app-footer" data-i18n="footerRights">جميع الحقوق محفوظة</footer>
+  <footer class="app-footer">جميع الحقوق محفوظة</footer>
 </div>
 
 <div id="toast-container"></div>
@@ -919,7 +880,6 @@ async function sendBookingNotificationEmail(bookingData, roomsObj){
    State
 ===================================================================== */
 const state = {
-  lang: 'ar',          // اللغة الافتراضية عند أول زيارة هى العربية
   roomTypes: {},      // { id: {name, order, active} }
   viewTypes: {},       // { id: {name, order, active} }
   roomRowCount: 0,
@@ -931,183 +891,6 @@ const state = {
   confirmPhone: null,
   confirmStatusListenerRef: null, // مرجع Firebase الحالي الذي نستمع له (لإلغاء الاشتراك القديم قبل أي استماع جديد)
 };
-
-/* =====================================================================
-   Language / i18n (English added alongside Arabic — Arabic stays the
-   default on first visit; the chosen language is remembered afterwards)
-===================================================================== */
-const I18N = {
-  ar: {
-    connConnecting: 'جارٍ الاتصال...', connOnline: 'متصل', connOffline: 'غير متصل',
-    pageTitle: 'حجز الغرف', btnGoTrack: '🔍 تتبع حجزي',
-    btnToggleMonthly: '📅 عرض الأيام المتاحة خلال شهر معين', labelChooseMonth: 'اختر الشهر',
-    btnShowMonthlyDays: 'عرض الأيام المتاحة',
-    sectionStayDates: 'تواريخ الإقامة', labelArrival: 'تاريخ الوصول (Check-in)', hintArrivalTime: '⏰ من الساعة ٢ عصرًا',
-    errArrival: 'يرجى اختيار تاريخ وصول صحيح (لا يمكن أن يكون في الماضي).',
-    labelDeparture: 'تاريخ المغادرة (Check-out)', hintDepartureTime: '⏰ حتى الساعة ١٢ ظهرًا',
-    errDeparture: 'تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول.',
-    sectionChooseRooms: 'اختيار الغرف', btnAddRoom: '+ إضافة غرفة', btnSearchAvailability: 'بحث عن التوافر',
-    sectionAvailabilityResult: 'نتيجة التوافر', btnEditSearch: 'تعديل البحث', btnContinueBooking: 'متابعة الحجز',
-    sectionCustomerInfo: 'بيانات العميل', labelFullName: 'الاسم الكامل', phFullName: 'مثال: أحمد محمد',
-    errFullName: 'يرجى إدخال الاسم الكامل.',
-    labelPhone: 'رقم الهاتف', phoneWarning: '⚠️ رجاء التحقق جيدًا من رقم الموبايل، فسيتم التواصل معكم من خلاله فقط بخصوص الحجز.',
-    phPhone: 'مثال: 01223719900', hintPhoneFormat: '11 رقم يبدأ بـ 010 / 011 / 012 / 015.',
-    errPhoneRequired: 'رقم الهاتف مطلوب.',
-    labelEmail: 'البريد الإلكتروني',
-    sectionStayPreferences: 'تفضيلات الإقامة', labelGeneralNotes: 'ملاحظات عامة على الحجز بالكامل',
-    phNotes: 'أي طلبات أو ملاحظات إضافية...',
-    btnBack: 'رجوع', btnSubmitBooking: 'إرسال طلب الحجز',
-    confirmTitlePending: 'تم إرسال طلب الحجز بنجاح', confirmTitleConfirmed: 'تم تأكيد حجزك', confirmTitleCancelled: 'تم إلغاء الحجز',
-    labelRequestNumber: 'رقم الطلب',
-    statusPending: 'قيد الانتظار', statusConfirmed: 'مؤكد ✅', statusCancelled: 'ملغي',
-    transferTitle: '💳 بيانات التحويل البنكي', transferBank: 'البنك', transferAccountNum: 'رقم الحساب',
-    transferBranch: 'الفرع', transferAccountName: 'اسم الحساب', transferTotalPrice: 'إجمالي قيمة الحجز',
-    transferAmountNow: 'المبلغ المطلوب تحويله الآن',
-    pendingNote: 'برجاء تحويل <strong>قيمة الليلة الأولى فقط</strong> (لكل الغرف المحجوزة) على الحساب أعلاه لتأكيد الحجز، ثم إرسال إثبات التحويل عبر واتساب. ويُدفع باقي المبلغ عند الوصول للفندق. ستظهر هذه الشاشة حتى يقوم الفندق بمراجعة الحجز وتأكيده.',
-    btnWhatsappSend: '📲 إرسال تفاصيل الحجز عبر واتساب',
-    confirmedNote: '✅ تم تأكيد حجزك', cancelledNote: 'تم إلغاء هذا الحجز', btnNewBooking: 'حجز جديد',
-    trackSectionTitle: '🔍 تتبع حجزي', labelTrackPhone: 'رقم الهاتف المستخدم فى الحجز', btnSearch: 'بحث',
-    btnBackToNewBooking: 'رجوع لحجز جديد', footerRights: 'جميع الحقوق محفوظة',
-    // toasts / dynamic messages
-    toastConnectFail: 'تعذر الاتصال بالخادم، يرجى تحديث الصفحة والمحاولة مرة أخرى',
-    toastRoomTypesFail: 'تعذر تحميل أنواع الغرف', toastViewTypesFail: 'تعذر تحميل أنواع الإطلالات',
-    toastNeedOneRoom: 'يجب اختيار غرفة واحدة على الأقل',
-    toastChooseMonthFirst: 'يرجى اختيار الشهر أولا', toastConnecting: 'جاري الاتصال بالخادم، حاول بعد لحظات',
-    toastMonthlyAvailFail: 'حدث خطأ أثناء تحميل التوافر الشهري',
-    toastFixDates: 'يرجى تصحيح التواريخ المدخلة', toastPickOneRoom: 'يرجى اختيار غرفة واحدة على الأقل',
-    toastAvailabilityFail: 'حدث خطأ أثناء التحقق من التوافر، حاول مرة أخرى',
-    toastPhoneRequired: 'رقم الهاتف مطلوب.',
-    toastPhoneInvalid: 'رقم الهاتف غير صحيح. يجب أن يتكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015 (مثال: 01223719900).',
-    toastFillRequired: 'يرجى تعبئة الحقول المطلوبة',
-    toastBookingFail: 'تعذر إرسال طلب الحجز، حاول مرة أخرى', toastBookingSuccess: 'تم إرسال طلب الحجز بنجاح',
-    toastInvalidPhoneSearch: 'يرجى إدخال رقم هاتف صحيح (11 رقم)', toastCancelFail: 'تعذر إلغاء الحجز، حاول مرة أخرى',
-    toastCancelSuccess: 'تم إلغاء الحجز', toastNoRoomTypes: 'لا توجد أنواع غرف', toastNoViewTypes: 'لا توجد إطلالات لهذا النوع',
-    trackSearching: 'جاري البحث...', trackNoBookings: 'لا توجد حجوزات مرتبطة بهذا الرقم.', trackLoadFail: 'تعذر تحميل الحجوزات، حاول مرة أخرى.',
-    resultRequested: 'المطلوب:', resultAvailable: 'المتاح:', resultOk: '✓ متاح', resultBad: '✕ غير متاح',
-    overallOk: 'الغرف المطلوبة متاحة', overallBad: 'بعض الغرف المطلوبة غير متاحة، يرجى تعديل البحث',
-    noAvailableRoomsMonth: 'لا توجد غرف متاحة خلال هذا الشهر', monthlyAvailableDays: 'الأيام المتاحة:',
-    roomOfGroup: (i,n) => `(غرفة ${i} من ${n})`,
-    labelAdultsCount: 'عدد الأفراد البالغين (بحد أقصى شخصين)', labelBedConfig: 'ترتيب السرير',
-    bedDouble: 'سرير كبير مزدوج', bedTwin: 'سريران منفصلان', bedTwinUnavailable: ' (غير متاح فى الأجنحة)',
-    labelChildBed: 'أحتاج سرير أطفال (Baby Cot)',
-    priceUndefined: 'السعر غير محدد لهذه التركيبة', seasonalRegular: 'أسعار عادية', seasonalSpecial: 'أسعار موسمية',
-    perNightsPrice: (n,p) => `${n} ليالي × ${p} ج.م`, firstNightLabel: 'الليلة الأولى', regularNightLabel: 'ليلة', seasonalNightLabel: 'ليلة بسعر موسمي',
-    roomTotalLabel: (n) => `إجمالي الغرفة (${n} ليالي)`,
-    someRoomsNoPrice: '(بعض الغرف بدون سعر محدد)', estimatedTotal: 'الإجمالي التقديري', total: 'الإجمالي',
-    firstNightAllRooms: 'قيمة الليلة الأولى (كل الغرف)', amountToTransferNote: 'هذه هي القيمة المطلوب تحويلها لتأكيد الحجز',
-    egp: 'ج.م',
-    trackStatusPending: 'قيد الانتظار', trackStatusConfirmed: 'مؤكد ✅', trackStatusCancelled: 'ملغي',
-    trackTotalLabel: 'الإجمالي:', whatsappSendDetails: '📲 إرسال تفاصيل الحجز عبر واتساب', btnCancelBooking: 'إلغاء الحجز',
-    trackConfirmedNote: '✅ تم تأكيد حجزك', trackCancelledNote: 'تم إلغاء هذا الحجز',
-    cancelConfirm: (num) => `هل تريد إلغاء الحجز رقم "${num}"؟`,
-  },
-  en: {
-    connConnecting: 'Connecting...', connOnline: 'Online', connOffline: 'Offline',
-    pageTitle: 'Room Booking', btnGoTrack: '🔍 Track my booking',
-    btnToggleMonthly: '📅 View available days in a given month', labelChooseMonth: 'Choose month',
-    btnShowMonthlyDays: 'Show available days',
-    sectionStayDates: 'Stay dates', labelArrival: 'Arrival date (Check-in)', hintArrivalTime: '⏰ From 2:00 PM',
-    errArrival: 'Please choose a valid arrival date (cannot be in the past).',
-    labelDeparture: 'Departure date (Check-out)', hintDepartureTime: '⏰ Until 12:00 PM',
-    errDeparture: 'Departure date must be after the arrival date.',
-    sectionChooseRooms: 'Choose rooms', btnAddRoom: '+ Add room', btnSearchAvailability: 'Search availability',
-    sectionAvailabilityResult: 'Availability result', btnEditSearch: 'Edit search', btnContinueBooking: 'Continue booking',
-    sectionCustomerInfo: 'Guest information', labelFullName: 'Full name', phFullName: 'e.g. Ahmed Mohamed',
-    errFullName: 'Please enter the full name.',
-    labelPhone: 'Phone number', phoneWarning: '⚠️ Please double-check the mobile number, as it is the only way we will contact you about the booking.',
-    phPhone: 'e.g. 01223719900', hintPhoneFormat: '11 digits, starting with 010 / 011 / 012 / 015.',
-    errPhoneRequired: 'Phone number is required.',
-    labelEmail: 'Email address',
-    sectionStayPreferences: 'Stay preferences', labelGeneralNotes: 'General notes for the whole booking',
-    phNotes: 'Any additional requests or notes...',
-    btnBack: 'Back', btnSubmitBooking: 'Submit booking request',
-    confirmTitlePending: 'Your booking request was sent successfully', confirmTitleConfirmed: 'Your booking is confirmed', confirmTitleCancelled: 'The booking was cancelled',
-    labelRequestNumber: 'Request number',
-    statusPending: 'Pending', statusConfirmed: 'Confirmed ✅', statusCancelled: 'Cancelled',
-    transferTitle: '💳 Bank transfer details', transferBank: 'Bank', transferAccountNum: 'Account number',
-    transferBranch: 'Branch', transferAccountName: 'Account name', transferTotalPrice: 'Total booking amount',
-    transferAmountNow: 'Amount to transfer now',
-    pendingNote: 'Please transfer <strong>the first night\'s price only</strong> (for all booked rooms) to the account above to confirm the booking, then send proof of transfer via WhatsApp. The remaining amount is paid on arrival at the hotel. This screen will stay until the hotel reviews and confirms your booking.',
-    btnWhatsappSend: '📲 Send booking details via WhatsApp',
-    confirmedNote: '✅ Your booking is confirmed', cancelledNote: 'This booking has been cancelled', btnNewBooking: 'New booking',
-    trackSectionTitle: '🔍 Track my booking', labelTrackPhone: 'Phone number used for the booking', btnSearch: 'Search',
-    btnBackToNewBooking: 'Back to new booking', footerRights: 'All rights reserved',
-    toastConnectFail: 'Could not connect to the server, please refresh the page and try again',
-    toastRoomTypesFail: 'Could not load room types', toastViewTypesFail: 'Could not load view types',
-    toastNeedOneRoom: 'You must choose at least one room',
-    toastChooseMonthFirst: 'Please choose a month first', toastConnecting: 'Connecting to the server, please try again in a moment',
-    toastMonthlyAvailFail: 'An error occurred while loading monthly availability',
-    toastFixDates: 'Please correct the entered dates', toastPickOneRoom: 'Please choose at least one room',
-    toastAvailabilityFail: 'An error occurred while checking availability, please try again',
-    toastPhoneRequired: 'Phone number is required.',
-    toastPhoneInvalid: 'Invalid phone number. It must be 11 digits and start with 010, 011, 012, or 015 (e.g. 01223719900).',
-    toastFillRequired: 'Please fill in the required fields',
-    toastBookingFail: 'Could not submit the booking request, please try again', toastBookingSuccess: 'Booking request sent successfully',
-    toastInvalidPhoneSearch: 'Please enter a valid phone number (11 digits)', toastCancelFail: 'Could not cancel the booking, please try again',
-    toastCancelSuccess: 'Booking cancelled', toastNoRoomTypes: 'No room types available', toastNoViewTypes: 'No views available for this room type',
-    trackSearching: 'Searching...', trackNoBookings: 'No bookings found for this number.', trackLoadFail: 'Could not load bookings, please try again.',
-    resultRequested: 'Requested:', resultAvailable: 'Available:', resultOk: '✓ Available', resultBad: '✕ Not available',
-    overallOk: 'The requested rooms are available', overallBad: 'Some requested rooms are not available, please adjust your search',
-    noAvailableRoomsMonth: 'No rooms available this month', monthlyAvailableDays: 'Available days:',
-    roomOfGroup: (i,n) => `(Room ${i} of ${n})`,
-    labelAdultsCount: 'Number of adults (max 2)', labelBedConfig: 'Bed configuration',
-    bedDouble: 'Large double bed', bedTwin: 'Two separate beds', bedTwinUnavailable: ' (not available for suites)',
-    labelChildBed: 'I need a baby cot',
-    priceUndefined: 'Price not set for this room type', seasonalRegular: 'Regular rate', seasonalSpecial: 'Seasonal rate',
-    perNightsPrice: (n,p) => `${n} nights × ${p} EGP`, firstNightLabel: 'First night', regularNightLabel: 'Night', seasonalNightLabel: 'Night (seasonal rate)',
-    roomTotalLabel: (n) => `Room total (${n} nights)`,
-    someRoomsNoPrice: '(some rooms have no set price)', estimatedTotal: 'Estimated total', total: 'Total',
-    firstNightAllRooms: 'First night amount (all rooms)', amountToTransferNote: 'This is the amount required to confirm the booking',
-    egp: 'EGP',
-    trackStatusPending: 'Pending', trackStatusConfirmed: 'Confirmed ✅', trackStatusCancelled: 'Cancelled',
-    trackTotalLabel: 'Total:', whatsappSendDetails: '📲 Send booking details via WhatsApp', btnCancelBooking: 'Cancel booking',
-    trackConfirmedNote: '✅ Your booking is confirmed', trackCancelledNote: 'This booking has been cancelled',
-    cancelConfirm: (num) => `Do you want to cancel booking "${num}"?`,
-  }
-};
-
-function t(key, ...args){
-  const dict = I18N[state.lang] || I18N.ar;
-  const val = (key in dict) ? dict[key] : (I18N.ar[key] !== undefined ? I18N.ar[key] : key);
-  return (typeof val === 'function') ? val(...args) : val;
-}
-
-function applyStaticTranslations(){
-  document.documentElement.lang = (state.lang === 'en') ? 'en' : 'ar';
-  document.documentElement.dir = (state.lang === 'en') ? 'ltr' : 'rtl';
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    el.innerHTML = t(el.getAttribute('data-i18n'));
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder')));
-  });
-  document.getElementById('langBtnEn').classList.toggle('active', state.lang === 'en');
-  document.getElementById('langBtnAr').classList.toggle('active', state.lang === 'ar');
-}
-
-function setLanguage(lang){
-  if(lang !== 'en' && lang !== 'ar') return;
-  state.lang = lang;
-  try{ localStorage.setItem('guestBookingLang', lang); }catch(e){}
-  applyStaticTranslations();
-  // إعادة رسم أي محتوى ديناميكي ظاهر حاليا على الشاشة بنفس اللغة الجديدة
-  if(state.searchResults && state.searchResults.length) renderResults(state.searchResults);
-  if(document.getElementById('roomPreferencesContainer').children.length) { renderRoomPreferenceBlocks(); }
-  if(state.confirmBookingId) {
-    const statusPill = document.getElementById('confirmStatus');
-    const currentStatus = statusPill ? (statusPill.classList.contains('confirmed') ? 'confirmed' : statusPill.classList.contains('cancelled') ? 'cancelled' : 'pending') : 'pending';
-    renderConfirmStatus(currentStatus);
-  }
-}
-
-function initLanguageToggle(){
-  let saved = null;
-  try{ saved = localStorage.getItem('guestBookingLang'); }catch(e){}
-  state.lang = (saved === 'en' || saved === 'ar') ? saved : 'ar';
-  applyStaticTranslations();
-  document.getElementById('langBtnEn').addEventListener('click', () => setLanguage('en'));
-  document.getElementById('langBtnAr').addEventListener('click', () => setLanguage('ar'));
-}
 
 /* =====================================================================
    Anonymous Authentication
@@ -1140,7 +923,7 @@ function initAuthGate(){
     .then(() => auth.signInAnonymously())
     .catch(err => {
       console.error('anonymous sign-in error', err);
-      toastMsg(t('toastConnectFail'), 'error');
+      toastMsg('تعذر الاتصال بالخادم، يرجى تحديث الصفحة والمحاولة مرة أخرى', 'error');
     });
 }
 
@@ -1155,7 +938,7 @@ function initConnectionStatusListener(){
     const connected = snap.val() === true;
     dot.classList.toggle('online', connected);
     dot.classList.toggle('offline', !connected);
-    text.textContent = connected ? t('connOnline') : t('connOffline');
+    text.textContent = connected ? 'متصل' : 'غير متصل';
   });
 }
 
@@ -1237,7 +1020,7 @@ function initReferenceDataListeners(){
     refreshAllRoomTypeSelects();
   }, err => {
     console.error('roomTypes error', err);
-    toastMsg(t('toastRoomTypesFail'), 'error');
+    toastMsg('تعذر تحميل أنواع الغرف', 'error');
   });
 
   db.ref('viewTypes').on('value', snap => {
@@ -1245,7 +1028,7 @@ function initReferenceDataListeners(){
     refreshAllViewTypeSelects();
   }, err => {
     console.error('viewTypes error', err);
-    toastMsg(t('toastViewTypesFail'), 'error');
+    toastMsg('تعذر تحميل أنواع الإطلالات', 'error');
   });
 }
 
@@ -1261,7 +1044,7 @@ function refreshAllRoomTypeSelects(){
     sel.innerHTML = '';
     const entries = sortedEntries(state.roomTypes);
     if(entries.length === 0){
-      sel.innerHTML = `<option value="">${t('toastNoRoomTypes')}</option>`;
+      sel.innerHTML = '<option value="">لا توجد أنواع غرف</option>';
       return;
     }
     entries.forEach(([id, rt]) => {
@@ -1281,7 +1064,7 @@ function refreshViewSelectForRow(row){
   sel.innerHTML = '';
   const entries = sortedEntries(state.viewTypes).filter(([, vt]) => viewAppliesToRoomType(vt, roomTypeId));
   if(entries.length === 0){
-    sel.innerHTML = `<option value="">${t('toastNoViewTypes')}</option>`;
+    sel.innerHTML = '<option value="">لا توجد إطلالات لهذا النوع</option>';
     return;
   }
   entries.forEach(([id, vt]) => {
@@ -1309,14 +1092,14 @@ function addRoomRow(){
   row.className = 'room-row';
   row.id = rowId;
   row.innerHTML = `
-    <button type="button" class="room-row-remove" title="${state.lang === 'en' ? 'Remove' : 'حذف'}">×</button>
+    <button type="button" class="room-row-remove" title="حذف">×</button>
     <div class="room-row-grid">
       <div class="field" style="margin-bottom:0;">
-        <label>${state.lang === 'en' ? 'Room type' : 'نوع الغرفة'}</label>
+        <label>نوع الغرفة</label>
         <select class="select-room-type"></select>
       </div>
       <div class="field" style="margin-bottom:0;">
-        <label>${state.lang === 'en' ? 'View' : 'الإطلالة'}</label>
+        <label>الإطلالة</label>
         <select class="select-view-type"></select>
       </div>
       <input type="hidden" class="input-room-count" value="1">
@@ -1327,7 +1110,7 @@ function addRoomRow(){
   row.querySelector('.room-row-remove').addEventListener('click', () => {
     const rows = document.querySelectorAll('.room-row');
     if(rows.length <= 1){
-      toastMsg(t('toastNeedOneRoom'), 'error');
+      toastMsg('يجب اختيار غرفة واحدة على الأقل', 'error');
       return;
     }
     row.remove();
@@ -1533,11 +1316,11 @@ async function runMonthlyAvailabilitySearch(){
   const monthEl = document.getElementById('monthlyAvailabilityMonth');
   const monthStr = monthEl.value;
   if(!monthStr){
-    toastMsg(t('toastChooseMonthFirst'), 'error');
+    toastMsg('يرجى اختيار الشهر أولا', 'error');
     return;
   }
   if(!state.authReady){
-    toastMsg(t('toastConnecting'), 'error');
+    toastMsg('جاري الاتصال بالخادم، حاول بعد لحظات', 'error');
     return;
   }
 
@@ -1561,7 +1344,7 @@ async function runMonthlyAvailabilitySearch(){
     renderMonthlyAvailabilityResults(results);
   }catch(err){
     console.error(err);
-    toastMsg(t('toastMonthlyAvailFail'), 'error');
+    toastMsg('حدث خطأ أثناء تحميل التوافر الشهري', 'error');
   }finally{
     setBtnLoading(btn, false);
   }
@@ -1572,12 +1355,12 @@ function renderMonthlyAvailabilityResults(results){
   container.classList.remove('hidden');
 
   if(results.length === 0){
-    container.innerHTML = `<div class="overall-msg bad">${t('noAvailableRoomsMonth')}</div>`;
+    container.innerHTML = '<div class="overall-msg bad">لا توجد غرف متاحة خلال هذا الشهر</div>';
     return;
   }
 
   container.innerHTML = results.map(r => {
-    const daysLabel = r.availableDays.map(d => Number(d.day.split('-')[2])).join(state.lang === 'en' ? ', ' : '، ');
+    const daysLabel = r.availableDays.map(d => Number(d.day.split('-')[2])).join('، ');
     return `
       <div class="result-item ok" style="flex-direction:column;align-items:stretch;">
         <div class="result-info">
@@ -1585,7 +1368,7 @@ function renderMonthlyAvailabilityResults(results){
           <div class="rv">${r.viewName}</div>
         </div>
         <div style="margin-top:8px;font-size:14px;color:var(--color-text);">
-          ${t('monthlyAvailableDays')} ${daysLabel}
+          الأيام المتاحة: ${daysLabel}
         </div>
       </div>
     `;
@@ -1630,17 +1413,17 @@ async function computeAvailabilityForSelection(sel, arrivalDate, departureDate){
 
 async function runAvailabilitySearch(){
   if(!state.authReady){
-    toastMsg(t('toastConnecting'), 'error');
+    toastMsg('جاري الاتصال بالخادم، حاول بعد لحظات', 'error');
     return;
   }
   if(!validateDates()){
-    toastMsg(t('toastFixDates'), 'error');
+    toastMsg('يرجى تصحيح التواريخ المدخلة', 'error');
     return;
   }
 
   const selections = getRoomSelections();
   if(selections.length === 0){
-    toastMsg(t('toastPickOneRoom'), 'error');
+    toastMsg('يرجى اختيار غرفة واحدة على الأقل', 'error');
     return;
   }
 
@@ -1692,7 +1475,7 @@ async function runAvailabilitySearch(){
     showStep('stepResults');
   }catch(err){
     console.error(err);
-    toastMsg(t('toastAvailabilityFail'), 'error');
+    toastMsg('حدث خطأ أثناء التحقق من التوافر، حاول مرة أخرى', 'error');
   }finally{
     setBtnLoading(btn, false);
   }
@@ -1714,11 +1497,11 @@ function renderResults(results){
         <div class="rv">${r.viewName}</div>
       </div>
       <div class="result-nums">
-        ${t('resultRequested')} <b>${r.requested}</b>
-        ${t('resultAvailable')} <b>${r.available}</b>
+        المطلوب: <b>${r.requested}</b>
+        المتاح: <b>${r.available}</b>
       </div>
       <div class="result-status ${r.ok ? 'ok' : 'bad'}">
-        ${r.ok ? t('resultOk') : t('resultBad')}
+        ${r.ok ? '✓ متاح' : '✕ غير متاح'}
       </div>
     `;
     container.appendChild(item);
@@ -1728,11 +1511,11 @@ function renderResults(results){
   const continueBtn = document.getElementById('btnContinueBooking');
   if(allOk){
     overall.className = 'overall-msg ok';
-    overall.textContent = t('overallOk');
+    overall.textContent = 'الغرف المطلوبة متاحة';
     continueBtn.classList.remove('hidden');
   }else{
     overall.className = 'overall-msg bad';
-    overall.textContent = t('overallBad');
+    overall.textContent = 'بعض الغرف المطلوبة غير متاحة، يرجى تعديل البحث';
     continueBtn.classList.add('hidden');
   }
 }
@@ -1757,12 +1540,12 @@ function validatePhoneField(){
   phoneField.classList.remove('has-error');
   const phoneRaw = phoneEl.value.trim();
   if(!phoneRaw){
-    phoneErrorEl.textContent = t('toastPhoneRequired');
+    phoneErrorEl.textContent = 'رقم الهاتف مطلوب.';
     phoneField.classList.add('has-error');
     return false;
   }
   if(!isValidEgyptianMobile(phoneRaw)){
-    phoneErrorEl.textContent = t('toastPhoneInvalid');
+    phoneErrorEl.textContent = 'رقم الهاتف غير صحيح. يجب أن يتكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015 (مثال: 01223719900).';
     phoneField.classList.add('has-error');
     return false;
   }
@@ -1849,7 +1632,7 @@ function renderRoomPreferenceBlocks(){
 
   units.forEach((u, idx) => {
     const label = u.groupTotal > 1
-      ? `${u.roomTypeName} — ${u.viewName} ${t('roomOfGroup', u.indexInGroup, u.groupTotal)}`
+      ? `${u.roomTypeName} — ${u.viewName} (غرفة ${u.indexInGroup} من ${u.groupTotal})`
       : `${u.roomTypeName} — ${u.viewName}`;
     const isSuite = isSuiteRoomTypeName(u.roomTypeName);
 
@@ -1865,7 +1648,7 @@ function renderRoomPreferenceBlocks(){
       <div style="font-weight:700;margin-bottom:10px;">${label}</div>
 
       <div class="field" style="margin-bottom:10px;">
-        <label>${t('labelAdultsCount')}</label>
+        <label>عدد الأفراد البالغين (بحد أقصى شخصين)</label>
         <select class="pref-adults">
           <option value="1">1</option>
           <option value="2" selected>2</option>
@@ -1873,20 +1656,20 @@ function renderRoomPreferenceBlocks(){
       </div>
 
       <div class="field" style="margin-bottom:10px;">
-        <label>${t('labelBedConfig')}</label>
+        <label>ترتيب السرير</label>
         <div class="checkbox-row">
           <input type="radio" name="prefBedConfig-${idx}" class="pref-bed-double" value="double" checked>
-          <label>${t('bedDouble')}</label>
+          <label>سرير كبير مزدوج</label>
         </div>
         <div class="checkbox-row">
           <input type="radio" name="prefBedConfig-${idx}" class="pref-bed-twin" value="twin" ${isSuite ? 'disabled' : ''}>
-          <label style="${isSuite ? 'color:var(--color-text-muted,#999);' : ''}">${t('bedTwin')}${isSuite ? t('bedTwinUnavailable') : ''}</label>
+          <label style="${isSuite ? 'color:var(--color-text-muted,#999);' : ''}">سريران منفصلان${isSuite ? ' (غير متاح فى الأجنحة)' : ''}</label>
         </div>
       </div>
 
       <div class="checkbox-row" style="margin-bottom:10px;">
         <input type="checkbox" class="pref-child-bed">
-        <label>${t('labelChildBed')}</label>
+        <label>أحتاج سرير أطفال (Baby Cot)</label>
       </div>
 
       <div class="room-pref-price" style="font-size:13.5px;font-weight:700;color:var(--color-primary-dark);"></div>
@@ -1954,7 +1737,7 @@ function updateTotalPrice(){
 
     if(blockMissing){
       missingPrice = true;
-      if(priceEl) priceEl.innerHTML = t('priceUndefined');
+      if(priceEl) priceEl.innerHTML = 'السعر غير محدد لهذه التركيبة';
     }else{
       const subtotal = segments.reduce((sum, s) => sum + (s.price * s.count), 0);
       const firstNightPrice = segments.length ? segments[0].price : 0;
@@ -1966,16 +1749,16 @@ function updateTotalPrice(){
           const lineTotal = s.price * s.count;
           let label;
           if(s.count > 1){
-            label = `${s.seasonal ? t('seasonalSpecial') : t('seasonalRegular')} — ${t('perNightsPrice', s.count, s.price)}`;
+            label = `${s.seasonal ? 'أسعار موسمية' : 'أسعار عادية'} — ${s.count} ليالي × ${s.price} ج.م`;
           }else{
-            label = i === 0 ? t('firstNightLabel') : (s.seasonal ? t('seasonalNightLabel') : t('regularNightLabel'));
-            label += ` — ${s.price} ${t('egp')}`;
+            label = i === 0 ? 'الليلة الأولى' : (s.seasonal ? 'ليلة بسعر موسمي' : 'ليلة');
+            label += ` — ${s.price} ج.م`;
           }
-          return `<div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;padding:2px 0;color:var(--color-text);"><span>${label}</span><span>${lineTotal} ${t('egp')}</span></div>`;
+          return `<div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;padding:2px 0;color:var(--color-text);"><span>${label}</span><span>${lineTotal} ج.م</span></div>`;
         }).join('');
         priceEl.innerHTML = linesHtml + `
           <div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:800;margin-top:4px;padding-top:4px;border-top:1px dashed var(--color-border);color:var(--color-primary-dark);">
-            <span>${t('roomTotalLabel', nights.length)}</span><span>${subtotal} ${t('egp')}</span>
+            <span>إجمالي الغرفة (${nights.length} ليالي)</span><span>${subtotal} ج.م</span>
           </div>`;
       }
     }
@@ -1988,17 +1771,17 @@ function updateTotalPrice(){
   const box = document.getElementById('totalPriceBox');
   if(box){
     const missingNote = missingPrice
-      ? ` <span style="font-weight:600;font-size:12.5px;color:var(--color-danger);">${t('someRoomsNoPrice')}</span>`
+      ? ` <span style="font-weight:600;font-size:12.5px;color:var(--color-danger);">(بعض الغرف بدون سعر محدد)</span>`
       : '';
     box.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-        <span>${missingPrice ? t('estimatedTotal') : t('total')}</span><span>${total} ${t('egp')}${missingNote}</span>
+        <span>${missingPrice ? 'الإجمالي التقديري' : 'الإجمالي'}</span><span>${total} ج.م${missingNote}</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:8px;padding-top:8px;border-top:1px dashed var(--color-border);font-size:14px;font-weight:700;color:var(--color-primary);">
-        <span>${t('firstNightAllRooms')}</span><span>${firstNightTotal} ${t('egp')}</span>
+        <span>قيمة الليلة الأولى (كل الغرف)</span><span>${firstNightTotal} ج.م</span>
       </div>
       <div style="width:100%;margin-top:6px;font-size:12.5px;font-weight:600;color:var(--color-danger);">
-        ${t('amountToTransferNote')}
+        هذه هي القيمة المطلوب تحويلها لتأكيد الحجز
       </div>`;
     box.style.flexDirection = 'column';
     box.style.alignItems = 'stretch';
@@ -2064,7 +1847,7 @@ function renderConfirmStatus(status){
   const cancelledArea = document.getElementById('confirmCancelledArea');
 
   statusPill.className = 'status-pill' + (status === 'confirmed' ? ' confirmed' : status === 'cancelled' ? ' cancelled' : '');
-  statusPill.textContent = status === 'confirmed' ? t('statusConfirmed') : status === 'cancelled' ? t('statusCancelled') : t('statusPending');
+  statusPill.textContent = status === 'confirmed' ? 'مؤكد ✅' : status === 'cancelled' ? 'ملغي' : 'قيد الانتظار';
 
   pendingArea.classList.toggle('hidden', status !== 'pending');
   confirmedArea.classList.toggle('hidden', status !== 'confirmed');
@@ -2072,13 +1855,13 @@ function renderConfirmStatus(status){
 
   if(status === 'confirmed'){
     icon.textContent = '✅';
-    title.textContent = t('confirmTitleConfirmed');
+    title.textContent = 'تم تأكيد حجزك';
   }else if(status === 'cancelled'){
     icon.textContent = '✕';
-    title.textContent = t('confirmTitleCancelled');
+    title.textContent = 'تم إلغاء الحجز';
   }else{
     icon.textContent = '✓';
-    title.textContent = t('confirmTitlePending');
+    title.textContent = 'تم إرسال طلب الحجز بنجاح';
   }
 }
 
@@ -2101,9 +1884,9 @@ function listenToConfirmStatus(phone, bookingId){
 
 function setupConfirmScreen(bookingData, bookingId, firstNightTotal){
   document.getElementById('confirmBookingNumber').textContent = bookingData.bookingNumber;
-  document.getElementById('confirmTotalPrice').textContent = `${bookingData.totalPrice} ${t('egp')}`;
+  document.getElementById('confirmTotalPrice').textContent = `${bookingData.totalPrice} ج.م`;
   document.getElementById('confirmFirstNightPrice').textContent =
-    `${(firstNightTotal !== undefined && firstNightTotal !== null) ? firstNightTotal : bookingData.totalPrice} ${t('egp')}`;
+    `${(firstNightTotal !== undefined && firstNightTotal !== null) ? firstNightTotal : bookingData.totalPrice} ج.م`;
   document.getElementById('btnWhatsappConfirm').href = buildWhatsappLink(bookingData);
 
   state.confirmBookingId = bookingId;
@@ -2135,11 +1918,11 @@ async function generateBookingNumber(){
 ===================================================================== */
 async function submitBookingRequest(){
   if(!state.authReady){
-    toastMsg(t('toastConnecting'), 'error');
+    toastMsg('جاري الاتصال بالخادم، حاول بعد لحظات', 'error');
     return;
   }
   if(!validateCustomerForm()){
-    toastMsg(t('toastFillRequired'), 'error');
+    toastMsg('يرجى تعبئة الحقول المطلوبة', 'error');
     return;
   }
 
@@ -2225,10 +2008,10 @@ async function submitBookingRequest(){
 
     setupConfirmScreen(bookingData, bookingId, firstNightTotal);
     showStep('stepConfirm');
-    toastMsg(t('toastBookingSuccess'), 'success');
+    toastMsg('تم إرسال طلب الحجز بنجاح', 'success');
   }catch(err){
     console.error(err);
-    toastMsg(t('toastBookingFail'), 'error');
+    toastMsg('تعذر إرسال طلب الحجز، حاول مرة أخرى', 'error');
   }finally{
     setBtnLoading(btn, false);
   }
@@ -2269,7 +2052,7 @@ function resetForNewBooking(){
    المتبع فى admin.html لتفادي مشكلة الـ cross-reference).
 ===================================================================== */
 function trackStatusLabel(status){
-  return { pending: t('trackStatusPending'), confirmed: t('trackStatusConfirmed'), cancelled: t('trackStatusCancelled') }[status] || status;
+  return { pending: 'قيد الانتظار', confirmed: 'مؤكد ✅', cancelled: 'ملغي' }[status] || status;
 }
 
 function renderTrackBookingCard(bookingId, phone, b){
@@ -2288,7 +2071,7 @@ function renderTrackBookingCard(bookingId, phone, b){
       <span class="status-pill ${statusClass}">${trackStatusLabel(b.status)}</span>
     </div>
     <div class="track-booking-rooms">${roomsText || '—'}</div>
-    <div class="track-booking-total">${t('trackTotalLabel')} ${b.totalPrice} ${t('egp')}</div>
+    <div class="track-booking-total">الإجمالي: ${b.totalPrice} ج.م</div>
     <div id="track-actions-${bookingId}"></div>
   `;
 
@@ -2298,12 +2081,12 @@ function renderTrackBookingCard(bookingId, phone, b){
     const transferBox = document.createElement('div');
     transferBox.className = 'transfer-box';
     transferBox.innerHTML = `
-      <div class="transfer-title">${t('transferTitle')}</div>
-      <div class="transfer-row"><span class="t-label">${t('transferBank')}</span><span class="t-value">C.I.B</span></div>
-      <div class="transfer-row"><span class="t-label">${t('transferAccountNum')}</span><span class="t-value">100014968347</span></div>
-      <div class="transfer-row"><span class="t-label">${t('transferBranch')}</span><span class="t-value">Port Said – Egypt</span></div>
-      <div class="transfer-row"><span class="t-label">${t('transferAccountName')}</span><span class="t-value">Resta Hotel Port Said</span></div>
-      <div class="transfer-row total"><span class="t-label">${t('transferAmountNow')}</span><span class="t-value">${(typeof b.firstNightPrice === 'number') ? b.firstNightPrice : b.totalPrice} ${t('egp')}</span></div>
+      <div class="transfer-title">💳 بيانات التحويل البنكي</div>
+      <div class="transfer-row"><span class="t-label">البنك</span><span class="t-value">C.I.B</span></div>
+      <div class="transfer-row"><span class="t-label">رقم الحساب</span><span class="t-value">100014968347</span></div>
+      <div class="transfer-row"><span class="t-label">الفرع</span><span class="t-value">Port Said – Egypt</span></div>
+      <div class="transfer-row"><span class="t-label">اسم الحساب</span><span class="t-value">Resta Hotel Port Said</span></div>
+      <div class="transfer-row total"><span class="t-label">المبلغ</span><span class="t-value">${(typeof b.firstNightPrice === 'number') ? b.firstNightPrice : b.totalPrice} ج.م</span></div>
     `;
     actionsEl.appendChild(transferBox);
 
@@ -2313,24 +2096,24 @@ function renderTrackBookingCard(bookingId, phone, b){
     waLink.rel = 'noopener';
     waLink.className = 'btn btn-whatsapp';
     waLink.style.marginBottom = '10px';
-    waLink.textContent = t('whatsappSendDetails');
+    waLink.textContent = '📲 إرسال تفاصيل الحجز عبر واتساب';
     actionsEl.appendChild(waLink);
 
     const cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
     cancelBtn.className = 'btn btn-danger-outline';
-    cancelBtn.textContent = t('btnCancelBooking');
+    cancelBtn.textContent = 'إلغاء الحجز';
     cancelBtn.addEventListener('click', () => cancelTrackedBooking(phone, bookingId, b, cancelBtn));
     actionsEl.appendChild(cancelBtn);
   }else if(b.status === 'confirmed'){
     const note = document.createElement('div');
     note.className = 'confirmed-note';
-    note.textContent = t('trackConfirmedNote');
+    note.textContent = '✅ تم تأكيد حجزك';
     actionsEl.appendChild(note);
   }else{
     const note = document.createElement('div');
     note.className = 'cancelled-note';
-    note.textContent = t('trackCancelledNote');
+    note.textContent = 'تم إلغاء هذا الحجز';
     actionsEl.appendChild(note);
   }
 
@@ -2338,7 +2121,7 @@ function renderTrackBookingCard(bookingId, phone, b){
 }
 
 async function cancelTrackedBooking(phone, bookingId, b, btn){
-  const ok = window.confirm(t('cancelConfirm', b.bookingNumber));
+  const ok = window.confirm(`هل تريد إلغاء الحجز رقم "${b.bookingNumber}"؟`);
   if(!ok) return;
 
   setBtnLoading(btn, true);
@@ -2361,11 +2144,11 @@ async function cancelTrackedBooking(phone, bookingId, b, btn){
 
     await db.ref('bookingsByPhone/' + phone + '/' + bookingId + '/status').set('cancelled');
 
-    toastMsg(t('toastCancelSuccess'), 'success');
+    toastMsg('تم إلغاء الحجز', 'success');
     runTrackSearch(phone);
   }catch(err){
     console.error(err);
-    toastMsg(t('toastCancelFail'), 'error');
+    toastMsg('تعذر إلغاء الحجز، حاول مرة أخرى', 'error');
     setBtnLoading(btn, false);
   }
 }
@@ -2376,14 +2159,14 @@ async function runTrackSearch(phoneOverride){
   const container = document.getElementById('trackResultsContainer');
 
   if(!/^\d{11}$/.test(phone)){
-    toastMsg(t('toastInvalidPhoneSearch'), 'error');
+    toastMsg('يرجى إدخال رقم هاتف صحيح (11 رقم)', 'error');
     return;
   }
   if(!phoneOverride) phoneEl.value = phone;
 
   const btn = document.getElementById('btnTrackSearch');
   setBtnLoading(btn, true);
-  container.innerHTML = `<div class="page-loading">${t('trackSearching')}</div>`;
+  container.innerHTML = '<div class="page-loading">جاري البحث...</div>';
 
   try{
     const snap = await db.ref('bookingsByPhone/' + phone).once('value');
@@ -2391,7 +2174,7 @@ async function runTrackSearch(phoneOverride){
     container.innerHTML = '';
 
     if(!val){
-      container.innerHTML = `<div class="overall-msg bad">${t('trackNoBookings')}</div>`;
+      container.innerHTML = '<div class="overall-msg bad">لا توجد حجوزات مرتبطة بهذا الرقم.</div>';
       return;
     }
 
@@ -2407,7 +2190,7 @@ async function runTrackSearch(phoneOverride){
     });
   }catch(err){
     console.error(err);
-    container.innerHTML = `<div class="overall-msg bad">${t('trackLoadFail')}</div>`;
+    container.innerHTML = '<div class="overall-msg bad">تعذر تحميل الحجوزات، حاول مرة أخرى.</div>';
   }finally{
     setBtnLoading(btn, false);
   }
@@ -2417,7 +2200,6 @@ async function runTrackSearch(phoneOverride){
    Init
 ===================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
-  initLanguageToggle();
   initAuthGate();
   initConnectionStatusListener();
 
