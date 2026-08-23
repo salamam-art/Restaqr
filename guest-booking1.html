@@ -1290,7 +1290,8 @@ async function runMonthlyAvailabilitySearch(){
 
   try{
     const combos = getActiveCombos();
-    const monthDays = getDaysInMonth(monthStr);
+    const today = todayStr();
+    const monthDays = getDaysInMonth(monthStr).filter(day => day >= today);
     const closures = await fetchClosures();
 
     const results = [];
