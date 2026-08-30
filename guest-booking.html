@@ -1948,16 +1948,23 @@ async function submitBookingRequest(){
     const bookingId = newBookingRef.key;
 
     // build rooms object keyed by combo
+    // FIX (Bug): كان الكود يستبدل الـ entry بالكامل لو نفس الـ combo تكرر
+    // (صفّان أو أكثر بنفس نوع الغرفة والإطلالة)، فيُفقد العدد الصحيح ويُحفظ
+    // count=1 بدل count=2 مثلا. الإصلاح: جمع count بدل الاستبدال.
     const roomsObj = {};
     state.searchResults.forEach(r => {
       const key = comboKey(r.roomTypeId, r.viewId);
-      roomsObj[key] = {
-        roomTypeId: r.roomTypeId,
-        roomTypeName: r.roomTypeName,
-        viewId: r.viewId,
-        viewName: r.viewName,
-        count: r.requested
-      };
+      if(roomsObj[key]){
+        roomsObj[key].count += r.requested;
+      }else{
+        roomsObj[key] = {
+          roomTypeId: r.roomTypeId,
+          roomTypeName: r.roomTypeName,
+          viewId: r.viewId,
+          viewName: r.viewName,
+          count: r.requested
+        };
+      }
     });
 
     const bookingData = {

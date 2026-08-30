@@ -2877,10 +2877,42 @@ function openEditBookingModal(bookingId){
     const btn = document.getElementById('btnSaveEditBooking');
     setBtnLoading(btn, true);
     try{
+      // FIX (Bug): كان الكود يُحدِّث /bookings فقط، فلو تغيّر رقم الهاتف يبقى
+      // الحجز مرتبطًا بالرقم القديم في bookingsByPhone، والعميل لن يجده في
+      // صفحة "تتبع حجزي" برقمه الجديد ولن يستطيع إلغاءه بنفسه.
+      // الإصلاح: لو تغيّر الهاتف، نحذف السجل القديم وننشئ واحدًا جديدًا
+      // تحت المسار الجديد مع تحديث customerName في الحالتين.
+      const oldPhone = b.phone;
+      const phoneChanged = phone !== oldPhone;
+
+      // أولاً: /bookings (المرجع الجذري — يُكتب أولاً لأن bookingsByPhone
+      // قد تتحقق من root.child('bookings') عند أي عملية لاحقة)
       await db.ref('bookings/' + bookingId).update({
         customerName, phone, email, notes, updatedAt: firebase.database.ServerValue.TIMESTAMP
       });
-      await logActivity('MODIFY_BOOKING', { bookingId, bookingNumber: b.bookingNumber });
+
+      // ثانياً: bookingsByPhone
+      if(phoneChanged){
+        // جلب السجل الحالي من المسار القديم لنسخ باقي حقوله كما هي
+        const oldSnap = await db.ref('bookingsByPhone/' + oldPhone + '/' + bookingId).once('value');
+        const oldEntry = oldSnap.val();
+        if(oldEntry){
+          const byPhoneUpdates = {};
+          // حذف المسار القديم
+          byPhoneUpdates['bookingsByPhone/' + oldPhone + '/' + bookingId] = null;
+          // إنشاء مسار جديد بنفس البيانات مع تحديث customerName فقط
+          byPhoneUpdates['bookingsByPhone/' + phone + '/' + bookingId] = {
+            ...oldEntry,
+            customerName
+          };
+          await db.ref().update(byPhoneUpdates);
+        }
+      }else{
+        // الهاتف لم يتغيّر — تحديث customerName فقط في مكانه
+        await db.ref('bookingsByPhone/' + phone + '/' + bookingId + '/customerName').set(customerName);
+      }
+
+      await logActivity('MODIFY_BOOKING', { bookingId, bookingNumber: b.bookingNumber, phoneChanged });
       toastMsg('تم تحديث بيانات العميل', 'success');
       openBookingDetails(bookingId);
     }catch(err){
