@@ -707,6 +707,46 @@ function roomsSummaryHtml(rooms){
   return Object.values(rooms).map(r => `${escapeHtml(r.roomTypeName)} / ${escapeHtml(r.viewName)} × ${r.count}`).join('<br>');
 }
 
+// يجمّع تفصيل السعر (المحفوظ مع الحجز من guest-booking.html وقت الإرسال) لكل
+// غرفة فى سطور مقروءة، بتجميع الليالي المتتالية بنفس السعر معا — نفس منطق
+// segments المستخدم فى صفحة العميل، لعرض مطابق تماما هنا فى تفاصيل الحجز.
+// ملاحظة: هذا التفصيل عبارة عن "لقطة" (snapshot) وقت إرسال الطلب، لمراجعة
+// كيفية احتساب الإجمالي حتى لو تغيرت الأسعار العادية/الموسمية بعد ذلك.
+function priceBreakdownHtml(breakdown){
+  if(!breakdown || !breakdown.length) return '';
+  const roomsHtml = breakdown.map(room => {
+    const segments = [];
+    (room.nights || []).forEach(n => {
+      const last = segments[segments.length - 1];
+      if(last && last.price === n.price && last.seasonal === n.seasonal) last.count += 1;
+      else segments.push({ price: n.price, seasonal: n.seasonal, count: 1 });
+    });
+    const linesHtml = segments.map((s, i) => {
+      const lineTotal = s.price * s.count;
+      let label;
+      if(s.count > 1){
+        label = `${s.seasonal ? 'أسعار موسمية' : 'أسعار عادية'} — ${s.count} ليالي × ${s.price} ج.م`;
+      }else{
+        label = i === 0 ? 'الليلة الأولى' : (s.seasonal ? 'ليلة بسعر موسمي' : 'ليلة');
+        label += ` — ${s.price} ج.م`;
+      }
+      return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:1px 0;color:var(--color-text);"><span>${label}</span><span>${lineTotal} ج.م</span></div>`;
+    }).join('');
+    const adultsLabel = room.adults === '1' ? 'فرد واحد' : 'فردين';
+    return `
+      <div style="margin-bottom:8px;padding:8px 10px;background:var(--color-bg);border-radius:8px;">
+        <div style="font-weight:700;font-size:12.5px;margin-bottom:4px;">${escapeHtml(room.roomLabel || '')} <span style="font-weight:500;color:var(--color-text-muted);">(${adultsLabel})</span></div>
+        ${linesHtml}
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:800;margin-top:4px;padding-top:4px;border-top:1px dashed var(--color-border);"><span>إجمالي الغرفة</span><span>${room.subtotal} ج.م</span></div>
+      </div>`;
+  }).join('');
+  return `
+    <div class="detail-row" style="display:block;">
+      <b>تفصيل السعر (وقت إرسال الطلب)</b>
+      <div style="margin-top:6px;">${roomsHtml}</div>
+    </div>`;
+}
+
 async function askConfirm(message){
   return new Promise(resolve => {
     const root = document.getElementById('modalRoot');
@@ -1013,29 +1053,6 @@ function allRoomTypes(){
 }
 function allViewTypes(){
   return Object.entries(cache.viewTypes || {}).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
-}
-
-/* =====================================================================
-   Confirmed / OOO helpers for a specific night (fresh Firebase reads)
-===================================================================== */
-async function computeConfirmedForNight(comboKey, night){
-  const snap = await db.ref('bookingsByRoom/' + comboKey)
-    .orderByChild('status').equalTo('confirmed').once('value');
-  let sum = 0;
-  snap.forEach(child => {
-    const b = child.val();
-    if(b.arrivalDate <= night && night < b.departureDate) sum += (b.count || 0);
-  });
-  return sum;
-}
-async function computeOooForNight(comboKey, night){
-  const snap = await db.ref('outOfOrder/' + comboKey).once('value');
-  let sum = 0;
-  snap.forEach(child => {
-    const o = child.val();
-    if(o.fromDate <= night && night < o.toDate) sum += (o.roomsCount || 0);
-  });
-  return sum;
 }
 
 /* =====================================================================
@@ -2582,6 +2599,7 @@ function openBookingDetails(bookingId){
         <div class="detail-row"><b>الغرف</b><span style="text-align:left;">${roomsSummaryHtml(b.rooms)}</span></div>
         <div class="detail-row"><b>الإجمالي</b><span>${(typeof b.totalPrice === 'number') ? b.totalPrice + ' ج.م' : '—'}</span></div>
         <div class="detail-row"><b>قيمة الليلة الأولى</b><span>${(typeof b.firstNightPrice === 'number') ? b.firstNightPrice + ' ج.م' : '—'}</span></div>
+        ${priceBreakdownHtml(b.priceBreakdown)}
         <div class="detail-row" style="display:block;">
           <b>ملاحظات</b>
           <div style="white-space:pre-wrap;margin-top:6px;font-size:13.5px;">${escapeHtml(b.notes || '—')}</div>
@@ -2905,8 +2923,19 @@ async function confirmBooking(bookingId){
       const totalSnap = await db.ref('inventory/' + key + '/totalRooms').once('value');
       const total = totalSnap.val() || 0;
 
+      // FIX (Perf): كانت computeOooForNight بتتنادى لكل ليلة على حدة، رغم إن
+      // سجلات outOfOrder/{key} ثابتة طوال مدة تنفيذ confirmBooking (لا تتغير
+      // أثناء الحلقة نفسها) — فكانت بتجيب نفس الـ snapshot من الشبكة تكرارا.
+      // الآن تُجلب مرة واحدة فقط لكل غرفة، وتُحسب قيمة كل ليلة محليا من
+      // البيانات نفسها بدون أي رحلة شبكة إضافية.
+      const oooSnap = await db.ref('outOfOrder/' + key).once('value');
+      const oooRecords = oooSnap.val() || {};
+
       for(const night of nights){
-        const oooCount = await computeOooForNight(key, night);
+        let oooCount = 0;
+        Object.values(oooRecords).forEach(o => {
+          if(o.fromDate <= night && night < o.toDate) oooCount += (o.roomsCount || 0);
+        });
         const cap = total - oooCount;
 
         const nodeRef = db.ref('nightReservations/' + key + '/' + night);

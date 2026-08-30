@@ -886,6 +886,7 @@ const state = {
   searchResults: [],   // filled after availability search
   totalPrice: 0,        // إجمالي السعر المحسوب فى خطوة تفضيلات الإقامة
   totalPriceIncomplete: false,
+  priceBreakdown: [],   // تفصيل السعر لكل غرفة/ليلة (يُحفظ مع الحجز للمراجعة لاحقا)
   authReady: false,    // true بعد نجاح Anonymous Sign-In
   confirmBookingId: null,   // الحجز المعروض حاليا فى شاشة التأكيد
   confirmPhone: null,
@@ -1704,6 +1705,7 @@ function updateTotalPrice(){
   let total = 0;
   let firstNightTotal = 0;
   let missingPrice = false;
+  const breakdown = []; // تفصيل لكل غرفة (وحدة) على حدة: كل ليلة وسعرها الفعلي
 
   blocks.forEach(block => {
     const adults = block.querySelector('.pref-adults').value;
@@ -1719,6 +1721,7 @@ function updateTotalPrice(){
     // نبني قائمة "شرائح" لليالي المتتالية بنفس السعر (عادي أو موسمي)، بدل
     // سطر واحد مجمّع، عشان يظهر بوضوح سعر أول ليلة وأي ليالي بسعر موسمي مختلف.
     const segments = [];
+    const nightlyBreakdown = []; // سعر كل ليلة بمفردها لهذه الغرفة (وحدة)
     let blockMissing = false;
     nights.forEach(night => {
       const isSeasonal = seasonalList.some(sp => sp && sp.fromDate <= night && night <= sp.toDate);
@@ -1727,6 +1730,7 @@ function updateTotalPrice(){
         blockMissing = true;
         return;
       }
+      nightlyBreakdown.push({ date: night, price, seasonal: isSeasonal });
       const last = segments[segments.length - 1];
       if(last && last.price === price && last.seasonal === isSeasonal){
         last.count += 1;
@@ -1743,6 +1747,13 @@ function updateTotalPrice(){
       const firstNightPrice = segments.length ? segments[0].price : 0;
       firstNightTotal += firstNightPrice;
       total += subtotal;
+
+      breakdown.push({
+        roomLabel: block.dataset.roomLabel || '',
+        adults,
+        nights: nightlyBreakdown,
+        subtotal
+      });
 
       if(priceEl){
         const linesHtml = segments.map((s, i) => {
@@ -1767,6 +1778,7 @@ function updateTotalPrice(){
   state.totalPrice = total;
   state.totalPriceIncomplete = missingPrice;
   state.firstNightTotal = firstNightTotal;
+  state.priceBreakdown = missingPrice ? [] : breakdown;
 
   const box = document.getElementById('totalPriceBox');
   if(box){
@@ -1960,6 +1972,7 @@ async function submitBookingRequest(){
       rooms: roomsObj,
       totalPrice: state.totalPrice || 0,
       firstNightPrice: state.firstNightTotal || 0,
+      priceBreakdown: state.priceBreakdown || [], // تفصيل السعر لكل غرفة/ليلة وقت الحجز، للمراجعة لاحقا حتى لو تغيرت الأسعار
       status: 'pending',
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       updatedAt: firebase.database.ServerValue.TIMESTAMP
