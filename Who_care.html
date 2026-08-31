@@ -8,6 +8,41 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 <!-- مكتبة Chart.js للرسوم البيانية -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ══════════════════════════════════════════════════════════════════
+  //  🔥 ضع هنا بيانات مشروعك من Firebase Console
+  //  Project Settings → General → Your apps → Firebase SDK snippet
+  // ══════════════════════════════════════════════════════════════════
+  const firebaseConfig = {
+    apiKey:            "AIzaSyAsL25mgjQY1FHhb9JTyVd95JcKiDD-fuI",
+    authDomain:        "resta-whocare-beac5.firebaseapp.com",
+    projectId:         "resta-whocare-beac5",
+    storageBucket:     "resta-whocare-beac5.firebasestorage.app",
+    messagingSenderId: "309629391308",
+    appId:             "1:309629391308:web:56bb58764a5a5a5081cd69"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // نجعل db متاحاً للكود العادي (non-module)
+  window.__db         = db;
+  window.__collection = collection;
+  window.__addDoc     = addDoc;
+  window.__getDocs    = getDocs;
+  window.__query      = query;
+  window.__orderBy    = orderBy;
+  window.__serverTimestamp = serverTimestamp;
+
+  // نبدأ بعد تهيئة Firebase
+  window.__firebaseReady = true;
+  document.dispatchEvent(new Event('firebaseReady'));
+</script>
 <style>
   :root {
     --crimson: #8B1A1A;
@@ -778,31 +813,25 @@
     <button onclick="showView('survey')" style="background:none;border:none;color:var(--crimson);font-size:16px;cursor:pointer;font-family:inherit;margin-bottom:20px; font-weight: 600;">← العودة للاستمارة</button>
 
     <div class="config-section">
-      <h3>☁️ إعدادات الربط السحابي (Google Sheets)</h3>
-      <p>قم بنشر كود Google Apps Script الموضح في الأسفل كـ Web App، ثم انسخ الرابط وضعه هنا للربط المباشر مع ملف الإكسل السحابي وإرسال إشعارات فورية بالبريد الإلكتروني للتقييمات السيئة.</p>
-      <label style="display:block;font-size:14px;color:var(--brown);margin-bottom:6px;font-weight:600;">رابط الويب السحابي (Apps Script Web App URL)</label>
-      <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
-      <button class="save-btn" onclick="saveScriptUrl()">حفظ وتأكيد الربط</button>
-    </div>
-
-    <div class="code-toggle">
-      <button class="code-toggle-header" onclick="toggleCode()">
-        <span>📜 كود Google Apps Script (اضغط للتوسيع)</span>
-        <span id="code-arrow">▼</span>
-      </button>
-      <div class="code-block" id="codeBlock">
-        <div style="display:flex;justify-content:flex-end;align-items:center;padding:10px 16px 0;gap:8px;">
-          <button id="copyCodeBtn" onclick="copyAppsScriptCode()" title="Copy code to clipboard"
-            style="display:inline-flex;align-items:center;gap:7px;padding:7px 18px;border-radius:8px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal',serif;transition:all 0.2s ease;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
-            نسخ كود جوجل سكربت
-          </button>
-        </div>
-        <pre id="appsScriptCode"></pre>
-      </div>
+      <h3>🔥 إعدادات Firebase</h3>
+      <p style="line-height:1.9">
+        البيانات تُحفظ مباشرةً في <strong>Firebase Firestore</strong>.<br>
+        لتغيير المشروع، افتح الملف وعدّل قيم <code>firebaseConfig</code> في أعلى الكود.<br><br>
+        <strong>خطوات إعداد Firestore Rules (مطلوب):</strong><br>
+        1. افتح <a href="https://console.firebase.google.com" target="_blank" style="color:var(--crimson)">console.firebase.google.com</a><br>
+        2. اختر مشروعك → Firestore Database → Rules<br>
+        3. ضع القواعد التالية:
+      </p>
+      <pre style="margin-top:12px;font-size:13px;background:rgba(0,0,0,0.06);border-radius:8px;padding:16px;direction:ltr;text-align:left">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // السماح للجميع بالكتابة (إرسال التقييمات)
+    match /feedback/{docId} {
+      allow create: if true;
+      allow read: if true;  // اجعلها false لتقييد القراءة على Dashboard
+    }
+  }
+}</pre>
     </div>
   </div>
 
@@ -899,9 +928,7 @@
 let currentLang = 'ar';
 let isDark = false;
 let ratings = {};
-let feedbackData = []; 
-// جلب رابط السكربت المخزن لتفادي الكتابة المتكررة
-const scriptUrl = 'https://script.google.com/macros/s/AKfycbzLlW1NyL86V4NsoF0KSSlD0G1FUhlxBClrxOdfFVFyFgVrXe7iImmFOYrQp6Fv9dQn/exec';
+let feedbackData = [];
 let pieChart = null, barChart = null;
 
 const ITEM_KEYS = [
@@ -916,35 +943,39 @@ const LABELS = {
 };
 
 // ── INIT ───────────────────────────────────────────────────────────
-window.onload = () => {
+function initApp() {
   buildPills();
-  updateSyncStatus();
-  document.getElementById('appsScriptCode').textContent = APPS_SCRIPT_CODE;
-  // تعيين تاريخ اليوم كتاريخ تلقائي
   document.getElementById('checkInDate').value = new Date().toISOString().split('T')[0];
   testConnection();
-};
+}
 
-// ── CONNECTION TEST ────────────────────────────────────────────────
-function testConnection() {
+// ننتظر Firebase قبل تشغيل التطبيق
+if (window.__firebaseReady) {
+  window.onload = initApp;
+} else {
+  document.addEventListener('firebaseReady', () => {
+    if (document.readyState === 'loading') {
+      window.onload = initApp;
+    } else {
+      initApp();
+    }
+  });
+}
+
+// ── CONNECTION TEST (Firebase) ─────────────────────────────────────
+async function testConnection() {
   const syncStrip = document.getElementById('syncStatus');
-  if (!scriptUrl) {
-    syncStrip.innerHTML = '<span class="disconnected">⚠️ غير متصل بقاعدة البيانات السحابية (تأكد من إعداد رابط السكربت)</span>';
-    return;
+  syncStrip.innerHTML = '🔄 جاري التحقق من الاتصال بـ Firebase...';
+  try {
+    const db = window.__db;
+    // نحاول جلب مستند واحد فقط للتأكد من الاتصال
+    const q = window.__query(window.__collection(db, 'feedback'), window.__orderBy('timestamp', 'desc'));
+    await window.__getDocs(q);
+    syncStrip.innerHTML = '<span class="connected">✓ متصل بـ Firebase بنجاح</span>';
+  } catch(e) {
+    syncStrip.innerHTML = '<span class="disconnected">⚠️ فشل الاتصال بـ Firebase — تأكد من صحة بيانات الإعداد وقواعد Firestore</span>';
+    console.error('Firebase connection error:', e);
   }
-  syncStrip.innerHTML = '🔄 جاري التحقق من الاتصال بالسحابة...';
-  
-  fetch(scriptUrl)
-    .then(res => {
-      if(res.ok || res.status === 200 || res.type === 'opaque') {
-        syncStrip.innerHTML = '<span class="connected">✓ تم الاتصال بسرفر الفندق</span>';
-      } else {
-        throw new Error();
-      }
-    })
-    .catch(() => {
-      syncStrip.innerHTML = '<span class="disconnected">⚠️ فشل الاتصال . يرجى مراجعة الاتصال بالانترنت.</span>';
-    });
 }
 
 // ── VIEWS ──────────────────────────────────────────────────────────
@@ -957,44 +988,37 @@ function showView(name) {
   if (name === 'admin') loadCloudDataAndRender();
 }
 
-// ── FETCH LIVE DATA (REWRITTEN & SECURED) ──────────────────────────
-function loadCloudDataAndRender() {
+// ── FETCH LIVE DATA (Firebase Firestore) ──────────────────────────
+async function loadCloudDataAndRender() {
   const tbody = document.getElementById('feedbackTable');
-  if (!scriptUrl) {
-    tbody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:var(--red); font-weight:bold;">⚠️ الرجاء إضافة رابط Google Apps Script في الإعدادات أولاً لتفعيل جلب البيانات.</td></tr>`;
-    return;
-  }
-  
-  tbody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:var(--crimson);font-weight:bold;animation:pulse 1s infinite;">⏳ جاري الاتصال المباشر بجوجل شيت وجلب البيانات حية...</td></tr>`;
-
-  // جلب البيانات عن طريق الـ Fetch المباشر والآمن من الـ Web App
-  fetch(scriptUrl, {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json'
-    }
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('تأكد من نشر السكربت وإعطاء الصلاحية لـ Anyone حتى وإن كان مجهولاً.');
-    }
-    return response.json();
-  })
-  .then(data => {
-    feedbackData = Array.isArray(data) ? data : [];
+  tbody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:var(--crimson);font-weight:bold;">⏳ جاري جلب البيانات من Firebase...</td></tr>`;
+  try {
+    const db = window.__db;
+    const q  = window.__query(window.__collection(db, 'feedback'), window.__orderBy('timestamp', 'desc'));
+    const snap = await window.__getDocs(q);
+    feedbackData = snap.docs.map(doc => {
+      const d = doc.data();
+      return {
+        id:          doc.id,
+        timestamp:   d.timestamp?.toDate?.()?.toISOString() || d.timestamp || '',
+        guestName:   d.guestName   || '',
+        roomNumber:  d.roomNumber  || '',
+        checkInDate: d.checkInDate || '',
+        ratings:     d.ratings     || {},
+        comments:    d.comments    || ''
+      };
+    });
     renderAdmin();
-  })
-  .catch(err => {
-    console.error('Fetch Error:', err);
-    tbody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:var(--red); text-align:right; direction:rtl; font-weight:bold; padding:20px;">
-      ⚠️ فشل الاتصال بقاعدة البيانات !<br>
-      <span style="font-size:13px; font-weight:normal; color:var(--brown);">
-        السبب المرجح: لم تقم بنشر تطبيق Google Apps Script بشكل صحيح.<br>
-        تأكد عند النشر (Deploy) من جعل خيار (Who has access) هو <b>(Anyone)</b>.<br>
+  } catch(err) {
+    console.error('Firebase fetch error:', err);
+    tbody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:var(--red);text-align:right;direction:rtl;font-weight:bold;padding:20px;">
+      ⚠️ فشل الاتصال بـ Firebase!<br>
+      <span style="font-size:13px;font-weight:normal;color:var(--brown);">
+        تأكد من صحة بيانات الإعداد في الكود وأن قواعد Firestore تسمح بالقراءة.<br>
         تفاصيل الخطأ: ${err.message}
       </span>
     </td></tr>`;
-  });
+  }
 }
 
 // ── PILL BUILDER ───────────────────────────────────────────────────
@@ -1026,13 +1050,13 @@ function selectRating(key, val) {
   document.getElementById('errorBox').classList.remove('show');
 }
 
-// ── SUBMIT FEEDBACK (SEND ONLY TO GOOGLE SHEETS) ───────────────────
+// ── SUBMIT FEEDBACK (Firebase Firestore) ───────────────────────────
 async function submitForm() {
-  const guestName = document.getElementById('guestName').value.trim();
+  const guestName  = document.getElementById('guestName').value.trim();
   const roomNumber = document.getElementById('roomNumber').value.trim();
   const checkInDate = document.getElementById('checkInDate').value;
-  const comments = document.getElementById('comments').value.trim();
-  const errorBox = document.getElementById('errorBox');
+  const comments   = document.getElementById('comments').value.trim();
+  const errorBox   = document.getElementById('errorBox');
 
   if (!guestName) {
     errorBox.textContent = currentLang === 'ar' ? '⚠ اسم النزيل مطلوب.' : '⚠ Guest name is required.';
@@ -1050,44 +1074,30 @@ async function submitForm() {
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
-  btn.textContent = currentLang === 'ar' ? 'جاري إرسال التقييم للسحابة...' : 'Submitting directly to Cloud...';
-
-  const payload = {
-    guestName, roomNumber, checkInDate, comments,
-    ratings: { ...ratings },
-    timestamp: new Date().toISOString()
-  };
-
-  if (!scriptUrl) {
-    errorBox.textContent = currentLang === 'ar' 
-      ? '⚠ يرجى إعداد رابط السكربت السحابي أولاً من شاشة الإعدادات.' 
-      : '⚠ Please configure Google Sheets Script URL in Settings first.';
-    errorBox.classList.add('show');
-    btn.disabled = false;
-    btn.textContent = currentLang === 'ar' ? '✦ إرسال التقييم' : 'Submit Feedback';
-    return;
-  }
+  btn.textContent = currentLang === 'ar' ? 'جاري الحفظ في Firebase...' : 'Saving to Firebase...';
 
   try {
-    // إرسال البيانات بشكل مباشر وآمن للـ Google Script
-    await fetch(scriptUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload),
-      mode: 'no-cors'
+    const db = window.__db;
+    await window.__addDoc(window.__collection(db, 'feedback'), {
+      guestName,
+      roomNumber,
+      checkInDate,
+      comments,
+      ratings: { ...ratings },
+      timestamp: window.__serverTimestamp()
     });
-    
-    // إعادة تعيين الحقول وعرض شاشة النجاح
+
     btn.disabled = false;
     btn.innerHTML = '✦ ' + (currentLang === 'ar' ? 'إرسال التقييم' : 'Submit Feedback');
     showView('success');
-  } catch(e) { 
-    console.error('Send failed:', e);
-    errorBox.textContent = currentLang === 'ar' 
-      ? '⚠ فشل الاتصال . تحقق من شبكة الإنترنت.' 
-      : '⚠ Failed to connect. Please check connection.';
+  } catch(e) {
+    console.error('Firebase save error:', e);
+    errorBox.textContent = currentLang === 'ar'
+      ? '⚠ فشل الحفظ في Firebase. تحقق من الاتصال وإعدادات قواعد Firestore.'
+      : '⚠ Firebase save failed. Check connection and Firestore rules.';
     errorBox.classList.add('show');
     btn.disabled = false;
+    btn.innerHTML = '✦ ' + (currentLang === 'ar' ? 'إرسال التقييم' : 'Submit Feedback');
   }
 }
 
@@ -1358,15 +1368,7 @@ function toggleLang() {
   testConnection();
 }
 
-// ── CONFIG ───
-function saveScriptUrl() {
-  const url = document.getElementById('scriptUrlInput').value.trim();
-  scriptUrl = url;
-  localStorage.setItem('resta_script_url', url);
-  updateSyncStatus();
-  testConnection();
-  alert(url ? '✓ تم حفظ الرابط بنجاح وجاري فحص الاتصال!' : 'تم مسح الرابط.');
-}
+// ── CONFIG (Firebase - no URL needed) ───
 
 function updateSyncStatus() {
   const input = document.getElementById('scriptUrlInput');
@@ -1568,173 +1570,9 @@ function exportDetailPDF() {
   setTimeout(() => { const s = document.getElementById('pdf-force-style'); if(s) s.remove(); }, 1000);
 }
 
-// ── APPS SCRIPT CODE (STABLE WITH CORS SUPPORT) ────────────────────
-const APPS_SCRIPT_CODE = `
-// ================================================================
-//  GOOGLE APPS SCRIPT — RESTA PORT SAID HOTEL (مطور وآمن 2026)
-//  خطوات التثبيت:
-//  1. افتح https://script.google.com ثم انقر على "مشروع جديد".
-//  2. احذف الكود القديم والصق هذا الكود بالكامل.
-//  3. انقر على زر "حفظ المشروع" (رمز القرص المرن).
-//  4. انقر على "نشر" (Deploy) ← "نشر جديد" (New Deployment).
-//  5. اختر النوع: "تطبيق ويب" (Web App).
-//  6. اضبط الإعدادات التالية بدقة:
-//     - تنفيذ التطبيق باسم: "أنا" (Execute as: Me / Your email).
-//     - من لديه صلاحية الدخول: "أي شخص" (Who has access: Anyone).
-//  7. انقر على "نشر"، ثم انسخ رابط الويب السحابي الممنوح لك.
-//  8. ضعه في تطبيق رستا تحت تبويب (الإعدادات Settings).
-// ================================================================
+// ── (Firebase - no Apps Script needed) ─────────────────────────────
 
-const SHEET_NAME   = "Feedback";
-const ALERT_EMAIL  = "manager@restahotel.com"; // ← غير هذا البريد لإستقبال التنبيهات
 
-// معالجة طلب جلب البيانات بدعم CORS كامل وحيوي
-function doGet(e) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  
-  if (!sheet) {
-    return createJsonResponse([]);
-  }
-
-  const values = sheet.getDataRange().getValues();
-  if (values.length <= 1) {
-    return createJsonResponse([]);
-  }
-
-  const rows = values.slice(1);
-  const resultArr = rows.map(row => {
-    return {
-      timestamp: row[0] || "",
-      guestName: row[1] || "",
-      roomNumber: row[2] || "",
-      checkInDate: row[3] || "",
-      ratings: {
-        fo_staffCourtesy: row[4] || "", 
-        fo_staffResponse: row[5] || "", 
-        fo_checkIn: row[6] || "", 
-        fo_checkOut: row[7] || "", 
-        fo_doorMan: row[8] || "", 
-        fo_internet: row[9] || "",
-        fb_ambience: row[10] || "", 
-        fb_staffCourtesy: row[11] || "", 
-        fb_staffResponse: row[12] || "", 
-        fb_foodQuality: row[13] || "",
-        hk_cleanliness: row[14] || "", 
-        hk_staffCourtesy: row[15] || ""
-      },
-      comments: row[16] || ""
-    };
-  });
-
-  return createJsonResponse(resultArr);
-}
-
-// معالجة إرسال البيانات من التطبيق
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const ss    = SpreadsheetApp.getActiveSpreadsheet();
-    let sheet   = ss.getSheetByName(SHEET_NAME);
-
-    // إذا كانت الصفحة غير موجودة، يتم إنشاؤها تلقائياً وتلوينها
-    if (!sheet) {
-      sheet = ss.insertSheet(SHEET_NAME);
-      const headers = [
-        "Timestamp","Guest Name","Room Number","Check-In Date",
-        "FO - Staff Courtesy","FO - Staff Response",
-        "FO - Check In","FO - Check Out",
-        "FO - Door Man","FO - Internet Service",
-        "FB - Restaurant Ambience","FB - Staff Courtesy",
-        "FB - Staff Response","FB - Quality of Food",
-        "HK - Cleanliness","HK - Staff Courtesy",
-        "Comments"
-      ];
-      sheet.getRange(1, 1, 1, headers.length).setValues([headers])
-        .setFontWeight("bold")
-        .setBackground("#8B1A1A")
-        .setFontColor("#ffffff");
-      sheet.setFrozenRows(1);
-    }
-
-    const r = data.ratings || {};
-    const row = [
-      new Date().toISOString(),
-      data.guestName   || "",
-      data.roomNumber  || "",
-      data.checkInDate || "",
-      r.fo_staffCourtesy  || "",
-      r.fo_staffResponse  || "",
-      r.fo_checkIn        || "",
-      r.fo_checkOut       || "",
-      r.fo_doorMan        || "",
-      r.fo_internet       || "",
-      r.fb_ambience       || "",
-      r.fb_staffCourtesy  || "",
-      r.fb_staffResponse  || "",
-      r.fb_foodQuality    || "",
-      r.hk_cleanliness    || "",
-      r.hk_staffCourtesy  || "",
-      data.comments || ""
-    ];
-    sheet.appendRow(row);
-
-    // تلوين الخلايا تلقائياً لتسهيل القراءة بالملف
-    const lastRow = sheet.getLastRow();
-    const ratingCols = [5,6,7,8,9,10,11,12,13,14,15,16];
-    ratingCols.forEach(col => {
-      const cell = sheet.getRange(lastRow, col);
-      const val = cell.getValue();
-      if (val === "poor") {
-        cell.setBackground("#fde8e8").setFontColor("#8B1A1A");
-      } else if (val === "excellent") {
-        cell.setBackground("#e8f5ee").setFontColor("#1a5a2e");
-      }
-    });
-
-    // إرسال بريد إلكتروني تنبيهي للمدير في حال وجود تقييم ضعيف
-    const hasPoor = Object.values(r).includes("poor");
-    if (hasPoor && ALERT_EMAIL) {
-      try {
-        MailApp.sendEmail({
-          to: ALERT_EMAIL,
-          subject: "⚠️ تنبيه تقييم ضعيف — فندق رستا بورسعيد",
-          htmlBody: \`
-            <div style="direction:rtl; text-align:right; font-family:sans-serif;">
-              <h2 style="color:#8B1A1A">تنبيه تقييم ضعيف جديد!</h2>
-              <p><strong>اسم النزيل:</strong> \${data.guestName || "غير معروف"}</p>
-              <p><strong>رقم الغرفة:</strong> \${data.roomNumber || "غير محدد"}</p>
-              <p><strong>تاريخ الوصول:</strong> \${data.checkInDate || "غير محدد"}</p>
-              <p><strong>التعليق والملاحظات:</strong> <span style="color:#a32d2d; font-style:italic;">\${data.comments || "لا يوجد تعليق"}</span></p>
-              <hr>
-              <p style="font-size:12px; color:#6b5a45;">تم إرسال هذا التنبيه تلقائياً عبر نظام تقييم رضا النزلاء.</p>
-            </div>
-          \`
-        });
-      } catch(eEmail) {
-        // تجاهل خطأ إرسال الإيميل إن وجد لمتابعة حفظ التقييم بنجاح
-      }
-    }
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: true }))
-      .setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-// دالة مساعدة لضمان إرسال رؤوس استجابة صحيحة تدعم الـ CORS بنسبة 100%
-function createJsonResponse(data) {
-  const output = JSON.stringify(data);
-  return ContentService.createTextOutput(output)
-    .setMimeType(ContentService.MimeType.JSON);
-}
-// ================================================================
-`;
 </script>
 </body>
 </html>
