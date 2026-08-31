@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resta Port Said Hotel – Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ══════════════════════════════════════════════════════════════════
+  //  🔥 ضع هنا بيانات مشروعك من Firebase Console
+  //  Project Settings → General → Your apps → Firebase SDK snippet
+  // ══════════════════════════════════════════════════════════════════
+  const firebaseConfig = {
+    apiKey:            "AIzaSyAsL25mgjQY1FHhb9JTyVd95JcKiDD-fuI",
+    authDomain:        "resta-whocare-beac5.firebaseapp.com",
+    projectId:         "resta-whocare-beac5",
+    storageBucket:     "resta-whocare-beac5.firebasestorage.app",
+    messagingSenderId: "309629391308",
+    appId:             "1:309629391308:web:56bb58764a5a5a5081cd69"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  window.__db         = db;
+  window.__collection = collection;
+  window.__getDocs    = getDocs;
+  window.__query      = query;
+  window.__orderBy    = orderBy;
+
+  window.__firebaseReady = true;
+  document.dispatchEvent(new Event('firebaseReady'));
+</script>
+<style>
+  :root {
+    --crimson: #8B1A1A;
+    --crimson-dark: #6b1414;
+    --crimson-light: #c0392b;
+    --gold: #C9A84C;
+    --gold-light: #e2c26e;
+    --cream: #fdf8f2;
+    --cream2: #f5ede3;
+    --tan: #d4c5b0;
+    --brown: #6b5a45;
+    --dark-brown: #4a3728;
+    --very-dark: #2d1a0e;
+    --green: #2d7a4f;
+    --blue: #1a5a8a;
+    --orange: #c9850a;
+    --red: #a32d2d;
+    --radius: 14px;
+    --shadow: 0 4px 24px rgba(139,26,26,0.08);
+    --transition: 0.25s ease;
+  }
+  body.dark {
+    --cream: #1a1208;
+    --cream2: #261e10;
+    --tan: #3a2a14;
+    --brown: #c4a882;
+    --dark-brown: #e8d5bc;
+    --very-dark: #f5ede3;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tajawal', Georgia, serif;
+    font-size: 16px;
+    background: var(--cream);
+    color: var(--very-dark);
+    min-height: 100vh;
+    transition: background var(--transition), color var(--transition);
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    background: var(--crimson);
+    position: sticky; top: 0; z-index: 200;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+  }
+  .header-inner {
+    max-width: 960px; margin: 0 auto;
+    padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-circle {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .logo-text .hotel-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--gold); letter-spacing: 1.5px;
+  }
+  .logo-text .who-care {
+    font-size: 11px; color: rgba(245,237,227,0.6);
+    letter-spacing: 3px; text-transform: uppercase;
+  }
+  .header-nav { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .nav-btn {
+    padding: 6px 14px; border-radius: 20px;
+    border: 1.5px solid rgba(245,237,227,0.2);
+    background: transparent; color: rgba(245,237,227,0.85);
+    font-family: 'Tajawal', serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all var(--transition);
+  }
+  .nav-btn.active {
+    background: var(--gold); border-color: var(--gold); color: #fff;
+  }
+  .nav-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: transparent; border: 1.5px solid rgba(245,237,227,0.2);
+    color: rgba(245,237,227,0.85); cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.1); }
+
+  /* ─── MAIN ─── */
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* ─── ADMIN ─── */
+  .admin-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 22px; flex-wrap: wrap; gap: 12px;
+  }
+  .admin-topbar h2 { font-family:'Playfair Display',serif; color:var(--crimson); font-size:28px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 14px; margin-bottom: 24px; }
+  .kpi {
+    background: var(--cream2); border-radius: 12px;
+    padding: 18px 14px; text-align: center;
+    border: 1px solid var(--tan); box-shadow: var(--shadow);
+  }
+  .kpi .kpi-icon { font-size: 26px; margin-bottom: 8px; }
+  .kpi .kpi-val { font-family:'Playfair Display',serif; font-size: 28px; font-weight:700; color:var(--crimson); }
+  .kpi .kpi-label { font-size: 14px; color: var(--brown); margin-top: 4px; font-weight: 500; }
+
+  .filter-bar { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
+  .filter-bar select, .filter-bar input {
+    padding: 8px 14px; border-radius: 8px; border: 1.5px solid var(--tan);
+    background: var(--cream2); color: var(--very-dark);
+    font-size: 15px; font-family:'Tajawal',serif;
+  }
+  .clear-filter {
+    padding: 8px 16px; border-radius: 8px;
+    border: 1.5px solid var(--crimson); color: var(--crimson);
+    background: transparent; font-size: 15px; cursor: pointer;
+    font-family: inherit; font-weight: 500;
+  }
+
+  .charts-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; margin-bottom:24px; }
+  .chart-card { background:var(--cream2); border-radius:var(--radius); padding:20px; border:1px solid var(--tan); box-shadow:var(--shadow); }
+  .chart-card h4 { color:var(--crimson); font-size:16px; font-weight:700; margin-bottom:16px; }
+  .chart-wrap { position:relative; height:220px; }
+
+  .table-card { background:var(--cream2); border-radius:var(--radius); overflow:hidden; border:1px solid var(--tan); box-shadow:var(--shadow); }
+  .table-card-head { padding:16px 20px; border-bottom:1px solid var(--tan); }
+  .table-card-head h4 { color:var(--crimson); font-size:16px; font-weight:700; }
+
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:15px; }
+  thead tr { background:rgba(139,26,26,0.05); }
+  th { padding:12px 16px; text-align:left; color:var(--brown); font-weight:700; border-bottom:1px solid var(--tan); white-space:nowrap; }
+  td { padding:12px 16px; border-bottom:1px solid rgba(212,197,176,0.3); }
+  tr:hover td { background:rgba(139,26,26,0.03); }
+  tr.has-poor td { background: rgba(163,45,45,0.04); }
+
+  .badge {
+    display:inline-block; padding:2px 10px; border-radius:12px;
+    font-size:14px; font-weight:700; white-space:nowrap;
+  }
+  .badge-excellent { background:#2d7a4f22; color:#2d7a4f; }
+  .badge-good      { background:#1a5a8a22; color:#1a5a8a; }
+  .badge-fair      { background:#c9850a22; color:#c9850a; }
+  .badge-poor      { background:#a32d2d22; color:#a32d2d; }
+  .badge-num-high  { background:#2d7a4f22; color:#2d7a4f; }
+  .badge-num-mid   { background:#1a5a8a22; color:#1a5a8a; }
+  .badge-num-low   { background:#c9850a22; color:#c9850a; }
+  .badge-num-bad   { background:#a32d2d22; color:#a32d2d; }
+  .no-data { text-align:center; padding:40px; color:var(--brown); font-size: 15px; }
+
+  .action-btn {
+    padding:8px 16px; border-radius:8px;
+    background:var(--crimson); color:#fff;
+    border:none; font-size:15px; cursor:pointer;
+    font-family:inherit; transition:all var(--transition);
+    display:inline-flex; align-items:center; gap:6px; font-weight: 500;
+  }
+  .action-btn:hover { background:var(--crimson-dark); }
+
+  /* ─── CLICKABLE TABLE ROW ─── */
+  tbody tr { cursor:pointer; }
+
+  /* ─── PASSWORD MODAL ─── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; z-index:1000;
+    background: rgba(45,26,14,0.65); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .modal-box {
+    background: var(--cream2); border-radius: 20px;
+    padding: 40px 36px; width: 90%; max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border: 1px solid var(--tan); text-align: center;
+    animation: slideUp 0.3s cubic-bezier(.36,1.4,.6,1);
+  }
+  @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:none;opacity:1} }
+  .modal-box .lock-icon { font-size: 48px; margin-bottom: 16px; }
+  .modal-box h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--crimson); font-size: 24px; margin-bottom: 6px;
+  }
+  .modal-box p { color: var(--brown); font-size: 15px; margin-bottom: 24px; }
+  .modal-box input {
+    width: 100%; padding: 12px 16px; border-radius: 10px;
+    border: 1.5px solid var(--tan); background: var(--cream);
+    color: var(--very-dark); font-size: 18px; font-family: inherit;
+    text-align: center; letter-spacing: 4px; outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 16px;
+  }
+  .modal-box input:focus { border-color: var(--crimson); }
+  .modal-box input.error { border-color: #a32d2d; animation: shake 0.3s ease; }
+  @keyframes shake { 0%,100%{transform:none} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+  .modal-error { color:#a32d2d; font-size:15px; margin-bottom:12px; min-height:18px; }
+  .modal-btn {
+    width:100%; padding:13px; border-radius:10px;
+    background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+    color:#fff; border:none; font-size:17px; font-weight:700;
+    cursor:pointer; font-family:'Playfair Display',serif; letter-spacing:1px;
+    transition: all 0.2s; margin-bottom:10px;
+  }
+  .modal-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(139,26,26,0.3); }
+  .modal-cancel {
+    background:none; border:none; color:var(--brown); font-size:15px;
+    cursor:pointer; font-family:inherit; text-decoration:underline; font-weight: 500;
+  }
+
+  /* ─── SETTINGS MODAL ─── */
+  .settings-modal-box {
+    background: var(--cream2); border-radius: 20px;
+    padding: 36px 32px; width: 90%; max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border: 1px solid var(--tan);
+    animation: slideUp 0.3s cubic-bezier(.36,1.4,.6,1);
+  }
+  .settings-modal-box h3 {
+    font-family:'Playfair Display',serif; color:var(--crimson);
+    font-size:22px; margin-bottom:8px;
+  }
+  .settings-modal-box p { color:var(--brown); font-size:14px; line-height:1.7; margin-bottom:18px; }
+  .settings-modal-box label { display:block; font-size:14px; color:var(--brown); margin-bottom:6px; font-weight:600; }
+  .settings-modal-box input[type="url"] {
+    width:100%; padding:11px 14px; border-radius:8px;
+    border:1.5px solid var(--tan); background:var(--cream);
+    color:var(--very-dark); font-size:15px; font-family:inherit;
+    margin-bottom:14px; outline:none; transition:border-color 0.2s;
+  }
+  .settings-modal-box input[type="url"]:focus { border-color:var(--crimson); }
+  .settings-actions { display:flex; gap:10px; flex-wrap:wrap; }
+  .save-btn { padding:10px 24px; background:var(--crimson); color:#fff; border:none; border-radius:8px; font-size:16px; cursor:pointer; font-family:inherit; font-weight: 500; }
+  .save-btn:hover { background:var(--crimson-dark); }
+
+  /* ─── DETAIL MODAL ─── */
+  .detail-overlay {
+    display:none; position:fixed; inset:0; z-index:1000;
+    background: rgba(45,26,14,0.65); backdrop-filter:blur(6px);
+    align-items:flex-start; justify-content:center;
+    overflow-y:auto; padding:20px;
+  }
+  .detail-overlay.open { display:flex; animation: fadeIn 0.2s ease; }
+  .detail-box {
+    background: var(--cream2); border-radius: 20px;
+    width: 100%; max-width: 680px; margin: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    border: 1px solid var(--tan);
+    animation: slideUp 0.3s cubic-bezier(.36,1.4,.6,1);
+    overflow: hidden;
+  }
+  .detail-header {
+    background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+    padding: 24px 28px; position: relative;
+  }
+  .detail-header h3 {
+    font-family:'Playfair Display',serif; color:#fff; font-size:24px; margin-bottom:4px;
+  }
+  .detail-header .detail-sub { color: rgba(245,237,227,0.7); font-size:15px; }
+  .detail-close {
+    position:absolute; top:16px; right:20px;
+    background:rgba(255,255,255,0.15); border:none; border-radius:50%;
+    width:34px; height:34px; color:#fff; font-size:18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: background 0.2s;
+  }
+  .detail-close:hover { background:rgba(255,255,255,0.25); }
+  .detail-body { padding: 24px 28px; }
+  .detail-info-grid {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:14px;
+    margin-bottom:24px;
+  }
+  .detail-info-item { text-align:center; }
+  .detail-info-item .di-label { font-size:13px; color:var(--brown); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; font-weight: 600; }
+  .detail-info-item .di-val { font-family:'Playfair Display',serif; color:var(--crimson); font-size:18px; font-weight:700; }
+  .detail-section-title {
+    font-family:'Playfair Display',serif; font-size:16px; font-weight:700;
+    color:#fff; padding:8px 16px; border-radius:8px; margin:16px 0 10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .detail-section-title.fo { background:#8B1A1A; }
+  .detail-section-title.fb { background:#5a3e1b; }
+  .detail-section-title.hk { background:#1a3a5a; }
+  .detail-rating-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 12px; border-radius:8px; margin-bottom:6px;
+    background: var(--cream); border:1px solid var(--tan);
+  }
+  .detail-rating-row .dr-label { font-size:15px; color:var(--dark-brown); font-weight:600; }
+  .detail-comments {
+    background:var(--cream); border:1px solid var(--tan); border-radius:10px;
+    padding:16px; margin-top:16px; font-size:16px; color:var(--dark-brown);
+    line-height:1.7; font-style:italic;
+  }
+  .detail-actions {
+    display:flex; gap:10px; padding:20px 28px;
+    border-top:1px solid var(--tan); flex-wrap:wrap;
+  }
+  .det-btn {
+    padding:10px 22px; border-radius:8px; border:none; cursor:pointer;
+    font-size:16px; font-weight:600; font-family:inherit;
+    display:flex; align-items:center; gap:7px; transition:all 0.2s;
+  }
+  .det-btn.print { background:var(--crimson); color:#fff; }
+  .det-btn.print:hover { background:var(--crimson-dark); }
+  .det-btn.pdf { background:var(--gold); color:#fff; }
+  .det-btn.pdf:hover { background:#b8922e; }
+  .det-btn.close2 { background:var(--cream); border:1.5px solid var(--tan); color:var(--brown); }
+  .det-btn.image { background:var(--blue); color:#fff; }
+  .det-btn.image:hover { background:#134766; }
+  .det-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none !important; }
+  /* حالة التقاط الصورة: إخفاء الأزرار وزر الإغلاق حتى لا تظهر داخل الصورة المُصدَّرة */
+  .detail-box.capturing .detail-actions,
+  .detail-box.capturing .detail-close { display:none !important; }
+  .detail-box.capturing { box-shadow:none !important; }
+
+  /* ─── RTL ─── */
+  body.rtl { direction: rtl; }
+  body.rtl th, body.rtl td { text-align: right; }
+
+  /* ─── FOOTER ─── */
+  footer { text-align:center; padding:24px 16px; border-top:1px solid var(--tan); margin-top:20px; }
+  footer p { font-size:14px; color:var(--brown); letter-spacing:1px; }
+
+  /* ─── RESPONSIVE ─── */
+  @media(max-width:600px) {
+    .admin-topbar { flex-direction:column; align-items:flex-start; }
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius:3px; }
+
+  /* ─── PRINT STYLES ─── */
+  @media print {
+    body > *:not(#printArea) { display:none !important; }
+    #printArea { display:block !important; }
+    .no-print { display:none !important; }
+    .print-page {
+      font-family:'Tajawal',Georgia,serif;
+      max-width:700px; margin:0 auto; padding:20px;
+    }
+    .print-header {
+      text-align:center; border-bottom:3px solid #8B1A1A;
+      padding-bottom:16px; margin-bottom:20px;
+    }
+    .print-hotel { font-size:26px; font-weight:700; color:#8B1A1A; letter-spacing:2px; }
+    .print-tagline { font-size:12px; letter-spacing:4px; color:#C9A84C; text-transform:uppercase; margin-bottom:4px; font-weight: 600; }
+    .print-doc-title { font-size:18px; color:#4a3728; margin-top:8px; font-weight: 600; }
+    .print-info-row { display:flex; gap:30px; margin-bottom:20px; flex-wrap:wrap; }
+    .print-info-item { flex:1; min-width:150px; }
+    .print-info-item .pil { font-size:12px; color:#6b5a45; letter-spacing:1px; text-transform:uppercase; font-weight: 600; }
+    .print-info-item .piv { font-size:17px; font-weight:700; color:#2d1a0e; }
+    .print-sec-title { background:#8B1A1A; color:#fff; padding:6px 12px; border-radius:6px; font-size:15px; font-weight:700; margin:14px 0 8px; }
+    .print-sec-title.fb { background:#5a3e1b; }
+    .print-sec-title.hk { background:#1a3a5a; }
+    .print-row { display:flex; justify-content:space-between; padding:7px 10px; border-bottom:1px solid #d4c5b0; font-size:15px; font-weight: 500; }
+    .print-badge { padding:2px 12px; border-radius:12px; font-size:14px; font-weight:700; }
+    .print-badge.excellent { background:#e8f5ee; color:#2d7a4f; }
+    .print-badge.good { background:#e6f0f8; color:#1a5a8a; }
+    .print-badge.fair { background:#fdf3e0; color:#c9850a; }
+    .print-badge.poor { background:#fde8e8; color:#a32d2d; }
+    .print-comments { border:1px solid #d4c5b0; border-radius:8px; padding:12px; font-size:15px; color:#4a3728; line-height:1.7; margin-top:14px; font-style:italic; }
+    .print-footer { text-align:center; margin-top:30px; font-size:12px; color:#6b5a45; border-top:1px solid #d4c5b0; padding-top:12px; }
+  }
+  #printArea { display:none; }
+</style>
+</head>
+<body class="rtl">
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-circle">R</div>
+      <div class="logo-text">
+        <div class="hotel-name">RESTA PORT SAID</div>
+        <div class="who-care">WHO CARE · DASHBOARD</div>
+      </div>
+    </div>
+    <div class="header-nav">
+      <button class="action-btn" onclick="loadCloudDataAndRender()" style="padding:6px 14px;font-size:15px;border-radius:20px;">🔄 تحديث</button>
+      <button class="action-btn" onclick="exportCSV()" style="padding:6px 14px;font-size:15px;border-radius:20px;background:var(--brown);">📥 CSV</button>
+      <button id="dashCopyBtn" class="action-btn" onclick="copyAppsScriptCode()" style="padding:6px 14px;font-size:15px;border-radius:20px;background:var(--gold);gap:6px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        Script
+      </button>
+      <button class="icon-btn" onclick="toggleDark()" title="Dark Mode">🌙</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ══════════ DASHBOARD ══════════ -->
+  <div class="admin-topbar">
+    <h2>📊 لوحة التحكم الإدارية</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="action-btn" onclick="loadCloudDataAndRender()">🔄 تحديث البيانات السحابية</button>
+      <button class="action-btn" onclick="exportCSV()">📥 تصدير CSV</button>
+      <button id="dashCopyBtn2" class="action-btn" onclick="copyAppsScriptCode()" style="background:var(--gold);display:inline-flex;align-items:center;gap:6px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        نسخ كود Script
+      </button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-icon">📋</div><div class="kpi-val" id="kpi-total">0</div><div class="kpi-label">إجمالي التقييمات</div></div>
+    <div class="kpi"><div class="kpi-icon">⭐</div><div class="kpi-val" id="kpi-avg">—</div><div class="kpi-label">متوسط التقييم /4</div></div>
+    <div class="kpi"><div class="kpi-icon">⚠️</div><div class="kpi-val" id="kpi-poor">0</div><div class="kpi-label">تقييمات ضعيفة</div></div>
+    <div class="kpi"><div class="kpi-icon">📅</div><div class="kpi-val" id="kpi-today">0</div><div class="kpi-label">تقييمات اليوم</div></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <select id="filterRoom" onchange="renderAdmin()">
+      <option value="all">كل الغرف</option>
+    </select>
+    <input type="date" id="filterDate" onchange="renderAdmin()">
+    <button class="clear-filter" onclick="clearFilters()">✕ إلغاء الفلاتر</button>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h4 id="chart-lbl-dist">توزيع مستويات التقييم</h4>
+      <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4 id="chart-lbl-perf">أداء الأقسام (متوسط /4)</h4>
+      <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-card-head" style="display:flex;justify-content:space-between;align-items:center;">
+      <h4 id="lbl-table-head">التقييمات الأخيرة (مباشرة من السحابة)</h4>
+      <span style="font-size:13px;color:var(--brown);letter-spacing:.5px; font-weight: 500;">👆 انقر على أي صف لعرض التقييم بالكامل</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>النزيل</th><th>الغرفة</th><th>تاريخ الوصول</th>
+            <th>الاستقبال</th><th>المطعم</th><th>الإشراف</th>
+            <th>المتوسط العام</th><th>التعليق</th>
+          </tr>
+        </thead>
+        <tbody id="feedbackTable">
+          <tr><td colspan="8" class="no-data">لم يتم جلب أي بيانات بعد</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+
+
+<!-- ══════════ SETTINGS MODAL (Firebase) ══════════ -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="settings-modal-box">
+    <h3>🔥 إعدادات Firebase</h3>
+    <p style="line-height:1.8;font-size:15px">
+      البيانات تُجلب مباشرةً من <strong>Firebase Firestore</strong>.<br>
+      لتغيير المشروع، افتح الملف وعدّل قيم <code>firebaseConfig</code>.<br><br>
+      <strong>Firestore Rules المطلوبة:</strong>
+    </p>
+    <pre style="background:rgba(0,0,0,0.07);border-radius:8px;padding:12px;font-size:12px;direction:ltr;text-align:left;margin:10px 0">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /feedback/{docId} {
+      allow create: if true;
+      allow read: if true;
+    }
+  }
+}</pre>
+    <div class="settings-actions">
+      <button class="save-btn" onclick="closeSettings(); loadCloudDataAndRender();">🔄 تحديث البيانات</button>
+      <button class="modal-cancel" onclick="closeSettings()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FEEDBACK DETAIL MODAL ══════════ -->
+<div class="detail-overlay" id="detailModal">
+  <div class="detail-box">
+    <div class="detail-header">
+      <h3 id="det-guest-name">—</h3>
+      <div class="detail-sub" id="det-meta">—</div>
+      <button class="detail-close no-print" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-info-grid">
+        <div class="detail-info-item">
+          <div class="di-label">الغرفة</div>
+          <div class="di-val" id="det-room">—</div>
+        </div>
+        <div class="detail-info-item">
+          <div class="di-label">تاريخ الوصول</div>
+          <div class="di-val" id="det-date">—</div>
+        </div>
+        <div class="detail-info-item">
+          <div class="di-label">المتوسط العام</div>
+          <div class="di-val" id="det-overall">—</div>
+        </div>
+      </div>
+
+      <!-- Front Office -->
+      <div class="detail-section-title fo">🏨 Front Office &nbsp;<span style="opacity:.6;font-size:14px; font-weight: 500;">الاستقبال</span></div>
+      <div id="det-fo-rows"></div>
+
+      <!-- Food & Beverage -->
+      <div class="detail-section-title fb">🍽 Food &amp; Beverage &nbsp;<span style="opacity:.6;font-size:14px; font-weight: 500;">الأغذية والمشروبات</span></div>
+      <div id="det-fb-rows"></div>
+
+      <!-- House Keeping -->
+      <div class="detail-section-title hk">🛏 House Keeping &nbsp;<span style="opacity:.6;font-size:14px; font-weight: 500;">الإشراف الداخلي</span></div>
+      <div id="det-hk-rows"></div>
+
+      <!-- Comments -->
+      <div id="det-comments-wrap" style="display:none">
+        <div style="font-size:14px;color:var(--brown);font-weight:700;letter-spacing:.5px;margin-top:18px;margin-bottom:6px;">📝 التعليقات والملاحظات</div>
+        <div class="detail-comments" id="det-comments"></div>
+      </div>
+    </div>
+    <div class="detail-actions no-print">
+      <button class="det-btn print" onclick="printDetail()">🖨 طباعة التقرير</button>
+      <button class="det-btn pdf" onclick="exportDetailPDF()">📄 تصدير PDF</button>
+      <button class="det-btn image" id="btnExportImage" onclick="exportDetailImage()">📷 تصدير كصورة</button>
+      <button class="det-btn close2" onclick="closeDetail()">✕ إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PRINT AREA ══════════ -->
+<div id="printArea">
+  <div class="print-page">
+    <div class="print-header">
+      <div class="print-tagline">WHO CARE</div>
+      <div class="print-hotel">RESTA PORT SAID HOTEL</div>
+      <div class="print-doc-title">استمارة تقييم رضا النزيل — تفاصيل التقييم</div>
+    </div>
+    <div class="print-info-row" id="print-info"></div>
+    <div id="print-sections"></div>
+    <div class="print-footer">
+      © RESTA PORT SAID HOTEL &nbsp;·&nbsp; Guest Satisfaction System &nbsp;·&nbsp; Printed: <span id="print-date-stamp"></span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 RESTA PORT SAID HOTEL &nbsp;·&nbsp; WHO CARE &nbsp;·&nbsp; Guest Satisfaction System</p>
+</footer>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────
+let isDark = false;
+let feedbackData = [];
+let pieChart = null, barChart = null;
+
+const ITEM_KEYS = [
+  'fo_staffCourtesy','fo_staffResponse','fo_checkIn','fo_checkOut','fo_doorMan','fo_internet',
+  'fb_ambience','fb_staffCourtesy','fb_staffResponse','fb_foodQuality',
+  'hk_cleanliness','hk_staffCourtesy'
+];
+const RATING_VALUES = { excellent:4, good:3, fair:2, poor:1 };
+
+const ITEM_LABELS = {
+  fo_staffCourtesy:  'Staff Courtesy',
+  fo_staffResponse:  'Staff Response',
+  fo_checkIn:        'Check In',
+  fo_checkOut:       'Check Out',
+  fo_doorMan:        'Door Man',
+  fo_internet:       'Internet Service',
+  fb_ambience:       'Restaurant Ambience',
+  fb_staffCourtesy:  'Staff Courtesy',
+  fb_staffResponse:  'Staff Response',
+  fb_foodQuality:    'Quality of Food',
+  hk_cleanliness:    'Cleanliness of the Room',
+  hk_staffCourtesy:  'Staff Courtesy'
+};
+
+const FO_KEYS = ['fo_staffCourtesy','fo_staffResponse','fo_checkIn','fo_checkOut','fo_doorMan','fo_internet'];
+const FB_KEYS = ['fb_ambience','fb_staffCourtesy','fb_staffResponse','fb_foodQuality'];
+const HK_KEYS = ['hk_cleanliness','hk_staffCourtesy'];
+
+const BADGE_COLORS = {
+  excellent: { bg:'#e8f5ee', color:'#2d7a4f' },
+  good:      { bg:'#e6f0f8', color:'#1a5a8a' },
+  fair:      { bg:'#fdf3e0', color:'#c9850a' },
+  poor:      { bg:'#fde8e8', color:'#a32d2d' }
+};
+
+// ── INIT ───────────────────────────────────────────────────────────
+function initDashboard() {
+  if (localStorage.getItem('resta_dark') === 'true') {
+    isDark = true; document.body.classList.add('dark');
+  }
+  loadCloudDataAndRender();
+}
+
+if (window.__firebaseReady) {
+  window.onload = initDashboard;
+} else {
+  document.addEventListener('firebaseReady', () => {
+    if (document.readyState === 'loading') {
+      window.onload = initDashboard;
+    } else {
+      initDashboard();
+    }
+  });
+}
+
+// ── SETTINGS (Firebase - no URL needed) ───────────────────────────
+function openSettings() {
+  document.getElementById('settingsModal').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('open');
+}
+function saveScriptUrl() {
+  closeSettings();
+  loadCloudDataAndRender();
+}
+
+// ── FETCH LIVE DATA (Firebase Firestore) ──────────────────────────
+async function loadCloudDataAndRender() {
+  const tbody = document.getElementById('feedbackTable');
+  tbody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:var(--crimson);font-weight:bold;">⏳ جاري جلب البيانات من Firebase...</td></tr>`;
+  try {
+    const db  = window.__db;
+    const q   = window.__query(window.__collection(db, 'feedback'), window.__orderBy('timestamp', 'desc'));
+    const snap = await window.__getDocs(q);
+    feedbackData = snap.docs.map(doc => {
+      const d = doc.data();
+      return {
+        id:          doc.id,
+        timestamp:   d.timestamp?.toDate?.()?.toISOString() || d.timestamp || '',
+        guestName:   d.guestName   || '',
+        roomNumber:  d.roomNumber  || '',
+        checkInDate: d.checkInDate || '',
+        ratings:     d.ratings     || {},
+        comments:    d.comments    || ''
+      };
+    });
+    renderAdmin();
+  } catch(err) {
+    console.error('Firebase fetch error:', err);
+    tbody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:var(--red);text-align:right;direction:rtl;font-weight:bold;padding:20px;">
+      ⚠️ فشل الاتصال بـ Firebase!<br>
+      <span style="font-size:13px;font-weight:normal;color:var(--brown);">
+        تأكد من صحة بيانات الإعداد وأن قواعد Firestore تسمح بالقراءة.<br>
+        تفاصيل الخطأ: ${err.message}
+      </span>
+    </td></tr>`;
+  }
+}
+
+// ── ADMIN RENDER ──────────────────────────────────────────────────
+function getFiltered() {
+  const roomFilter = document.getElementById('filterRoom')?.value || 'all';
+  const dateFilter = document.getElementById('filterDate')?.value || '';
+  return feedbackData.filter(d => {
+    if (roomFilter !== 'all' && d.roomNumber !== roomFilter) return false;
+    if (dateFilter && d.checkInDate !== dateFilter) return false;
+    return true;
+  });
+}
+
+function renderAdmin() {
+  const data = feedbackData;
+  const filtered = getFiltered();
+
+  const roomSel = document.getElementById('filterRoom');
+  const currentRoom = roomSel.value;
+  const rooms = [...new Set(data.map(d => d.roomNumber).filter(Boolean))];
+  roomSel.innerHTML = `<option value="all">كل الغرف</option>` +
+    rooms.map(r => `<option value="${r}"${r===currentRoom?' selected':''}>Room ${r}</option>`).join('');
+
+  let totalRatings = 0, sumVals = 0, poorCount = 0;
+  const countByRating = { excellent:0, good:0, fair:0, poor:0 };
+  filtered.forEach(entry => {
+    ITEM_KEYS.forEach(k => {
+      const r = entry.ratings?.[k];
+      if (r) {
+        countByRating[r] = (countByRating[r]||0)+1;
+        sumVals += RATING_VALUES[r];
+        totalRatings++;
+        if (r === 'poor') poorCount++;
+      }
+    });
+  });
+  const today = new Date().toISOString().split('T')[0];
+  const todayCount = data.filter(d => d.timestamp?.startsWith(today)).length;
+
+  document.getElementById('kpi-total').textContent = filtered.length;
+  document.getElementById('kpi-avg').textContent = totalRatings > 0 ? (sumVals/totalRatings).toFixed(1) : '—';
+  document.getElementById('kpi-poor').textContent = poorCount;
+  document.getElementById('kpi-today').textContent = todayCount;
+
+  renderPieChart(countByRating);
+  renderBarChart(filtered);
+
+  const tbody = document.getElementById('feedbackTable');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="no-data">لا توجد أي تقييمات مطابقة في السحابة حالياً</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = [...filtered].reverse().map((entry) => {
+    const foAvg = sectionAvg(entry, FO_KEYS);
+    const fbAvg = sectionAvg(entry, FB_KEYS);
+    const hkAvg = sectionAvg(entry, HK_KEYS);
+    const overall = sectionAvg(entry, ITEM_KEYS);
+    const hasPoor = ITEM_KEYS.some(k => entry.ratings?.[k] === 'poor');
+    const idx = feedbackData.indexOf(entry);
+    return `<tr class="${hasPoor?'has-poor':''}" onclick="openDetail(feedbackData[${idx}])" title="عرض التفاصيل الكاملة">
+      <td><strong>${esc(entry.guestName||'—')}</strong></td>
+      <td>${esc(entry.roomNumber||'—')}</td>
+      <td style="white-space:nowrap">${esc(entry.checkInDate||'—')}</td>
+      <td>${numBadge(foAvg)}</td>
+      <td>${numBadge(fbAvg)}</td>
+      <td>${numBadge(hkAvg)}</td>
+      <td>${numBadge(overall)}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(entry.comments||'')}">${esc(entry.comments||'—')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function sectionAvg(entry, keys) {
+  let sum=0, cnt=0;
+  keys.forEach(k => {
+    const r = entry.ratings?.[k];
+    if (r) { sum += RATING_VALUES[r]; cnt++; }
+  });
+  return cnt ? (sum/cnt).toFixed(1) : '—';
+}
+
+function numBadge(val) {
+  if (val === '—') return `<span class="badge" style="background:rgba(0,0,0,0.05);color:var(--brown)">—</span>`;
+  const n = parseFloat(val);
+  const cls = n >= 3.5 ? 'badge-num-high' : n >= 2.5 ? 'badge-num-mid' : n >= 1.5 ? 'badge-num-low' : 'badge-num-bad';
+  return `<span class="badge ${cls}">${val}</span>`;
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderPieChart(counts) {
+  const ctx = document.getElementById('pieChart').getContext('2d');
+  const labels = ['ممتاز','جيد','مقبول','ضعيف'];
+  const vals = [counts.excellent,counts.good,counts.fair,counts.poor];
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{ data:vals, backgroundColor:['#2d7a4f','#1a5a8a','#c9850a','#a32d2d'], borderWidth:2, borderColor:'rgba(255,255,255,0.8)' }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{ position:'bottom', labels:{ font:{size:13}, color:isDark?'#c4a882':'#6b5a45', padding:8 } } }
+    }
+  });
+}
+
+function renderBarChart(filtered) {
+  const ctx = document.getElementById('barChart').getContext('2d');
+  const sections = [
+    { label:'Front Office', keys:FO_KEYS },
+    { label:'Food & Bev.', keys:FB_KEYS },
+    { label:'House Keeping', keys:HK_KEYS }
+  ];
+  const vals = sections.map(s => {
+    let sum=0, cnt=0;
+    filtered.forEach(e => {
+      s.keys.forEach(k => {
+        const r = e.ratings?.[k];
+        if (r) { sum += RATING_VALUES[r]; cnt++; }
+      });
+    });
+    return cnt ? parseFloat((sum/cnt).toFixed(2)) : 0;
+  });
+  if (barChart) barChart.destroy();
+  barChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sections.map(s=>s.label),
+      datasets: [{ label:'Avg Score', data:vals, backgroundColor:['#8B1A1A','#5a3e1b','#1a3a5a'], borderRadius:8, borderSkipped:false }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      scales: {
+        y: { min:0, max:4, ticks:{ color:isDark?'#c4a882':'#6b5a45', font: {size: 13} }, grid:{ color:'rgba(0,0,0,0.05)' } },
+        x: { ticks:{ color:isDark?'#c4a882':'#6b5a45', font: {size: 13} }, grid:{ display:false } }
+      },
+      plugins: { legend:{ display:false } }
+    }
+  });
+}
+
+function clearFilters() {
+  document.getElementById('filterRoom').value = 'all';
+  document.getElementById('filterDate').value = '';
+  renderAdmin();
+}
+
+// ── EXPORT CSV ─────────────────────────────────────────────────────
+function exportCSV() {
+  const headers = ['Timestamp','Guest Name','Room','Check-In',...ITEM_KEYS,'Comments'];
+  const rows = feedbackData.map(d => [
+    d.timestamp, d.guestName, d.roomNumber, d.checkInDate,
+    ...ITEM_KEYS.map(k => d.ratings?.[k]||''),
+    d.comments
+  ]);
+  const csv = [headers,...rows].map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='Resta_Feedback.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── DARK MODE ──────────────────────────────────────────────────────
+function toggleDark() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.querySelector('[onclick="toggleDark()"]').textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('resta_dark', isDark);
+  renderAdmin();
+}
+
+// ── FEEDBACK DETAIL ────────────────────────────────────────────────
+let currentDetailEntry = null;
+
+function openDetail(entry) {
+  currentDetailEntry = entry;
+  const d = entry;
+  document.getElementById('det-guest-name').textContent = d.guestName || 'نزيل غير معروف';
+  const ts = d.timestamp ? new Date(d.timestamp).toLocaleString() : '—';
+  document.getElementById('det-meta').textContent = 'تاريخ الإرسال: ' + ts;
+  document.getElementById('det-room').textContent = d.roomNumber || '—';
+  document.getElementById('det-date').textContent = d.checkInDate || '—';
+  document.getElementById('det-overall').textContent = sectionAvg(d, ITEM_KEYS) + ' / 4';
+
+  function buildRows(keys) {
+    return keys.map(k => {
+      const r = d.ratings?.[k] || '—';
+      const bc = BADGE_COLORS[r] || { bg:'rgba(0,0,0,0.05)', color:'#6b5a45' };
+      return `<div class="detail-rating-row">
+        <span class="dr-label">${ITEM_LABELS[k]}</span>
+        <span class="badge" style="background:${bc.bg};color:${bc.color};font-size:14px;padding:3px 14px;border-radius:12px;font-weight:700">${r.charAt(0).toUpperCase()+r.slice(1)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('det-fo-rows').innerHTML = buildRows(FO_KEYS);
+  document.getElementById('det-fb-rows').innerHTML = buildRows(FB_KEYS);
+  document.getElementById('det-hk-rows').innerHTML = buildRows(HK_KEYS);
+
+  const commentWrap = document.getElementById('det-comments-wrap');
+  if (d.comments) {
+    document.getElementById('det-comments').textContent = d.comments;
+    commentWrap.style.display = 'block';
+  } else {
+    commentWrap.style.display = 'none';
+  }
+
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailModal').classList.remove('open');
+}
+
+// ── PRINT & PDF ────────────────────────────────────────────────────
+function buildPrintContent(entry) {
+  const d = entry;
+  document.getElementById('print-date-stamp').textContent = new Date().toLocaleString();
+
+  document.getElementById('print-info').innerHTML = `
+    <div class="print-info-item"><div class="pil">Guest Name</div><div class="piv">${d.guestName||'—'}</div></div>
+    <div class="print-info-item"><div class="pil">Room Number</div><div class="piv">${d.roomNumber||'—'}</div></div>
+    <div class="print-info-item"><div class="pil">Check-In Date</div><div class="piv">${d.checkInDate||'—'}</div></div>
+    <div class="print-info-item"><div class="pil">Overall Avg</div><div class="piv">${sectionAvg(d, ITEM_KEYS)} / 4</div></div>
+  `;
+
+  function buildPrintSection(title, keys, cls) {
+    const rows = keys.map(k => {
+      const r = d.ratings?.[k] || '—';
+      return `<div class="print-row">
+        <span>${ITEM_LABELS[k]}</span>
+        <span class="print-badge ${r}">${r.charAt(0).toUpperCase()+r.slice(1)}</span>
+      </div>`;
+    }).join('');
+    return `<div class="print-sec-title ${cls}">${title}</div>${rows}`;
+  }
+
+  let sections = buildPrintSection('🏨 Front Office — الاستقبال', FO_KEYS, 'fo');
+  sections += buildPrintSection('🍽 Food & Beverage — الأغذية والمشروبات', FB_KEYS, 'fb');
+  sections += buildPrintSection('🛏 House Keeping — الإشراف الداخلي', HK_KEYS, 'hk');
+
+  if (d.comments) {
+    sections += `<div style="font-size:13px;color:#6b5a45;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:16px;margin-bottom:6px;">Comments</div>
+    <div class="print-comments">${d.comments}</div>`;
+  }
+
+  document.getElementById('print-sections').innerHTML = sections;
+}
+
+function printDetail() {
+  if (!currentDetailEntry) return;
+  buildPrintContent(currentDetailEntry);
+  window.print();
+}
+
+function exportDetailPDF() {
+  if (!currentDetailEntry) return;
+  buildPrintContent(currentDetailEntry);
+  const style = document.createElement('style');
+  style.id = 'pdf-force-style';
+  style.textContent = `@page { size: A4; margin: 15mm; }`;
+  document.head.appendChild(style);
+  window.print();
+  setTimeout(() => { const s = document.getElementById('pdf-force-style'); if(s) s.remove(); }, 1000);
+}
+
+// ── تصدير التقييم كصورة (حفظ / مشاركة) ───────────────────────────────
+async function exportDetailImage() {
+  if (!currentDetailEntry) return;
+
+  const box = document.querySelector('.detail-box');
+  const btn = document.getElementById('btnExportImage');
+  const originalBtnText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '⏳ جارِ إنشاء الصورة...';
+
+  // إخفاء أزرار الإجراءات وزر الإغلاق أثناء الالتقاط حتى لا تظهر في الصورة
+  box.classList.add('capturing');
+
+  try {
+    const canvas = await html2canvas(box, {
+      backgroundColor: getComputedStyle(document.body).getPropertyValue('--cream2') || '#ffffff',
+      scale: window.devicePixelRatio > 1 ? 2 : 2,
+      useCORS: true
+    });
+
+    const guestName = (currentDetailEntry.guestName || 'نزيل').trim().replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_');
+    const fileName = `تقييم-${guestName || 'نزيل'}.png`;
+
+    canvas.toBlob(async (blob) => {
+      box.classList.remove('capturing');
+      btn.disabled = false;
+      btn.innerHTML = originalBtnText;
+
+      if (!blob) {
+        alert('تعذر إنشاء الصورة، يرجى المحاولة مرة أخرى.');
+        return;
+      }
+
+      const file = new File([blob], fileName, { type: 'image/png' });
+
+      // إن كان الجهاز يدعم مشاركة الملفات (موبايل غالباً) نعرض قائمة المشاركة مباشرة
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'تقييم رضا النزيل',
+            text: `تقييم النزيل: ${currentDetailEntry.guestName || '—'} — فندق رستا بورسعيد`
+          });
+          return;
+        } catch (err) {
+          // المستخدم ألغى المشاركة أو حدث خطأ — نكمل بالحفظ اليدوي كخطة بديلة
+          if (err && err.name === 'AbortError') return;
+        }
+      }
+
+      // خطة بديلة: تنزيل الصورة مباشرة على الجهاز
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = URL.createObjectURL(blob);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(link.href), 3000);
+    }, 'image/png');
+
+  } catch (err) {
+    console.error(err);
+    box.classList.remove('capturing');
+    btn.disabled = false;
+    btn.innerHTML = originalBtnText;
+    alert('حدث خطأ أثناء تصدير الصورة، حاول مرة أخرى.');
+  }
+}
+
+// ── (Firebase - لا يوجد Apps Script) ─────────────────────────────
+const APPS_SCRIPT_CODE = ``; // stub
+
+
+function copyAppsScriptCode() { /* لم يعد مستخدماً مع Firebase */ }
+</script>
+</body>
+</html>
