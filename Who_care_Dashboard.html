@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Resta Port Said Hotel – Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3CradialGradient%20id%3D%22bg%22%20cx%3D%2235%25%22%20cy%3D%2230%25%22%20r%3D%2275%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23a3241f%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%236b1414%22/%3E%3C/radialGradient%3E%3ClinearGradient%20id%3D%22starGrad%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23e2c26e%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23C9A84C%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2231%22%20fill%3D%22url%28%23bg%29%22%20stroke%3D%22%23C9A84C%22%20stroke-width%3D%221.5%22/%3E%3Cpath%20d%3D%22M32%2012.5%20L37.2%2024.6%20L50.3%2025.9%20L40.4%2034.6%20L43.3%2047.5%20L32%2040.7%20L20.7%2047.5%20L23.6%2034.6%20L13.7%2025.9%20L26.8%2024.6%20Z%22%0A%20%20%20%20%20%20%20%20fill%3D%22url%28%23starGrad%29%22%20stroke%3D%22%23fdf8f2%22%20stroke-width%3D%220.8%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -99,6 +100,10 @@
     font-family: 'Playfair Display', serif;
     font-size: 20px; font-weight: 700; color: #fff;
     flex-shrink: 0;
+    overflow: hidden;
+  }
+  .logo-circle img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
   }
   .logo-text .hotel-name {
     font-family: 'Playfair Display', serif;
@@ -265,14 +270,6 @@
     font-size:22px; margin-bottom:8px;
   }
   .settings-modal-box p { color:var(--brown); font-size:14px; line-height:1.7; margin-bottom:18px; }
-  .settings-modal-box label { display:block; font-size:14px; color:var(--brown); margin-bottom:6px; font-weight:600; }
-  .settings-modal-box input[type="url"] {
-    width:100%; padding:11px 14px; border-radius:8px;
-    border:1.5px solid var(--tan); background:var(--cream);
-    color:var(--very-dark); font-size:15px; font-family:inherit;
-    margin-bottom:14px; outline:none; transition:border-color 0.2s;
-  }
-  .settings-modal-box input[type="url"]:focus { border-color:var(--crimson); }
   .settings-actions { display:flex; gap:10px; flex-wrap:wrap; }
   .save-btn { padding:10px 24px; background:var(--crimson); color:#fff; border:none; border-radius:8px; font-size:16px; cursor:pointer; font-family:inherit; font-weight: 500; }
   .save-btn:hover { background:var(--crimson-dark); }
@@ -416,7 +413,7 @@
 <header>
   <div class="header-inner">
     <div class="logo">
-      <div class="logo-circle">R</div>
+      <div class="logo-circle"><img src="001.png" alt="Resta Port Said"></div>
       <div class="logo-text">
         <div class="hotel-name">RESTA PORT SAID</div>
         <div class="who-care">WHO CARE · DASHBOARD</div>
@@ -425,10 +422,6 @@
     <div class="header-nav">
       <button class="action-btn" onclick="loadCloudDataAndRender()" style="padding:6px 14px;font-size:15px;border-radius:20px;">🔄 تحديث</button>
       <button class="action-btn" onclick="exportCSV()" style="padding:6px 14px;font-size:15px;border-radius:20px;background:var(--brown);">📥 CSV</button>
-      <button id="dashCopyBtn" class="action-btn" onclick="copyAppsScriptCode()" style="padding:6px 14px;font-size:15px;border-radius:20px;background:var(--gold);gap:6px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        Script
-      </button>
       <button class="icon-btn" onclick="toggleDark()" title="Dark Mode">🌙</button>
     </div>
   </div>
@@ -439,14 +432,6 @@
   <!-- ══════════ DASHBOARD ══════════ -->
   <div class="admin-topbar">
     <h2>📊 لوحة التحكم الإدارية</h2>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="action-btn" onclick="loadCloudDataAndRender()">🔄 تحديث البيانات السحابية</button>
-      <button class="action-btn" onclick="exportCSV()">📥 تصدير CSV</button>
-      <button id="dashCopyBtn2" class="action-btn" onclick="copyAppsScriptCode()" style="background:var(--gold);display:inline-flex;align-items:center;gap:6px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        نسخ كود Script
-      </button>
-    </div>
   </div>
 
   <!-- KPIs -->
@@ -665,10 +650,6 @@ function openSettings() {
 }
 function closeSettings() {
   document.getElementById('settingsModal').classList.remove('open');
-}
-function saveScriptUrl() {
-  closeSettings();
-  loadCloudDataAndRender();
 }
 
 // ── FETCH LIVE DATA (Firebase Firestore) ──────────────────────────
@@ -1042,10 +1023,8 @@ async function exportDetailImage() {
 }
 
 // ── (Firebase - لا يوجد Apps Script) ─────────────────────────────
-const APPS_SCRIPT_CODE = ``; // stub
 
 
-function copyAppsScriptCode() { /* لم يعد مستخدماً مع Firebase */ }
 </script>
 </body>
 </html>
