@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حجز بوكس الإفطار</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2541;
+    --ink-2:#141b30;
+    --parchment:#f7f1e6;
+    --card:#fffdf8;
+    --gold:#b8863b;
+    --gold-light:#e4c98a;
+    --clay:#a8543e;
+    --sage:#5f7a5f;
+    --line:#e4dcc9;
+    --muted:#7c7566;
+    --text:#26221a;
+    --ok:#3f6b4f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 20% -10%, #24304f 0%, transparent 60%),
+      linear-gradient(180deg, var(--ink) 0%, var(--ink) 220px, var(--parchment) 220px, var(--parchment) 100%);
+    font-family:'Cairo', sans-serif;
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:0 0 60px;
+  }
+  .wrap{width:100%;max-width:520px;padding:0 18px;}
+
+  header{
+    text-align:center;
+    padding:38px 10px 26px;
+    color:var(--parchment);
+  }
+  header .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    letter-spacing:.3px;
+    color:var(--gold-light);
+    background:rgba(184,134,59,.12);
+    border:1px solid rgba(184,134,59,.4);
+    padding:6px 14px;
+    border-radius:20px;
+    margin-bottom:14px;
+  }
+  header h1{
+    font-family:'Amiri', serif;
+    font-size:32px;
+    font-weight:700;
+    margin:0 0 6px;
+  }
+  header p{
+    margin:0;
+    color:#c7cde0;
+    font-size:14.5px;
+  }
+
+  .status-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px 22px;
+    margin-top:-38px;
+    box-shadow:0 18px 40px -20px rgba(28,37,65,.35);
+  }
+
+  .policy-notice{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px 18px;
+    margin:16px 0 -14px;
+    position:relative;
+    z-index:1;
+  }
+  .policy-notice .pn-row{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    font-size:13.5px;
+    line-height:1.7;
+    color:var(--text);
+  }
+  .policy-notice .pn-row + .pn-row{
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px dashed var(--line);
+  }
+  .policy-notice .pn-icon{font-size:16px;flex-shrink:0;line-height:1.5;}
+  .policy-notice b{color:var(--ink);}
+  .policy-notice .pn-row.pn-warning b{color:var(--clay);}
+  .status-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px 12px;
+  }
+  .status-row + .status-row{
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px dashed var(--line);
+  }
+  .status-label{font-size:13px;color:var(--muted);}
+  .status-value{font-size:17px;font-weight:700;color:var(--ink);}
+  .countdown{
+    font-family:'Cairo',sans-serif;
+    font-weight:800;
+    font-size:19px;
+    color:var(--clay);
+    direction:ltr;
+    letter-spacing:.5px;
+  }
+  .countdown.warn{color:#b23b3b;}
+
+  form{margin-top:22px;}
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:8px;
+    color:var(--ink);
+  }
+  .field input[type=text],
+  .field input[type=number],
+  .field select,
+  .field textarea{
+    width:100%;
+    padding:13px 14px;
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    background:var(--card);
+    font-family:'Cairo',sans-serif;
+    font-size:16px;
+    color:var(--text);
+    outline:none;
+    transition:border-color .15s;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{border-color:var(--gold);}
+  .field textarea{resize:vertical;min-height:64px;}
+  .field select{
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1 1l6 6 6-6' stroke='%237c7566' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;
+    background-position:left 14px center;
+    padding-left:36px;
+  }
+  .hint{font-size:12.5px;color:var(--muted);margin-top:6px;}
+
+  .single-box-card{
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    background:linear-gradient(180deg, #fffaf0, #fff8ee);
+    padding:16px 18px;
+  }
+  .single-box-card ul{
+    margin:0;
+    padding:0;
+    list-style:none;
+    columns:2;
+    column-gap:18px;
+  }
+  .single-box-card li{
+    font-size:14px;
+    color:var(--text);
+    padding:5px 0;
+    break-inside:avoid;
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+  }
+  .single-box-card li::before{
+    content:"🥐";
+    font-size:12px;
+  }
+  @media (max-width:420px){
+    .single-box-card ul{columns:1;}
+  }
+
+  .stepper{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .stepper button{
+    width:44px;height:44px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    font-size:19px;
+    font-weight:700;
+    color:var(--ink);
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .stepper button:active{background:var(--parchment);}
+  .stepper .count{
+    min-width:36px;
+    text-align:center;
+    font-size:19px;
+    font-weight:800;
+    color:var(--ink);
+  }
+
+  .submit-btn{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(180deg, #22304f, var(--ink-2));
+    color:var(--gold-light);
+    font-family:'Cairo',sans-serif;
+    font-weight:800;
+    font-size:16px;
+    cursor:pointer;
+    box-shadow:0 12px 24px -10px rgba(20,27,48,.5);
+    transition:opacity .15s, transform .1s;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .submit-btn:active{transform:scale(.99);}
+  .submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  .notice{
+    display:none;
+    margin-top:16px;
+    padding:13px 15px;
+    border-radius:12px;
+    font-size:14px;
+    line-height:1.6;
+  }
+  .notice.show{display:block;}
+  .notice.success{background:#eef5ef;color:var(--ok);border:1px solid #cde3d1;}
+  .notice.error{background:#fbecec;color:#a13a3a;border:1px solid #f0cfcf;}
+  .notice.info{background:#eef1f8;color:#33436e;border:1px solid #d6ddef;}
+
+  .existing-flag{
+    display:none;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--sage);
+    background:#eef3ee;
+    border:1px solid #d6e4d6;
+    padding:9px 12px;
+    border-radius:10px;
+    margin-top:8px;
+  }
+  .existing-flag.show{display:flex;}
+
+  footer{
+    text-align:center;
+    margin-top:28px;
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  .closed-banner{
+    display:none;
+    background:#fdf3e6;
+    border:1px solid #f0dcb6;
+    color:#8a5a15;
+    padding:14px 16px;
+    border-radius:14px;
+    margin-top:22px;
+    font-size:14px;
+    line-height:1.7;
+    text-align:center;
+  }
+  .closed-banner.show{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="badge">🥐 خدمة ضيوف الفندق</div>
+    <h1>حجز بوكس الإفطار</h1>
+  </header>
+
+  <div class="status-card">
+    <div class="status-row">
+      <span class="status-label">تاريخ التسليم</span>
+      <span class="status-value" id="targetDateLabel">—</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label" id="countdownRowLabel">يُغلق الحجز خلال</span>
+      <span class="countdown" id="countdownLabel">—</span>
+    </div>
+  </div>
+
+  <div class="policy-notice">
+    <div class="pn-row">
+      <span class="pn-icon">⏰</span>
+      <span>باب الحجز مفتوح يوميًا من الساعة <b>11:00 صباحًا</b> وحتى الساعة <b>1:00 صباحًا</b> من اليوم التالي، ويكون التوصيل صباح اليوم الذي يلي الحجز مباشرة.</span>
+    </div>
+    <div class="pn-row pn-warning">
+      <span class="pn-icon">ℹ️</span>
+      <span>عند حجز <b>بوكس الإفطار</b>، لا يحق للنزيل استخدام خدمة <b>البوفيه المفتوح</b> في نفس اليوم.</span>
+    </div>
+  </div>
+
+  <div class="closed-banner" id="closedBanner">
+    الحجز مغلق حاليًا. باب الحجز يُفتح يوميًا من الساعة 11:00 صباحًا وحتى الساعة 1:00 صباحًا من اليوم التالي.
+  </div>
+
+  <form id="bookingForm">
+    <div class="field">
+      <label for="roomNumber">رقم الغرفة</label>
+      <input type="text" id="roomNumber" inputmode="numeric" placeholder="مثال: 214" required>
+      <div class="existing-flag" id="existingFlag">✓ لديك حجز مسجل لهذا اليوم — يمكنك تعديله وإعادة الإرسال</div>
+    </div>
+
+    <div class="field">
+      <label for="guestName">اسم النزيل</label>
+      <input type="text" id="guestName" placeholder="الاسم بالكامل" required>
+    </div>
+
+    <div class="field">
+      <label>محتويات بوكس الإفطار</label>
+      <div class="single-box-card">
+        <ul>
+          <li>جبن رومي</li>
+          <li>جبنة بيضاء</li>
+          <li>جبن شيدر</li>
+          <li>دانش، كرواسان، إنجليش كيك</li>
+          <li>بيض مسلوق</li>
+          <li>زبادي</li>
+          <li>فاكهة الموسم</li>
+          <li>عيش كايزر + عيش شامي</li>
+          <li>سلطة خضراء طازجة</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>عدد البوكسات</label>
+      <div class="stepper">
+        <button type="button" id="minusBtn">−</button>
+        <span class="count" id="qtyCount">1</span>
+        <button type="button" id="plusBtn">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="deliveryTime">ساعة التسليم</label>
+      <select id="deliveryTime" required></select>
+      <div class="hint">التسليم صباح اليوم التالي، اختر الموعد المناسب لك ضمن ساعات الخدمة</div>
+    </div>
+
+    <div class="field">
+      <label for="notes">ملاحظات (اختياري)</label>
+      <textarea id="notes" placeholder="حساسية من مكون معين، طلب خاص..."></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">تأكيد الحجز</button>
+
+    <div class="notice" id="notice"></div>
+  </form>
+
+  <footer>سيتم تجهيز البوكس وتسليمه صباح يوم التسليم المذكور أعلاه</footer>
+</div>
+
+<!-- ============================================================
+     Firebase — استبدل القيم التالية ببيانات مشروعك على Firebase
+     Firebase Console → Project settings → Your apps → SDK setup
+     ============================================================ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCWHvSIgejpa-nviCauNefRhH0bMwkj2UY",
+    authDomain: "hotel-breakfast-booking.firebaseapp.com",
+    projectId: "hotel-breakfast-booking",
+    storageBucket: "hotel-breakfast-booking.firebasestorage.app",
+    messagingSenderId: "195033849524",
+    appId: "1:195033849524:web:b104ab36cae329e488c1e1",
+    measurementId: "G-80WWMVTY5J"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const COLLECTION = "breakfast_bookings";
+</script>
+
+<script>
+  // ---------- منطق نافذة الحجز ----------
+  // القاعدة: باب الحجز يُفتح يوميًا الساعة 11:00 صباحًا ويظل مفتوحًا حتى الساعة 1:00 صباحًا
+  // من اليوم التالي مباشرة (نافذة مدتها 14 ساعة). أي حجز خلال هذه النافذة يكون
+  // للتوصيل صباح اليوم الذي يلي يوم فتح النافذة. بين الساعة 1 و11 صباحًا الحجز مغلق.
+  const WINDOW_OPEN_HOUR = 11;  // 11:00 صباحًا
+  const WINDOW_CLOSE_HOUR = 1;  // 1:00 صباحًا (اليوم التالي)
+
+  function getBookingWindow(now = new Date()) {
+    const h = now.getHours();
+
+    // تحديد اليوم اللي فتحت فيه النافذة الحالية (أو التي ستفتح لاحقًا اليوم)
+    const windowStartDay = new Date(now);
+    if (h < WINDOW_CLOSE_HOUR) {
+      // بين منتصف الليل والساعة 1 صباحًا: النافذة اللي فتحت أمس لسه شغالة
+      windowStartDay.setDate(windowStartDay.getDate() - 1);
+    }
+    windowStartDay.setHours(WINDOW_OPEN_HOUR, 0, 0, 0);
+
+    const open = new Date(windowStartDay);
+    const close = new Date(windowStartDay);
+    close.setDate(close.getDate() + 1);
+    close.setHours(WINDOW_CLOSE_HOUR, 0, 0, 0);
+
+    const target = new Date(windowStartDay);
+    target.setDate(target.getDate() + 1);
+    target.setHours(0, 0, 0, 0);
+
+    const isOpen = now >= open && now < close;
+
+    return { target, open, close, isOpen };
+  }
+
+  function formatDateAr(d) {
+    return d.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+
+  function dateKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  let currentWindow = getBookingWindow();
+  let isSubmitting = false;
+
+  function refreshStatus() {
+    currentWindow = getBookingWindow();
+    document.getElementById('targetDateLabel').textContent = formatDateAr(currentWindow.target);
+
+    const now = new Date();
+    const rowLabel = document.getElementById('countdownRowLabel');
+    const label = document.getElementById('countdownLabel');
+    const banner = document.getElementById('closedBanner');
+    const submitBtn = document.getElementById('submitBtn');
+
+    let diff;
+    if (currentWindow.isOpen) {
+      rowLabel.textContent = 'يُغلق الحجز خلال';
+      diff = currentWindow.close - now;
+      banner.classList.remove('show');
+      if (!isSubmitting) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'تأكيد الحجز';
+      }
+    } else {
+      rowLabel.textContent = 'يُفتح الحجز خلال';
+      diff = currentWindow.open - now;
+      banner.classList.add('show');
+      if (!isSubmitting) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'الحجز مغلق حاليًا';
+      }
+    }
+
+    if (diff < 0) diff = 0;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    label.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    label.classList.toggle('warn', currentWindow.isOpen && diff < 30 * 60000);
+
+    // تحقق من وجود حجز سابق لنفس الغرفة إن كان الحقل مملوءًا
+    checkExisting();
+  }
+
+  setInterval(refreshStatus, 1000);
+  refreshStatus();
+
+  // ---------- ساعات التسليم ----------
+  // عدّل الساعتين التاليتين حسب مواعيد خدمة الفندق الفعلية
+  const DELIVERY_START_HOUR = 6;   // 6:00 صباحًا
+  const DELIVERY_END_HOUR = 10.5;  // 10:30 صباحًا
+  const DELIVERY_STEP_MINUTES = 30;
+
+  function formatTimeAr(hour24, minute) {
+    const period = hour24 < 12 ? 'ص' : 'م';
+    let h = hour24 % 12;
+    if (h === 0) h = 12;
+    return `${h}:${String(minute).padStart(2, '0')} ${period}`;
+  }
+
+  function populateDeliveryTimes() {
+    const select = document.getElementById('deliveryTime');
+    select.innerHTML = '';
+    let totalMinutes = DELIVERY_START_HOUR * 60;
+    const endMinutes = DELIVERY_END_HOUR * 60;
+    while (totalMinutes <= endMinutes) {
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
+      const value = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      const opt = document.createElement('option');
+      opt.value = value;
+      opt.textContent = formatTimeAr(h, m);
+      select.appendChild(opt);
+      totalMinutes += DELIVERY_STEP_MINUTES;
+    }
+  }
+  populateDeliveryTimes();
+
+  // ---------- عدّاد الكمية ----------
+  let qty = 1;
+  const qtyLabel = document.getElementById('qtyCount');
+  document.getElementById('plusBtn').addEventListener('click', () => {
+    if (qty < 9) { qty++; qtyLabel.textContent = qty; }
+  });
+  document.getElementById('minusBtn').addEventListener('click', () => {
+    if (qty > 1) { qty--; qtyLabel.textContent = qty; }
+  });
+
+  // ---------- التحقق من حجز سابق لنفس الغرفة/اليوم ----------
+  const roomInput = document.getElementById('roomNumber');
+  let lastCheckedKey = "";
+
+  async function checkExisting() {
+    const room = roomInput.value.trim();
+    const key = room + "_" + dateKey(currentWindow.target);
+    if (!room || key === lastCheckedKey) return;
+    lastCheckedKey = key;
+
+    const flag = document.getElementById('existingFlag');
+    try {
+      const doc = await db.collection(COLLECTION).doc(key).get();
+      if (doc.exists) {
+        const data = doc.data();
+        document.getElementById('guestName').value = data.guestName || "";
+        qty = data.quantity || 1;
+        qtyLabel.textContent = qty;
+        document.getElementById('notes').value = data.notes || "";
+        if (data.deliveryTime) {
+          document.getElementById('deliveryTime').value = data.deliveryTime;
+        }
+        flag.classList.add('show');
+      } else {
+        flag.classList.remove('show');
+      }
+    } catch (err) {
+      console.error("تعذر التحقق من الحجز السابق:", err);
+    }
+  }
+  roomInput.addEventListener('blur', checkExisting);
+
+  // ---------- إرسال الحجز ----------
+  const form = document.getElementById('bookingForm');
+  const notice = document.getElementById('notice');
+
+  function showNotice(type, text) {
+    notice.className = "notice show " + type;
+    notice.textContent = text;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    notice.className = "notice";
+
+    const room = roomInput.value.trim();
+    const guestName = document.getElementById('guestName').value.trim();
+    const deliveryTime = document.getElementById('deliveryTime').value;
+    const notes = document.getElementById('notes').value.trim();
+
+    if (!room || !guestName) {
+      showNotice('error', 'من فضلك أدخل رقم الغرفة واسم النزيل.');
+      return;
+    }
+
+    currentWindow = getBookingWindow();
+    if (!currentWindow.isOpen) {
+      showNotice('error', 'عذرًا، تم إغلاق باب الحجز للتو. يُفتح يوميًا من الساعة 11:00 صباحًا وحتى الساعة 1:00 صباحًا — من فضلك أعد المحاولة فى الموعد التالي.');
+      return;
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
+    isSubmitting = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'جارٍ الحجز...';
+
+    const key = room + "_" + dateKey(currentWindow.target);
+    const payload = {
+      roomNumber: room,
+      guestName: guestName,
+      quantity: qty,
+      deliveryTime: deliveryTime,
+      notes: notes,
+      deliveryDate: dateKey(currentWindow.target),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+      await db.collection(COLLECTION).doc(key).set(payload, { merge: true });
+      showNotice('success', `تم تأكيد الحجز ✓ — ${qty} بوكس إفطار، ليصلك الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} إلى الغرفة ${room}.`);
+      lastCheckedKey = "";
+      checkExisting();
+    } catch (err) {
+      console.error(err);
+      showNotice('error', 'حدث خطأ أثناء إرسال الحجز. من فضلك حاول مرة أخرى.');
+    } finally {
+      isSubmitting = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'تأكيد الحجز';
+    }
+  });
+</script>
+</body>
+</html>
