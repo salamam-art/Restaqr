@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة حجوزات بوكس الإفطار — الموظفين</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2541;
+    --parchment:#f4f1ea;
+    --card:#ffffff;
+    --gold:#b8863b;
+    --clay:#a8543e;
+    --sage:#3f6b4f;
+    --line:#e2ddd0;
+    --muted:#726c5e;
+    --text:#22201a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Cairo', sans-serif;
+    background:var(--parchment);
+    color:var(--text);
+    min-height:100vh;
+  }
+  header{
+    background:var(--ink);
+    color:#f4f1ea;
+    padding:20px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+  header h1{
+    font-size:20px;
+    margin:0;
+    font-weight:800;
+  }
+  .controls{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .controls label{font-size:13px;color:#c7cde0;}
+  .current-date-label{
+    padding:9px 14px;
+    border-radius:10px;
+    border:1px solid #3a4568;
+    background:#242f4d;
+    color:#fff;
+    font-family:'Cairo',sans-serif;
+    font-size:14px;
+    font-weight:700;
+  }
+  .btn{
+    padding:9px 16px;
+    border-radius:10px;
+    border:1px solid #3a4568;
+    background:#242f4d;
+    color:#f4f1ea;
+    font-family:'Cairo',sans-serif;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn:hover{background:#2c395c;}
+  .btn.gold{
+    background:var(--gold);
+    border-color:var(--gold);
+    color:#221a0c;
+  }
+
+  main{max-width:1100px;margin:0 auto;padding:22px 18px 60px;}
+
+  .summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(150px,1fr));
+    gap:12px;
+    margin-bottom:22px;
+  }
+  .summary .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+    text-align:center;
+  }
+  .summary .card .num{font-size:28px;font-weight:800;color:var(--ink);}
+  .summary .card .lbl{font-size:12.5px;color:var(--muted);margin-top:4px;}
+  .summary .card.delivered .num{color:var(--sage);}
+
+  .contents-panel{margin-bottom:22px;}
+  .contents-card{
+    background:var(--card);
+    border:1.5px solid var(--line);
+    border-top:4px solid var(--gold);
+    border-radius:16px;
+    padding:18px 20px;
+  }
+  .contents-card h3{
+    margin:0 0 12px;
+    font-size:15.5px;
+    font-weight:800;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .contents-card ul{
+    margin:0;
+    padding:0;
+    list-style:none;
+    columns:3;
+    column-gap:18px;
+  }
+  .contents-card li{
+    font-size:13.5px;
+    color:var(--text);
+    padding:5px 0;
+    break-inside:avoid;
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+  }
+  .contents-card li::before{
+    content:"—";
+    color:var(--muted);
+  }
+
+  @media (max-width: 700px){
+    .contents-card ul{columns:1;}
+  }
+
+  .toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .toolbar input[type=text]{
+    padding:10px 14px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    font-family:'Cairo',sans-serif;
+    font-size:16px;
+    min-width:220px;
+  }
+  .filter-chips{display:flex;gap:8px;}
+  .chip{
+    padding:8px 14px;
+    border-radius:20px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    font-size:13px;
+    font-weight:700;
+    color:var(--muted);
+    cursor:pointer;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .chip.active{border-color:var(--ink);color:var(--ink);background:#eceafc22;}
+
+  .table-wrap{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+  }
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:right;
+    font-size:12.5px;
+    color:var(--muted);
+    text-transform:none;
+    padding:14px 16px;
+    border-bottom:1.5px solid var(--line);
+    background:#faf8f3;
+    white-space:nowrap;
+  }
+  tbody td{
+    padding:14px 16px;
+    border-bottom:1px solid var(--line);
+    font-size:14.5px;
+    vertical-align:middle;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.delivered{background:#f4faf5;}
+  tbody tr.delivered td{color:#7c8a7f;}
+  .room-cell{font-weight:800;color:var(--ink);font-size:16px;}
+  .time-cell{font-weight:700;color:var(--ink);direction:ltr;text-align:right;}
+  .notes-cell{color:var(--muted);font-size:13.5px;max-width:220px;}
+  .qty-cell{font-weight:800;text-align:center;}
+  .deliver-toggle{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:700;
+    color:var(--sage);
+  }
+  .deliver-toggle input{width:18px;height:18px;cursor:pointer;}
+
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--muted);
+  }
+  .empty-state .big{font-size:40px;margin-bottom:10px;}
+
+  .loading-row{text-align:center;padding:40px;color:var(--muted);}
+
+  @media (max-width: 760px){
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    table{min-width:700px;}
+  }
+
+  /* ---------- كروت الموبايل ---------- */
+  .mobile-cards{display:none;flex-direction:column;gap:12px;}
+  .booking-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px 18px;
+    transition:border-color .15s;
+  }
+  .booking-card.delivered{
+    background:#f4faf5;
+    border-color:#c5dfc8;
+  }
+  .booking-card-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .booking-card-room{
+    font-size:22px;
+    font-weight:800;
+    color:var(--ink);
+  }
+  .booking-card-time{
+    font-size:15px;
+    font-weight:700;
+    color:var(--gold);
+    direction:ltr;
+  }
+  .booking-card-body{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px 14px;
+    margin-bottom:12px;
+  }
+  .booking-card-field{}
+  .booking-card-field .field-label{
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:2px;
+  }
+  .booking-card-field .field-value{
+    font-size:14px;
+    font-weight:700;
+    color:var(--text);
+  }
+  .booking-card-notes{
+    font-size:13px;
+    color:var(--muted);
+    background:#faf8f3;
+    border-radius:8px;
+    padding:8px 10px;
+    margin-bottom:12px;
+  }
+  .booking-card-footer{
+    border-top:1px solid var(--line);
+    padding-top:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .deliver-toggle-card{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:700;
+    color:var(--sage);
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .deliver-toggle-card input{
+    width:22px;
+    height:22px;
+    cursor:pointer;
+    accent-color:var(--sage);
+  }
+
+  @media (max-width: 760px){
+    .table-wrap{display:none;}
+    .mobile-cards{display:flex;}
+  }
+
+  @media print{
+    header, .toolbar, .filter-chips, .tabs{display:none !important;}
+    body{background:#fff;}
+    main{padding:0;max-width:100%;}
+    .table-wrap{border:none;}
+    .summary{margin-bottom:14px;}
+  }
+
+  /* ---------- تبويبات (الحجوزات / الأرشيف) ---------- */
+  .tabs{
+    display:flex;
+    gap:8px;
+    max-width:1100px;
+    margin:18px auto 0;
+    padding:0 18px;
+  }
+  .tab-btn{
+    padding:10px 20px;
+    border-radius:12px 12px 0 0;
+    border:1.5px solid var(--line);
+    border-bottom:none;
+    background:#eee9db;
+    color:var(--muted);
+    font-family:'Cairo',sans-serif;
+    font-size:14.5px;
+    font-weight:700;
+    cursor:pointer;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .tab-btn.active{
+    background:var(--card);
+    color:var(--ink);
+    border-color:var(--line);
+  }
+
+  /* ---------- الأرشيف ---------- */
+  .archive-day-card{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+    margin-bottom:10px;
+    cursor:pointer;
+    transition:border-color .15s;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .archive-day-card:hover{border-color:var(--gold);}
+  .ad-date{font-weight:800;color:var(--ink);font-size:15px;}
+  .ad-stats{
+    display:flex;
+    gap:14px;
+    font-size:13px;
+    color:var(--muted);
+    flex-wrap:wrap;
+  }
+  .ad-stats .ad-delivered{color:var(--sage);font-weight:700;}
+  .ad-arrow{font-size:22px;color:var(--muted);}
+
+  .back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 14px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    color:var(--ink);
+    font-family:'Cairo',sans-serif;
+    font-size:13.5px;
+    font-weight:700;
+    cursor:pointer;
+    margin-bottom:16px;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .back-btn:hover{background:#faf8f3;}
+
+  .status-badge{
+    display:inline-block;
+    padding:5px 12px;
+    border-radius:20px;
+    font-size:12.5px;
+    font-weight:700;
+  }
+  .status-badge.ok{background:#e8f3ea;color:var(--sage);}
+  .status-badge.pending{background:#f6efe4;color:var(--gold);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍳 حجوزات بوكس الإفطار</h1>
+  <div class="controls" id="currentControls">
+    <span class="current-date-label" id="currentDateLabel">—</span>
+    <button class="btn gold" id="printBtn">طباعة الكل</button>
+    <button class="btn" id="shareBtn">مشاركة كصورة</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab-btn active" id="tabCurrent">الحجوزات</div>
+  <div class="tab-btn" id="tabArchive">🗂️ الأرشيف</div>
+</div>
+
+<main>
+  <section id="currentSection">
+    <div class="summary" id="summary">
+      <div class="card"><div class="num" id="totalRooms">—</div><div class="lbl">عدد الغرف</div></div>
+      <div class="card"><div class="num" id="totalBoxes">—</div><div class="lbl">إجمالي البوكسات</div></div>
+      <div class="card delivered"><div class="num" id="totalDelivered">—</div><div class="lbl">تم تسليمه</div></div>
+    </div>
+
+    <div class="contents-panel" id="contentsPanel"></div>
+
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="بحث برقم الغرفة أو اسم النزيل...">
+      <div class="filter-chips">
+        <div class="chip active" data-filter="all">الكل</div>
+        <div class="chip" data-filter="pending">غير مسلَّم</div>
+        <div class="chip" data-filter="delivered">تم التسليم</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>الغرفة</th>
+            <th>اسم النزيل</th>
+            <th>الكمية</th>
+            <th>ساعة التسليم</th>
+            <th>ملاحظات</th>
+            <th>الحالة</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="7" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- كروت الموبايل -->
+    <div class="mobile-cards" id="mobileCards"></div>
+  </section>
+
+  <section id="archiveSection" style="display:none;">
+    <div id="archiveListView">
+      <p style="color:var(--muted);font-size:13.5px;margin:0 0 14px;">
+        الأيام التي انتهى تسليمها تنتقل هنا تلقائيًا. اضغط على أي يوم لمراجعة تفاصيله.
+      </p>
+      <div id="archiveListBody">
+        <div class="loading-row">جارٍ تحميل الأرشيف...</div>
+      </div>
+    </div>
+
+    <div id="archiveDetailView" style="display:none;">
+      <button class="back-btn" id="archiveBackBtn">→ رجوع لقائمة الأرشيف</button>
+      <h2 id="archiveDetailTitle" style="margin:0 0 14px;font-size:18px;color:var(--ink);"></h2>
+      <div class="summary">
+        <div class="card"><div class="num" id="archTotalRooms">—</div><div class="lbl">عدد الغرف</div></div>
+        <div class="card"><div class="num" id="archTotalBoxes">—</div><div class="lbl">إجمالي البوكسات</div></div>
+        <div class="card delivered"><div class="num" id="archTotalDelivered">—</div><div class="lbl">تم تسليمه</div></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>الغرفة</th>
+              <th>اسم النزيل</th>
+              <th>الكمية</th>
+              <th>ساعة التسليم</th>
+              <th>ملاحظات</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody id="archiveTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCWHvSIgejpa-nviCauNefRhH0bMwkj2UY",
+    authDomain: "hotel-breakfast-booking.firebaseapp.com",
+    projectId: "hotel-breakfast-booking",
+    storageBucket: "hotel-breakfast-booking.firebasestorage.app",
+    messagingSenderId: "195033849524",
+    appId: "1:195033849524:web:b104ab36cae329e488c1e1",
+    measurementId: "G-80WWMVTY5J"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const COLLECTION = "breakfast_bookings";
+</script>
+
+<script>
+  // ---------- تحديد اليوم النشط حاليًا للوحة الموظفين ----------
+  // اليوم الحالي يفضل "نشطًا" حتى الساعة 3:00 مساءً (بعد انتهاء التسليم بوقت كافٍ، آخره 10:30 صباحًا)
+  // بعد الساعة 3 مساءً يتم اعتباره منتهيًا وينتقل تلقائيًا للأرشيف، ويصبح اليوم التالي هو النشط
+  const ARCHIVE_HOUR = 15; // 3:00 مساءً
+  function getUpcomingDeliveryDate(now = new Date()) {
+    const target = new Date(now);
+    if (now.getHours() >= ARCHIVE_HOUR) target.setDate(target.getDate() + 1);
+    target.setHours(0, 0, 0, 0);
+    return target;
+  }
+
+  function toKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function keyToDateInputValue(key) { return key; }
+
+  function formatDateArFromKey(key) {
+    const [y, m, d] = key.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    return date.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  let currentDateKey = toKey(getUpcomingDeliveryDate());
+  document.getElementById('currentDateLabel').textContent = formatDateArFromKey(currentDateKey);
+
+  // كل دقيقة: تحقّق هل اليوم النشط اتغيّر (يعني عدّينا الساعة 3 مساءً)
+  // لو اتغيّر، اليوم القديم بيبقى متاح فورًا فى الأرشيف واليوم الجديد بيتحدّث هنا تلقائيًا
+  setInterval(() => {
+    const freshKey = toKey(getUpcomingDeliveryDate());
+    if (freshKey !== currentDateKey) {
+      currentDateKey = freshKey;
+      document.getElementById('currentDateLabel').textContent = formatDateArFromKey(currentDateKey);
+      subscribe();
+      if (archiveSubscribed) subscribeArchive();
+    }
+  }, 60000);
+
+  let savedFilterBeforePrint = null;
+  let savedSearchBeforePrint = null;
+
+  document.getElementById('printBtn').addEventListener('click', () => {
+    savedFilterBeforePrint = currentFilter;
+    savedSearchBeforePrint = document.getElementById('searchInput').value;
+    currentFilter = 'all';
+    searchTerm = '';
+    document.getElementById('searchInput').value = '';
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.filter === 'all'));
+    render();
+    window.print();
+  });
+
+  window.addEventListener('afterprint', () => {
+    if (savedFilterBeforePrint === null) return;
+    currentFilter = savedFilterBeforePrint;
+    searchTerm = savedSearchBeforePrint;
+    document.getElementById('searchInput').value = savedSearchBeforePrint;
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.filter === currentFilter));
+    render();
+    savedFilterBeforePrint = null;
+  });
+
+  // ---------- مكونات بوكس الإفطار (نوع واحد) — عدّل القائمة حسب مطبخ الفندق ----------
+  const BOX_CONTENTS = {
+    label: 'بوكس الإفطار',
+    icon: '🥐',
+    items: [
+      'جبن رومي',
+      'جبنة بيضاء',
+      'جبن شيدر',
+      'دانش، كرواسان، إنجليش كيك',
+      'بيض مسلوق',
+      'زبادي',
+      'فاكهة الموسم',
+      'عيش كايزر + عيش شامي',
+      'سلطة خضراء طازجة'
+    ]
+  };
+
+  function renderContentsPanel() {
+    const panel = document.getElementById('contentsPanel');
+    panel.innerHTML = `
+      <div class="contents-card single">
+        <h3>${BOX_CONTENTS.icon} ${BOX_CONTENTS.label} — المكونات كاملة</h3>
+        <ul>${BOX_CONTENTS.items.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
+      </div>
+    `;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  renderContentsPanel();
+
+  // ---------- بيانات ----------
+  let allBookings = [];
+  let unsubscribe = null;
+  let currentFilter = 'all';
+  let searchTerm = '';
+
+  function subscribe() {
+    if (unsubscribe) unsubscribe();
+    document.getElementById('tableBody').innerHTML =
+      '<tr><td colspan="6" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>';
+
+    unsubscribe = db.collection(COLLECTION)
+      .where('deliveryDate', '==', currentDateKey)
+      .onSnapshot(snap => {
+        allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        allBookings.sort((a, b) => (a.deliveryTime || '').localeCompare(b.deliveryTime || ''));
+        render();
+      }, err => {
+        console.error(err);
+        document.getElementById('tableBody').innerHTML =
+          '<tr><td colspan="6" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
+      });
+  }
+
+  function render() {
+    let rows = allBookings;
+    if (currentFilter === 'pending') rows = rows.filter(r => !r.delivered);
+    if (currentFilter === 'delivered') rows = rows.filter(r => r.delivered);
+    if (searchTerm) {
+      const q = searchTerm.trim().toLowerCase();
+      rows = rows.filter(r =>
+        (r.roomNumber || '').toLowerCase().includes(q) ||
+        (r.guestName || '').toLowerCase().includes(q)
+      );
+    }
+
+    // ملخص يُحسب دائمًا من كامل حجوزات اليوم (غير متأثر بالفلتر/البحث)
+    document.getElementById('totalRooms').textContent = allBookings.length;
+    document.getElementById('totalBoxes').textContent = allBookings.reduce((s, r) => s + (r.quantity || 0), 0);
+    document.getElementById('totalDelivered').textContent = allBookings.filter(r => r.delivered).length;
+
+    const body = document.getElementById('tableBody');
+    const mobileCards = document.getElementById('mobileCards');
+
+    if (rows.length === 0) {
+      body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div></td></tr>`;
+      mobileCards.innerHTML = `<div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div>`;
+      return;
+    }
+
+    // ---------- جدول الديسكتوب ----------
+    body.innerHTML = rows.map(r => `
+      <tr class="${r.delivered ? 'delivered' : ''}">
+        <td class="room-cell">${escapeHtml(r.roomNumber || '')}</td>
+        <td>${escapeHtml(r.guestName || '')}</td>
+        <td class="qty-cell">${r.quantity || 1}</td>
+        <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
+        <td class="notes-cell">${escapeHtml(r.notes || '—')}</td>
+        <td>
+          <label class="deliver-toggle">
+            <input type="checkbox" data-id="${r.id}" ${r.delivered ? 'checked' : ''}>
+            ${r.delivered ? 'تم التسليم' : 'تعليم كمُسلَّم'}
+          </label>
+        </td>
+      </tr>
+    `).join('');
+
+    // ---------- كروت الموبايل ----------
+    mobileCards.innerHTML = rows.map(r => `
+      <div class="booking-card ${r.delivered ? 'delivered' : ''}" data-id="${r.id}">
+        <div class="booking-card-header">
+          <div class="booking-card-room">🚪 ${escapeHtml(r.roomNumber || '—')}</div>
+          <div class="booking-card-time">🕐 ${escapeHtml(r.deliveryTime || '—')}</div>
+        </div>
+        <div class="booking-card-body">
+          <div class="booking-card-field">
+            <div class="field-label">اسم النزيل</div>
+            <div class="field-value">${escapeHtml(r.guestName || '—')}</div>
+          </div>
+          <div class="booking-card-field">
+            <div class="field-label">عدد البوكسات</div>
+            <div class="field-value">🧺 ${r.quantity || 1}</div>
+          </div>
+        </div>
+        ${r.notes ? `<div class="booking-card-notes">📝 ${escapeHtml(r.notes)}</div>` : ''}
+        <div class="booking-card-footer">
+          <span class="status-badge ${r.delivered ? 'ok' : 'pending'}">${r.delivered ? '✅ تم التسليم' : '⏳ لم يُسلَّم'}</span>
+          <label class="deliver-toggle-card">
+            <input type="checkbox" data-id="${r.id}" ${r.delivered ? 'checked' : ''}>
+            ${r.delivered ? 'تم التسليم' : 'تعليم كمُسلَّم'}
+          </label>
+        </div>
+      </div>
+    `).join('');
+
+    // ---------- تفعيل checkboxes في الجدول ----------
+    body.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', async (e) => {
+        const id = e.target.dataset.id;
+        const delivered = e.target.checked;
+        try {
+          await db.collection(COLLECTION).doc(id).update({
+            delivered: delivered,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } catch (err) {
+          console.error(err);
+          e.target.checked = !delivered;
+          alert('تعذّر تحديث حالة التسليم. حاول مرة أخرى.');
+        }
+      });
+    });
+
+    // ---------- تفعيل checkboxes في الكروت ----------
+    mobileCards.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', async (e) => {
+        const id = e.target.dataset.id;
+        const delivered = e.target.checked;
+        try {
+          await db.collection(COLLECTION).doc(id).update({
+            delivered: delivered,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } catch (err) {
+          console.error(err);
+          e.target.checked = !delivered;
+          alert('تعذّر تحديث حالة التسليم. حاول مرة أخرى.');
+        }
+      });
+    });
+  }
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    render();
+  });
+
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.dataset.filter;
+      render();
+    });
+  });
+
+  // ---------- مشاركة الحجوزات كصورة ----------
+  function buildShareCard() {
+    const rows = allBookings.slice().sort((a, b) => (a.deliveryTime || '').localeCompare(b.deliveryTime || ''));
+    const totalBoxes = rows.reduce((s, r) => s + (r.quantity || 0), 0);
+
+    const wrap = document.createElement('div');
+    wrap.style.cssText =
+      'position:fixed;top:-9999px;left:-9999px;width:720px;background:#ffffff;' +
+      'font-family:Cairo,sans-serif;direction:rtl;padding:32px;color:#22201a;';
+
+    wrap.innerHTML = `
+      <div style="text-align:center;margin-bottom:22px;">
+        <div style="font-size:23px;font-weight:800;color:#1c2541;">🍳 حجوزات بوكس الإفطار</div>
+        <div style="font-size:15px;color:#726c5e;margin-top:6px;">${formatDateArFromKey(currentDateKey)}</div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:14px;margin-bottom:24px;">
+        <div style="background:#f4f1ea;border-radius:12px;padding:12px 26px;text-align:center;">
+          <div style="font-size:22px;font-weight:800;color:#1c2541;">${rows.length}</div>
+          <div style="font-size:12px;color:#726c5e;">غرفة</div>
+        </div>
+        <div style="background:#f4f1ea;border-radius:12px;padding:12px 26px;text-align:center;">
+          <div style="font-size:22px;font-weight:800;color:#b8863b;">${totalBoxes}</div>
+          <div style="font-size:12px;color:#726c5e;">بوكس إفطار</div>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead>
+          <tr style="background:#f4f1ea;">
+            <th style="padding:10px;text-align:right;border-bottom:2px solid #e2ddd0;">الغرفة</th>
+            <th style="padding:10px;text-align:right;border-bottom:2px solid #e2ddd0;">النزيل</th>
+            <th style="padding:10px;text-align:center;border-bottom:2px solid #e2ddd0;">الكمية</th>
+            <th style="padding:10px;text-align:center;border-bottom:2px solid #e2ddd0;">الساعة</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td style="padding:9px 10px;border-bottom:1px solid #eee;font-weight:800;">${escapeHtml(r.roomNumber || '')}</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #eee;">${escapeHtml(r.guestName || '')}</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #eee;text-align:center;">${r.quantity || 1}</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #eee;text-align:center;direction:ltr;">${escapeHtml(r.deliveryTime || '—')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="margin-top:18px;text-align:center;font-size:11px;color:#a39c8c;">تم إنشاؤها تلقائيًا من نظام حجز بوكس الإفطار</div>
+    `;
+    return wrap;
+  }
+
+  document.getElementById('shareBtn').addEventListener('click', async () => {
+    const shareBtn = document.getElementById('shareBtn');
+    const originalLabel = shareBtn.textContent;
+    shareBtn.disabled = true;
+    shareBtn.textContent = 'جارٍ التجهيز...';
+
+    try {
+      if (allBookings.length === 0) {
+        alert('لا توجد حجوزات لهذا اليوم لمشاركتها.');
+        return;
+      }
+
+      const card = buildShareCard();
+      document.body.appendChild(card);
+      const canvas = await html2canvas(card, { scale: 2, backgroundColor: '#ffffff' });
+      document.body.removeChild(card);
+
+      canvas.toBlob(async (blob) => {
+        const fileName = `حجوزات-الافطار-${currentDateKey}.png`;
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'حجوزات بوكس الإفطار',
+              text: `حجوزات بوكس الإفطار — ${formatDateArFromKey(currentDateKey)}`
+            });
+          } catch (err) {
+            // المستخدم ألغى المشاركة — لا حاجة لأي إجراء
+          }
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          alert('تم تنزيل صورة الحجوزات. يمكنك الآن مشاركتها من معرض الصور على أي منصة تواصل.');
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error(err);
+      alert('تعذّر إنشاء الصورة. حاول مرة أخرى.');
+    } finally {
+      shareBtn.disabled = false;
+      shareBtn.textContent = originalLabel;
+    }
+  });
+
+  subscribe();
+
+  // ---------- الأرشيف: الأيام التي انتهى تسليمها ----------
+  // أي يوم أقدم من "يوم التسليم القادم" الحالي يُعتبر منتهيًا وينتقل للأرشيف تلقائيًا
+  let archiveSubscribed = false;
+  let archiveUnsubscribe = null;
+  let archiveAllBookings = [];
+  let archiveGroups = new Map();
+  let archiveDetailDate = null;
+
+  function subscribeArchive() {
+    const activeKey = toKey(getUpcomingDeliveryDate());
+    if (archiveUnsubscribe) archiveUnsubscribe();
+
+    archiveUnsubscribe = db.collection(COLLECTION)
+      .where('deliveryDate', '<', activeKey)
+      .onSnapshot(snap => {
+        archiveAllBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        archiveGroups = new Map();
+        archiveAllBookings.forEach(r => {
+          const key = r.deliveryDate;
+          if (!key) return;
+          if (!archiveGroups.has(key)) {
+            archiveGroups.set(key, { date: key, rooms: 0, boxes: 0, delivered: 0 });
+          }
+          const g = archiveGroups.get(key);
+          g.rooms += 1;
+          g.boxes += (r.quantity || 0);
+          if (r.delivered) g.delivered += 1;
+        });
+        renderArchiveList();
+        if (archiveDetailDate) renderArchiveDetail();
+      }, err => {
+        console.error(err);
+        document.getElementById('archiveListBody').innerHTML =
+          '<div class="loading-row">تعذّر تحميل الأرشيف. تأكد من قواعد Firestore.</div>';
+      });
+  }
+
+  function renderArchiveList() {
+    const listEl = document.getElementById('archiveListBody');
+    const days = Array.from(archiveGroups.values()).sort((a, b) => b.date.localeCompare(a.date));
+
+    if (days.length === 0) {
+      listEl.innerHTML = `<div class="empty-state"><div class="big">🗂️</div>لا توجد أيام مؤرشفة بعد</div>`;
+      return;
+    }
+
+    listEl.innerHTML = days.map(d => `
+      <div class="archive-day-card" data-date="${d.date}">
+        <div>
+          <div class="ad-date">${formatDateArFromKey(d.date)}</div>
+          <div class="ad-stats">
+            <span>${d.rooms} غرفة</span>
+            <span>${d.boxes} بوكس</span>
+            <span class="ad-delivered">${d.delivered}/${d.rooms} تم التسليم</span>
+          </div>
+        </div>
+        <div class="ad-arrow">‹</div>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('.archive-day-card').forEach(card => {
+      card.addEventListener('click', () => openArchiveDay(card.dataset.date));
+    });
+  }
+
+  function openArchiveDay(dateKey) {
+    archiveDetailDate = dateKey;
+    document.getElementById('archiveListView').style.display = 'none';
+    document.getElementById('archiveDetailView').style.display = 'block';
+    renderArchiveDetail();
+  }
+
+  document.getElementById('archiveBackBtn').addEventListener('click', () => {
+    archiveDetailDate = null;
+    document.getElementById('archiveDetailView').style.display = 'none';
+    document.getElementById('archiveListView').style.display = 'block';
+  });
+
+  function renderArchiveDetail() {
+    const rows = archiveAllBookings
+      .filter(r => r.deliveryDate === archiveDetailDate)
+      .sort((a, b) => (a.deliveryTime || '').localeCompare(b.deliveryTime || ''));
+
+    document.getElementById('archiveDetailTitle').textContent = formatDateArFromKey(archiveDetailDate);
+    document.getElementById('archTotalRooms').textContent = rows.length;
+    document.getElementById('archTotalBoxes').textContent = rows.reduce((s, r) => s + (r.quantity || 0), 0);
+    document.getElementById('archTotalDelivered').textContent = rows.filter(r => r.delivered).length;
+
+    const body = document.getElementById('archiveTableBody');
+    if (rows.length === 0) {
+      body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مسجّلة لهذا اليوم</div></td></tr>`;
+      return;
+    }
+
+    body.innerHTML = rows.map(r => `
+      <tr class="${r.delivered ? 'delivered' : ''}">
+        <td class="room-cell">${escapeHtml(r.roomNumber || '')}</td>
+        <td>${escapeHtml(r.guestName || '')}</td>
+        <td class="qty-cell">${r.quantity || 1}</td>
+        <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
+        <td class="notes-cell">${escapeHtml(r.notes || '—')}</td>
+        <td><span class="status-badge ${r.delivered ? 'ok' : 'pending'}">${r.delivered ? 'تم التسليم' : 'لم يُسلَّم'}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  // ---------- التبديل بين تبويب الحجوزات وتبويب الأرشيف ----------
+  function switchTab(tab) {
+    const isCurrent = tab === 'current';
+    document.getElementById('currentSection').style.display = isCurrent ? '' : 'none';
+    document.getElementById('archiveSection').style.display = isCurrent ? 'none' : '';
+    document.getElementById('currentControls').style.display = isCurrent ? '' : 'none';
+    document.getElementById('tabCurrent').classList.toggle('active', isCurrent);
+    document.getElementById('tabArchive').classList.toggle('active', !isCurrent);
+
+    if (!isCurrent && !archiveSubscribed) {
+      archiveSubscribed = true;
+      subscribeArchive();
+    }
+  }
+
+  document.getElementById('tabCurrent').addEventListener('click', () => switchTab('current'));
+  document.getElementById('tabArchive').addEventListener('click', () => switchTab('archive'));
+</script>
+</body>
+</html>
