@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>قوائم الطعام | Set Menus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#FBF6EC;
+    --ivory-deep:#F3EBDA;
+    --wine:#6E1E2C;
+    --wine-deep:#4E1420;
+    --gold:#B8903F;
+    --ink:#2B241D;
+    --ink-soft:#5C5347;
+    --line:#DDD0B4;
+  }
+
+  *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+  html,body{margin:0;padding:0; width:100%; overflow-x:hidden; }
+  body{
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:'Tajawal', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* Decorative ornament used as course divider */
+  .ornament{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin:14px 0;
+    color:var(--gold);
+    opacity:.75;
+  }
+  .ornament .bar{ height:1px; flex:1; background:var(--line); }
+  .ornament svg{ flex:none; width:14px; height:14px; }
+
+  /* ===== Hero ===== */
+  header.hero{
+    position:relative;
+    padding:76px 24px 64px;
+    text-align:center;
+    background:
+      radial-gradient(ellipse at top, rgba(184,144,63,.10), transparent 60%),
+      var(--wine);
+    color:var(--ivory);
+    overflow:hidden;
+  }
+  header.hero::before,
+  header.hero::after{
+    content:"";
+    position:absolute;
+    top:0; bottom:0;
+    width:1px;
+    background:rgba(251,246,236,.18);
+  }
+  header.hero .eng-kicker{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    letter-spacing:.03em;
+    font-size:18px;
+    color:#F3DDB0;
+    margin-bottom:10px;
+  }
+  header.hero h1{
+    font-family:'Aref Ruqaa', serif;
+    font-weight:700;
+    font-size:clamp(38px, 6vw, 62px);
+    margin:0 0 14px;
+    line-height:1.25;
+  }
+  header.hero p.sub{
+    max-width:520px;
+    margin:0 auto;
+    color:#EADFC7;
+    font-size:16px;
+  }
+  header.hero .hero-rule{
+    width:120px;
+    height:2px;
+    margin:26px auto 0;
+    background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  /* ===== Menu grid ===== */
+  main{
+    max-width:1180px;
+    margin:0 auto;
+    padding:56px 24px 90px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:34px;
+  }
+  @media (max-width:760px){
+    .grid{ grid-template-columns:1fr; gap:24px; }
+    main{ padding:44px 16px 64px; }
+  }
+  @media (max-width:480px){
+    header.hero{ padding:56px 18px 46px; }
+    header.hero p.sub{ font-size:15px; }
+    .card{ padding:26px 20px 22px; }
+    .card::before{ inset:6px; }
+    .menu-no{ font-size:23px; }
+  }
+
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:34px 30px 30px;
+    position:relative;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border:1px solid rgba(184,144,63,.35);
+    pointer-events:none;
+  }
+
+  .card-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:4px 12px;
+    margin-bottom:6px;
+  }
+  .menu-no{
+    font-family:'Aref Ruqaa', serif;
+    font-weight:700;
+    color:var(--wine);
+    font-size:26px;
+  }
+  .menu-no .num{
+    color:var(--gold);
+  }
+  .menu-tagline{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    color:var(--wine);
+    font-size:15.5px;
+    letter-spacing:.01em;
+  }
+
+  .course{
+    padding:16px 0;
+  }
+  .course + .course{
+    border-top:1px dashed var(--line);
+  }
+  .course-label{
+    font-size:12.5px;
+    color:var(--gold);
+    font-weight:700;
+    margin-bottom:6px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .course-label .dot{
+    width:5px; height:5px; border-radius:50%;
+    background:var(--gold);
+    flex:none;
+  }
+  .course-ar{
+    font-size:19px;
+    font-weight:700;
+    color:var(--ink);
+    margin:0 0 2px;
+  }
+  .course-en{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    color:var(--ink);
+    font-size:17px;
+    letter-spacing:.01em;
+    margin:0 0 6px;
+  }
+  .course-desc-ar{
+    font-size:14.5px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+  .course-desc-en{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    font-size:15px;
+    color:var(--ink-soft);
+    margin:3px 0 0;
+    direction:ltr;
+    text-align:right;
+  }
+
+  .mezzah-list{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:2px 0 0;
+  }
+
+  /* ===== Footer ===== */
+  footer{
+    text-align:center;
+    padding:36px 24px 50px;
+    color:var(--ink-soft);
+    font-size:13.5px;
+  }
+  footer .fork{
+    color:var(--gold);
+    margin-bottom:10px;
+  }
+
+  @media print{
+    header.hero{ background:var(--wine) !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .grid{ grid-template-columns:1fr; }
+    .card{ break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eng-kicker">Set Menus</div>
+  <h1>قوائم الطعام</h1>
+  <p class="sub">ثماني قوائم متكاملة، كل قائمة تجمع بين الشوربة والمقبلات الشرقية وطبق رئيسي مختار بعناية وتحلية تُختم بها الوجبة.</p>
+  <div class="hero-rule"></div>
+</header>
+
+<main>
+  <div class="grid">
+
+    <!-- Menu 1 -->
+    <section class="card">
+      <div class="card-head">
+        <span class="menu-no">قائمة <span class="num">١</span></span>
+        <span class="menu-tagline">Set Menu No. 1</span>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الشوربة</div>
+        <p class="course-ar">شوربة الطماطم بالكريمة</p>
+        <p class="course-en">Tomato Cream Soup</p>
+        <p class="course-desc-ar">تُقدَّم مع كروتون الأعشاب المقرمش</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>السلطات الشرقية</div>
+        <p class="course-en" style="margin-top:2px;">Variety of Cold Oriental Mezzah</p>
+        <p class="mezzah-list">طحينة، باباغنوج، حمص، سلطة الزبادي، سلطة بلدي</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الطبق الرئيسي</div>
+        <p class="course-ar">روزبيف مع صوص الماشروم</p>
+        <p class="course-en">Roasted Beef with Mushroom Sauce</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>التحلية</div>
+        <p class="course-ar">جاتوه فرنسى</p>
+        <p class="course-en">French Pastry</p>
+        <p class="course-desc-ar">قطعة جاتوه من اختيارك، بالكريمة أو بالشيكولاتة</p>
+      </div>
+    </section>
+
+    <!-- Menu 2 -->
+    <section class="card">
+      <div class="card-head">
+        <span class="menu-no">قائمة <span class="num">٢</span></span>
+        <span class="menu-tagline">Set Menu No. 2</span>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الشوربة</div>
+        <p class="course-ar">شوربة لسان العصفور</p>
+        <p class="course-en">Orzo Soup</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>السلطات الشرقية</div>
+        <p class="course-en" style="margin-top:2px;">Variety of Cold Oriental Mezzah</p>
+        <p class="mezzah-list">طحينة، باباغنوج، حمص، سلطة الزبادي، سلطة بلدي</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الطبق الرئيسي</div>
+        <p class="course-ar">دجاج بانيه</p>
+        <p class="course-en">Chicken Pané</p>
+        <p class="course-desc-ar">يُقدَّم مع إسباجتي نابوليتان</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>التحلية</div>
+        <p class="course-ar">تارت البلح</p>
+        <p class="course-en">Dates Tart</p>
+        <p class="course-desc-ar">تارت سابليه محشو بالبلح مع صوص الكارامل</p>
+      </div>
+    </section>
+
+    <!-- Menu 3 -->
+    <section class="card">
+      <div class="card-head">
+        <span class="menu-no">قائمة <span class="num">٣</span></span>
+        <span class="menu-tagline">Set Menu No. 3</span>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الشوربة</div>
+        <p class="course-ar">شوربة دجاج بالكريمة</p>
+        <p class="course-en">Chicken Cream Soup</p>
+        <p class="course-desc-ar">تُقدَّم مع أكواب الدجاج</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>السلطات الشرقية</div>
+        <p class="course-en" style="margin-top:2px;">Variety of Cold Oriental Mezzah</p>
+        <p class="mezzah-list">طحينة، باباغنوج، حمص، سلطة الزبادي، سلطة بلدي</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الطبق الرئيسي</div>
+        <p class="course-ar">دجاج مشوي</p>
+        <p class="course-en">Grilled Chicken</p>
+        <p class="course-desc-ar">نصف دجاجة مشوية مخلية ومتبلة، تُقدَّم مع الخضروات المشوية والبطاطس الروستو بالأعشاب</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>التحلية</div>
+        <p class="course-ar">تارت البلح</p>
+        <p class="course-en">Dates Tart</p>
+        <p class="course-desc-ar">تارت سابليه محشو بالبلح مع صوص الكارامل</p>
+      </div>
+    </section>
+
+    <!-- Menu 4 -->
+    <section class="card">
+      <div class="card-head">
+        <span class="menu-no">قائمة <span class="num">٤</span></span>
+        <span class="menu-tagline">Set Menu No. 4</span>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الشوربة</div>
+        <p class="course-ar">شوربة سمك صيادية</p>
+        <p class="course-en">Seadya Fish Soup</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>السلطات الشرقية</div>
+        <p class="course-en" style="margin-top:2px;">Variety of Cold Oriental Mezzah</p>
+        <p class="mezzah-list">طحينة، باباغنوج، حمص، سلطة الزبادي، سلطة بلدي</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الطبق الرئيسي</div>
+        <p class="course-ar">سمك فيليه مقلي، كالاماري وجمبري</p>
+        <p class="course-en">Fried Fish Fillet, Calamari &amp; Shrimp</p>
+        <p class="course-desc-ar">يُقدَّم مع أرز أبيض</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>التحلية</div>
+        <p class="course-ar">فواكه الموسم الطازجة</p>
+        <p class="course-en">Seasonal Fresh Fruit Platter</p>
+      </div>
+    </section>
+
+    <!-- Menu 5 -->
+    <section class="card">
+      <div class="card-head">
+        <span class="menu-no">قائمة <span class="num">٥</span></span>
+        <span class="menu-tagline">Set Menu No. 5</span>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الشوربة</div>
+        <p class="course-ar">شوربة لسان العصفور</p>
+        <p class="course-en">Orzo Soup</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>السلطات الشرقية</div>
+        <p class="course-en" style="margin-top:2px;">Variety of Cold Oriental Mezzah</p>
+        <p class="mezzah-list">طحينة، باباغنوج، حمص، سلطة الزبادي، سلطة بلدي</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الطبق الرئيسي</div>
+        <p class="course-ar">مشويات مشكّلة</p>
+        <p class="course-en">Mixed Grill</p>
+        <p class="course-desc-ar">كفتة، إستيك، وشيش طاووك، تُقدَّم مع الأرز الشرقي والخضروات</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>التحلية</div>
+        <p class="course-ar">سلطة الفواكه الطازجة</p>
+        <p class="course-en">Fruit Salad</p>
+      </div>
+    </section>
+
+    <!-- Menu 6 -->
+    <section class="card">
+      <div class="card-head">
+        <span class="menu-no">قائمة <span class="num">٦</span></span>
+        <span class="menu-tagline">Set Menu No. 6</span>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الشوربة</div>
+        <p class="course-ar">شوربة البصل الفرنسية</p>
+        <p class="course-en">French Onion Soup</p>
+        <p class="course-desc-ar">تُقدَّم مع شريحة خبز فرنسي مغطاة بالجبن المذاب</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>السلطات الشرقية</div>
+        <p class="course-en" style="margin-top:2px;">Variety of Cold Oriental Mezzah</p>
+        <p class="mezzah-list">طحينة، باباغنوج، حمص، سلطة الزبادي، سلطة بلدي</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الطبق الرئيسي</div>
+        <p class="course-ar">شيش طاووك</p>
+        <p class="course-en">Shish Tawook</p>
+        <p class="course-desc-ar">قطع دجاج مشوية مع الفلفل الأخضر والبصل والطماطم على السيخ، تُقدَّم مع الأرز الشرقي</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>التحلية</div>
+        <p class="course-ar">فواكه الموسم الطازجة</p>
+        <p class="course-en">Seasonal Fresh Fruit Platter</p>
+      </div>
+    </section>
+
+    <!-- Menu 7 -->
+    <section class="card">
+      <div class="card-head">
+        <span class="menu-no">قائمة <span class="num">٧</span></span>
+        <span class="menu-tagline">Set Menu No. 7</span>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الشوربة</div>
+        <p class="course-ar">شوربة لسان العصفور</p>
+        <p class="course-en">Orzo Soup</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>السلطات الشرقية</div>
+        <p class="course-en" style="margin-top:2px;">Variety of Cold Oriental Mezzah</p>
+        <p class="mezzah-list">طحينة، باباغنوج، حمص، سلطة الزبادي، سلطة بلدي</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الطبق الرئيسي</div>
+        <p class="course-ar">كوردون بلو الدجاج</p>
+        <p class="course-en">Chicken Cordon Bleu</p>
+        <p class="course-desc-ar">شرائح من صدور الدجاج محشوة باللحم المدخن والجبنة والمشروم، تُقدَّم مع صوص الشيدر وإسباجتي بصوص الطماطم</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>التحلية</div>
+        <p class="course-ar">جاتوه فرنسى</p>
+        <p class="course-en">French Pastry</p>
+        <p class="course-desc-ar">قطعة جاتوه من اختيارك، بالكريمة أو بالشيكولاتة</p>
+      </div>
+    </section>
+
+    <!-- Menu 8 -->
+    <section class="card">
+      <div class="card-head">
+        <span class="menu-no">قائمة <span class="num">٨</span></span>
+        <span class="menu-tagline">Set Menu No. 8</span>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الشوربة</div>
+        <p class="course-ar">شوربة عدس</p>
+        <p class="course-en">Egyptian Lentil Soup</p>
+        <p class="course-desc-ar">تُقدَّم مع كروتون الثوم</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>السلطات الشرقية</div>
+        <p class="course-en" style="margin-top:2px;">Variety of Cold Oriental Mezzah</p>
+        <p class="mezzah-list">طحينة، باباغنوج، حمص، سلطة الزبادي، سلطة بلدي</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>الطبق الرئيسي</div>
+        <p class="course-ar">دجاج بصوص الكاري</p>
+        <p class="course-en">Chicken Curry</p>
+        <p class="course-desc-ar">مع صوص الكاري والأرز الأبيض</p>
+      </div>
+
+      <div class="course">
+        <div class="course-label"><span class="dot"></span>التحلية</div>
+        <p class="course-ar">تارت البلح</p>
+        <p class="course-en">Dates Tart</p>
+        <p class="course-desc-ar">تارت سابليه محشو بالبلح مع صوص الكارامل</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="fork">✦</div>
+  الأسعار والتوافر حسب عدد الضيوف والموسم — يُرجى التواصل لتأكيد التفاصيل
+</footer>
+
+</body>
+</html>
