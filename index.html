@@ -171,6 +171,7 @@
     .card:nth-child(4) { animation-delay: 0.4s; }
     .card:nth-child(5) { animation-delay: 0.5s; }
     .card:nth-child(6) { animation-delay: 0.6s; }
+    .card:nth-child(7) { animation-delay: 0.7s; }
 
     @keyframes cardIn {
       from { opacity:0; transform: translateY(18px); }
@@ -376,6 +377,18 @@
       <span class="card-arrow">→</span>
     </div>
 
+    <!-- Set Menus -->
+    <div class="card" onclick="window.open('https://salamam-art.github.io/Restaqr/set_menus.html','_blank')">
+      <div class="card-shine"></div>
+      <div class="card-icon" id="icon-6"></div>
+      <div>
+        <p class="card-title">Set Menus</p>
+        <p class="card-desc">Curated Menu Selections</p>
+        <p class="card-title-ar">قوائم الطعام</p>
+      </div>
+      <span class="card-arrow">→</span>
+    </div>
+
     <!-- Green House Menu -->
     <div class="card" onclick="window.open('https://salamam-art.github.io/Restaqr/greenhouse_menu.html','_blank')">
       <div class="card-shine"></div>
@@ -450,7 +463,8 @@
     `<svg ${SVG_ATTRS}><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
     `<svg ${SVG_ATTRS}><circle cx="9" cy="12" r="4"/><circle cx="15" cy="12" r="4"/><path d="M9 8V6M15 8V6M9 16v2M15 16v2"/></svg>`,
     `<svg ${SVG_ATTRS}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
-    `<svg ${SVG_ATTRS}><rect x="3" y="11" width="18" height="9" rx="2"/><path d="M3 11c0-2 1.5-5 9-5s9 3 9 5"/><path d="M12 6V3"/><path d="M8 3h8"/><path d="M7 15h2M11 15h2M15 15h2"/></svg>`
+    `<svg ${SVG_ATTRS}><rect x="3" y="11" width="18" height="9" rx="2"/><path d="M3 11c0-2 1.5-5 9-5s9 3 9 5"/><path d="M12 6V3"/><path d="M8 3h8"/><path d="M7 15h2M11 15h2M15 15h2"/></svg>`,
+    `<svg ${SVG_ATTRS}><path d="M4 4h16v16H4z" opacity="0"/><path d="M6 3v18"/><path d="M18 3v18"/><path d="M9 7h6"/><path d="M9 12h6"/><path d="M9 17h6"/></svg>`
   ];
 
   icons.forEach((svg, i) => {
