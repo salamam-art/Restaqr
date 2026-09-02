@@ -796,6 +796,7 @@
             <th style="padding:10px;text-align:right;border-bottom:2px solid #e2ddd0;">النزيل</th>
             <th style="padding:10px;text-align:center;border-bottom:2px solid #e2ddd0;">الكمية</th>
             <th style="padding:10px;text-align:center;border-bottom:2px solid #e2ddd0;">الساعة</th>
+            <th style="padding:10px;text-align:right;border-bottom:2px solid #e2ddd0;">ملاحظات</th>
           </tr>
         </thead>
         <tbody>
@@ -805,6 +806,7 @@
               <td style="padding:9px 10px;border-bottom:1px solid #eee;">${escapeHtml(r.guestName || '')}</td>
               <td style="padding:9px 10px;border-bottom:1px solid #eee;text-align:center;">${r.quantity || 1}</td>
               <td style="padding:9px 10px;border-bottom:1px solid #eee;text-align:center;direction:ltr;">${escapeHtml(r.deliveryTime || '—')}</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #eee;color:#726c5e;font-size:13px;">${escapeHtml(r.notes || '—')}</td>
             </tr>
           `).join('')}
         </tbody>
