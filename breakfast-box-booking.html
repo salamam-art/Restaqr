@@ -523,7 +523,7 @@
   let qty = 1;
   const qtyLabel = document.getElementById('qtyCount');
   document.getElementById('plusBtn').addEventListener('click', () => {
-    if (qty < 9) { qty++; qtyLabel.textContent = qty; }
+    if (qty < 3) { qty++; qtyLabel.textContent = qty; }
   });
   document.getElementById('minusBtn').addEventListener('click', () => {
     if (qty > 1) { qty--; qtyLabel.textContent = qty; }
