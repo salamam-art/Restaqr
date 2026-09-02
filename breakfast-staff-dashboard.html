@@ -835,8 +835,17 @@
 
       canvas.toBlob(async (blob) => {
         const fileName = `حجوزات-الافطار-${currentDateKey}.png`;
-        const file = new File([blob], fileName, { type: 'image/png' });
 
+        // ── تطبيق Android الأصلي ──────────────────────────────────────
+        if (window.Android && window.Android.shareImage) {
+          const reader = new FileReader();
+          reader.onloadend = () => { window.Android.shareImage(reader.result); };
+          reader.readAsDataURL(blob);
+          return;
+        }
+
+        // ── متصفح عادي يدعم Web Share API ────────────────────────────
+        const file = new File([blob], fileName, { type: 'image/png' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({
@@ -848,6 +857,7 @@
             // المستخدم ألغى المشاركة — لا حاجة لأي إجراء
           }
         } else {
+          // ── fallback: تنزيل مباشر ────────────────────────────────────
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
