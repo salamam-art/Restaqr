@@ -494,6 +494,7 @@
           <tbody id="archiveTableBody"></tbody>
         </table>
       </div>
+      <div class="mobile-cards" id="archiveMobileCards"></div>
     </div>
   </section>
 </main>
@@ -969,11 +970,15 @@
     document.getElementById('archTotalDelivered').textContent = rows.filter(r => r.delivered).length;
 
     const body = document.getElementById('archiveTableBody');
+    const mobileCards = document.getElementById('archiveMobileCards');
+
     if (rows.length === 0) {
       body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مسجّلة لهذا اليوم</div></td></tr>`;
+      mobileCards.innerHTML = `<div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مسجّلة لهذا اليوم</div>`;
       return;
     }
 
+    // ---------- جدول الديسكتوب ----------
     body.innerHTML = rows.map(r => `
       <tr class="${r.delivered ? 'delivered' : ''}">
         <td class="room-cell">${escapeHtml(r.roomNumber || '')}</td>
@@ -983,6 +988,30 @@
         <td class="notes-cell">${escapeHtml(r.notes || '—')}</td>
         <td><span class="status-badge ${r.delivered ? 'ok' : 'pending'}">${r.delivered ? 'تم التسليم' : 'لم يُسلَّم'}</span></td>
       </tr>
+    `).join('');
+
+    // ---------- كروت الموبايل ----------
+    mobileCards.innerHTML = rows.map(r => `
+      <div class="booking-card ${r.delivered ? 'delivered' : ''}">
+        <div class="booking-card-header">
+          <div class="booking-card-room">🚪 ${escapeHtml(r.roomNumber || '—')}</div>
+          <div class="booking-card-time">🕐 ${escapeHtml(r.deliveryTime || '—')}</div>
+        </div>
+        <div class="booking-card-body">
+          <div class="booking-card-field">
+            <div class="field-label">اسم النزيل</div>
+            <div class="field-value">${escapeHtml(r.guestName || '—')}</div>
+          </div>
+          <div class="booking-card-field">
+            <div class="field-label">عدد البوكسات</div>
+            <div class="field-value">🧺 ${r.quantity || 1}</div>
+          </div>
+        </div>
+        ${r.notes ? `<div class="booking-card-notes">📝 ${escapeHtml(r.notes)}</div>` : ''}
+        <div class="booking-card-footer">
+          <span class="status-badge ${r.delivered ? 'ok' : 'pending'}">${r.delivered ? '✅ تم التسليم' : '⏳ لم يُسلَّم'}</span>
+        </div>
+      </div>
     `).join('');
   }
 
