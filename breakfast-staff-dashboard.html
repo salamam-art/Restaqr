@@ -199,7 +199,6 @@
   tbody tr.delivered td{color:#7c8a7f;}
   .room-cell{font-weight:800;color:var(--ink);font-size:16px;}
   .time-cell{font-weight:700;color:var(--ink);direction:ltr;text-align:right;}
-  .notes-cell{color:var(--muted);font-size:13.5px;max-width:220px;}
   .qty-cell{font-weight:800;text-align:center;}
   .deliver-toggle{
     display:flex;
@@ -272,14 +271,6 @@
     font-size:14px;
     font-weight:700;
     color:var(--text);
-  }
-  .booking-card-notes{
-    font-size:13px;
-    color:var(--muted);
-    background:#faf8f3;
-    border-radius:8px;
-    padding:8px 10px;
-    margin-bottom:12px;
   }
   .booking-card-footer{
     border-top:1px solid var(--line);
@@ -354,7 +345,6 @@
     .booking-card-body{gap:1px 5px;margin-bottom:3px;}
     .booking-card-field .field-label{font-size:6.5px;margin-bottom:0;}
     .booking-card-field .field-value{font-size:8.5px;}
-    .booking-card-notes{font-size:7.5px;padding:2px 4px;margin-bottom:3px;}
     .booking-card-footer{padding-top:3px;}
     .booking-card-footer .status-badge{font-size:7.5px;padding:2px 5px;}
     .deliver-toggle-card{display:none !important;}
@@ -485,12 +475,11 @@
             <th>اسم النزيل</th>
             <th>الكمية</th>
             <th>ساعة التسليم</th>
-            <th>ملاحظات</th>
             <th>الحالة</th>
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="7" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>
+          <tr><td colspan="5" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>
         </tbody>
       </table>
     </div>
@@ -525,7 +514,6 @@
               <th>اسم النزيل</th>
               <th>الكمية</th>
               <th>ساعة التسليم</th>
-              <th>ملاحظات</th>
               <th>الحالة</th>
             </tr>
           </thead>
@@ -638,7 +626,9 @@
       'زبادي',
       'فاكهة الموسم',
       'عيش كايزر + عيش شامي',
-      'سلطة خضراء طازجة'
+      'سلطة خضراء طازجة',
+      'مربى',
+      'عسل'
     ]
   };
 
@@ -669,7 +659,7 @@
   function subscribe() {
     if (unsubscribe) unsubscribe();
     document.getElementById('tableBody').innerHTML =
-      '<tr><td colspan="6" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>';
+      '<tr><td colspan="5" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>';
 
     unsubscribe = db.collection(COLLECTION)
       .where('deliveryDate', '==', currentDateKey)
@@ -680,7 +670,7 @@
       }, err => {
         console.error(err);
         document.getElementById('tableBody').innerHTML =
-          '<tr><td colspan="6" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
+          '<tr><td colspan="5" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
       });
   }
 
@@ -705,7 +695,7 @@
     const mobileCards = document.getElementById('mobileCards');
 
     if (rows.length === 0) {
-      body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div></td></tr>`;
       mobileCards.innerHTML = `<div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div>`;
       return;
     }
@@ -717,7 +707,6 @@
         <td>${escapeHtml(r.guestName || '')}</td>
         <td class="qty-cell">${r.quantity || 1}</td>
         <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
-        <td class="notes-cell">${escapeHtml(r.notes || '—')}</td>
         <td>
           <label class="deliver-toggle">
             <input type="checkbox" data-id="${r.id}" ${r.delivered ? 'checked' : ''}>
@@ -744,7 +733,6 @@
             <div class="field-value">🧺 ${r.quantity || 1}</div>
           </div>
         </div>
-        ${r.notes ? `<div class="booking-card-notes">📝 ${escapeHtml(r.notes)}</div>` : ''}
         <div class="booking-card-footer">
           <span class="status-badge ${r.delivered ? 'ok' : 'pending'}">${r.delivered ? '✅ تم التسليم' : '⏳ لم يُسلَّم'}</span>
           <label class="deliver-toggle-card">
@@ -838,7 +826,6 @@
             <th style="padding:5px 6px;text-align:right;border-bottom:1.5px solid #e2ddd0;">النزيل</th>
             <th style="padding:5px 6px;text-align:center;border-bottom:1.5px solid #e2ddd0;">الكمية</th>
             <th style="padding:5px 6px;text-align:center;border-bottom:1.5px solid #e2ddd0;">الساعة</th>
-            <th style="padding:5px 6px;text-align:right;border-bottom:1.5px solid #e2ddd0;">ملاحظات</th>
           </tr>
         </thead>
         <tbody>
@@ -848,7 +835,6 @@
               <td style="padding:4px 6px;border-bottom:1px solid #eee;">${escapeHtml(r.guestName || '')}</td>
               <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;">${r.quantity || 1}</td>
               <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;direction:ltr;">${escapeHtml(r.deliveryTime || '—')}</td>
-              <td style="padding:4px 6px;border-bottom:1px solid #eee;color:#726c5e;font-size:9px;">${escapeHtml(r.notes || '—')}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -1014,7 +1000,7 @@
     const mobileCards = document.getElementById('archiveMobileCards');
 
     if (rows.length === 0) {
-      body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مسجّلة لهذا اليوم</div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مسجّلة لهذا اليوم</div></td></tr>`;
       mobileCards.innerHTML = `<div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مسجّلة لهذا اليوم</div>`;
       return;
     }
@@ -1026,7 +1012,6 @@
         <td>${escapeHtml(r.guestName || '')}</td>
         <td class="qty-cell">${r.quantity || 1}</td>
         <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
-        <td class="notes-cell">${escapeHtml(r.notes || '—')}</td>
         <td><span class="status-badge ${r.delivered ? 'ok' : 'pending'}">${r.delivered ? 'تم التسليم' : 'لم يُسلَّم'}</span></td>
       </tr>
     `).join('');
@@ -1048,7 +1033,6 @@
             <div class="field-value">🧺 ${r.quantity || 1}</div>
           </div>
         </div>
-        ${r.notes ? `<div class="booking-card-notes">📝 ${escapeHtml(r.notes)}</div>` : ''}
         <div class="booking-card-footer">
           <span class="status-badge ${r.delivered ? 'ok' : 'pending'}">${r.delivered ? '✅ تم التسليم' : '⏳ لم يُسلَّم'}</span>
         </div>

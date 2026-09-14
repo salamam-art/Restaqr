@@ -425,6 +425,8 @@
           <li>فاكهة الموسم</li>
           <li>عيش كايزر + عيش شامي</li>
           <li>سلطة خضراء طازجة</li>
+          <li>مربى</li>
+          <li>عسل</li>
         </ul>
       </div>
     </div>
@@ -442,11 +444,6 @@
       <label for="deliveryTime">ساعة التسليم</label>
       <select id="deliveryTime" required></select>
       <div class="hint">التسليم صباح اليوم التالي، اختر الموعد المناسب لك ضمن ساعات الخدمة</div>
-    </div>
-
-    <div class="field">
-      <label for="notes">ملاحظات (اختياري)</label>
-      <textarea id="notes" placeholder="حساسية من مكون معين، طلب خاص..."></textarea>
     </div>
 
     <button type="submit" class="submit-btn" id="submitBtn">تأكيد الحجز</button>
@@ -641,7 +638,6 @@
         document.getElementById('guestName').value = data.guestName || "";
         qty = data.quantity || 1;
         qtyLabel.textContent = qty;
-        document.getElementById('notes').value = data.notes || "";
         if (data.deliveryTime) {
           document.getElementById('deliveryTime').value = data.deliveryTime;
         }
@@ -693,7 +689,6 @@
     const room = roomInput.value.trim();
     const guestName = document.getElementById('guestName').value.trim();
     const deliveryTime = document.getElementById('deliveryTime').value;
-    const notes = document.getElementById('notes').value.trim();
 
     if (!room || !guestName) {
       showNotice('error', 'من فضلك أدخل رقم الغرفة واسم النزيل.');
@@ -717,7 +712,6 @@
       guestName: guestName,
       quantity: qty,
       deliveryTime: deliveryTime,
-      notes: notes,
       deliveryDate: dateKey(currentWindow.target),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
