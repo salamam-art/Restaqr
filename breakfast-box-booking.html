@@ -675,7 +675,10 @@
   function closeConfirmModal() {
     confirmModal.classList.remove('show');
   }
-  document.getElementById('modalCloseBtn').addEventListener('click', closeConfirmModal);
+  document.getElementById('modalCloseBtn').addEventListener('click', () => {
+    closeConfirmModal();
+    window.history.back();
+  });
   document.getElementById('modalEditBtn').addEventListener('click', () => {
     closeConfirmModal();
     roomInput.focus();
