@@ -98,6 +98,7 @@
   .summary .card.delivered .num{color:var(--sage);}
 
   .contents-panel{margin-bottom:22px;}
+  .print-date-heading{display:none;}
   .contents-card{
     background:var(--card);
     border:1.5px solid var(--line);
@@ -314,8 +315,49 @@
     header, .toolbar, .filter-chips, .tabs{display:none !important;}
     body{background:#fff;}
     main{padding:0;max-width:100%;}
-    .table-wrap{border:none;}
-    .summary{margin-bottom:14px;}
+    .table-wrap{display:none !important;}
+    .contents-panel{display:none !important;}
+
+    .print-date-heading{
+      display:block;
+      text-align:center;
+      font-size:15px;
+      font-weight:800;
+      color:#1c2541;
+      margin-bottom:8px;
+    }
+
+    .summary{
+      grid-template-columns:repeat(3, 1fr);
+      gap:6px;
+      margin-bottom:10px;
+    }
+    .summary .card{padding:5px 6px;border-radius:8px;}
+    .summary .card .num{font-size:14px;}
+    .summary .card .lbl{font-size:8px;margin-top:1px;}
+
+    .mobile-cards{
+      display:flex !important;
+      flex-direction:row;
+      flex-wrap:wrap;
+      gap:5px;
+    }
+    .booking-card{
+      width:calc(25% - 4px);
+      padding:5px 6px;
+      border-radius:7px;
+      page-break-inside:avoid;
+    }
+    .booking-card-header{margin-bottom:3px;}
+    .booking-card-room{font-size:12px;}
+    .booking-card-time{font-size:9px;}
+    .booking-card-body{gap:1px 5px;margin-bottom:3px;}
+    .booking-card-field .field-label{font-size:6.5px;margin-bottom:0;}
+    .booking-card-field .field-value{font-size:8.5px;}
+    .booking-card-notes{font-size:7.5px;padding:2px 4px;margin-bottom:3px;}
+    .booking-card-footer{padding-top:3px;}
+    .booking-card-footer .status-badge{font-size:7.5px;padding:2px 5px;}
+    .deliver-toggle-card{display:none !important;}
   }
 
   /* ---------- تبويبات (الحجوزات / الأرشيف) ---------- */
@@ -422,6 +464,7 @@
 
 <main>
   <section id="currentSection">
+    <div class="print-date-heading" id="printDateHeading"></div>
     <div class="summary" id="summary">
       <div class="card"><div class="num" id="totalRooms">—</div><div class="lbl">عدد الغرف</div></div>
       <div class="card"><div class="num" id="totalBoxes">—</div><div class="lbl">إجمالي البوكسات</div></div>
@@ -543,6 +586,7 @@
 
   let currentDateKey = toKey(getUpcomingDeliveryDate());
   document.getElementById('currentDateLabel').textContent = formatDateArFromKey(currentDateKey);
+  document.getElementById('printDateHeading').textContent = '📋 حجوزات تسليم يوم: ' + formatDateArFromKey(currentDateKey);
 
   // كل دقيقة: تحقّق هل اليوم النشط اتغيّر (يعني عدّينا الساعة 3 مساءً)
   // لو اتغيّر، اليوم القديم بيبقى متاح فورًا فى الأرشيف واليوم الجديد بيتحدّث هنا تلقائيًا
@@ -551,6 +595,7 @@
     if (freshKey !== currentDateKey) {
       currentDateKey = freshKey;
       document.getElementById('currentDateLabel').textContent = formatDateArFromKey(currentDateKey);
+      document.getElementById('printDateHeading').textContent = '📋 حجوزات تسليم يوم: ' + formatDateArFromKey(currentDateKey);
       subscribe();
       if (archiveSubscribed) subscribeArchive();
     }
@@ -768,47 +813,47 @@
 
     const wrap = document.createElement('div');
     wrap.style.cssText =
-      'position:fixed;top:-9999px;left:-9999px;width:720px;background:#ffffff;' +
-      'font-family:Cairo,sans-serif;direction:rtl;padding:32px;color:#22201a;';
+      'position:fixed;top:-9999px;left:-9999px;width:560px;background:#ffffff;' +
+      'font-family:Cairo,sans-serif;direction:rtl;padding:18px;color:#22201a;';
 
     wrap.innerHTML = `
-      <div style="text-align:center;margin-bottom:22px;">
-        <div style="font-size:23px;font-weight:800;color:#1c2541;">🍳 حجوزات بوكس الإفطار</div>
-        <div style="font-size:15px;color:#726c5e;margin-top:6px;">${formatDateArFromKey(currentDateKey)}</div>
+      <div style="text-align:center;margin-bottom:12px;">
+        <div style="font-size:16px;font-weight:800;color:#1c2541;">🍳 حجوزات بوكس الإفطار</div>
+        <div style="font-size:11px;color:#726c5e;margin-top:3px;">${formatDateArFromKey(currentDateKey)}</div>
       </div>
-      <div style="display:flex;justify-content:center;gap:14px;margin-bottom:24px;">
-        <div style="background:#f4f1ea;border-radius:12px;padding:12px 26px;text-align:center;">
-          <div style="font-size:22px;font-weight:800;color:#1c2541;">${rows.length}</div>
-          <div style="font-size:12px;color:#726c5e;">غرفة</div>
+      <div style="display:flex;justify-content:center;gap:8px;margin-bottom:12px;">
+        <div style="background:#f4f1ea;border-radius:8px;padding:6px 16px;text-align:center;">
+          <div style="font-size:14px;font-weight:800;color:#1c2541;">${rows.length}</div>
+          <div style="font-size:8px;color:#726c5e;">غرفة</div>
         </div>
-        <div style="background:#f4f1ea;border-radius:12px;padding:12px 26px;text-align:center;">
-          <div style="font-size:22px;font-weight:800;color:#b8863b;">${totalBoxes}</div>
-          <div style="font-size:12px;color:#726c5e;">بوكس إفطار</div>
+        <div style="background:#f4f1ea;border-radius:8px;padding:6px 16px;text-align:center;">
+          <div style="font-size:14px;font-weight:800;color:#b8863b;">${totalBoxes}</div>
+          <div style="font-size:8px;color:#726c5e;">بوكس إفطار</div>
         </div>
       </div>
-      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <table style="width:100%;border-collapse:collapse;font-size:10px;">
         <thead>
           <tr style="background:#f4f1ea;">
-            <th style="padding:10px;text-align:right;border-bottom:2px solid #e2ddd0;">الغرفة</th>
-            <th style="padding:10px;text-align:right;border-bottom:2px solid #e2ddd0;">النزيل</th>
-            <th style="padding:10px;text-align:center;border-bottom:2px solid #e2ddd0;">الكمية</th>
-            <th style="padding:10px;text-align:center;border-bottom:2px solid #e2ddd0;">الساعة</th>
-            <th style="padding:10px;text-align:right;border-bottom:2px solid #e2ddd0;">ملاحظات</th>
+            <th style="padding:5px 6px;text-align:right;border-bottom:1.5px solid #e2ddd0;">الغرفة</th>
+            <th style="padding:5px 6px;text-align:right;border-bottom:1.5px solid #e2ddd0;">النزيل</th>
+            <th style="padding:5px 6px;text-align:center;border-bottom:1.5px solid #e2ddd0;">الكمية</th>
+            <th style="padding:5px 6px;text-align:center;border-bottom:1.5px solid #e2ddd0;">الساعة</th>
+            <th style="padding:5px 6px;text-align:right;border-bottom:1.5px solid #e2ddd0;">ملاحظات</th>
           </tr>
         </thead>
         <tbody>
           ${rows.map(r => `
             <tr>
-              <td style="padding:9px 10px;border-bottom:1px solid #eee;font-weight:800;">${escapeHtml(r.roomNumber || '')}</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #eee;">${escapeHtml(r.guestName || '')}</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #eee;text-align:center;">${r.quantity || 1}</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #eee;text-align:center;direction:ltr;">${escapeHtml(r.deliveryTime || '—')}</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #eee;color:#726c5e;font-size:13px;">${escapeHtml(r.notes || '—')}</td>
+              <td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:800;">${escapeHtml(r.roomNumber || '')}</td>
+              <td style="padding:4px 6px;border-bottom:1px solid #eee;">${escapeHtml(r.guestName || '')}</td>
+              <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;">${r.quantity || 1}</td>
+              <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;direction:ltr;">${escapeHtml(r.deliveryTime || '—')}</td>
+              <td style="padding:4px 6px;border-bottom:1px solid #eee;color:#726c5e;font-size:9px;">${escapeHtml(r.notes || '—')}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
-      <div style="margin-top:18px;text-align:center;font-size:11px;color:#a39c8c;">تم إنشاؤها تلقائيًا من نظام حجز بوكس الإفطار</div>
+      <div style="margin-top:10px;text-align:center;font-size:8px;color:#a39c8c;">تم إنشاؤها تلقائيًا من نظام حجز بوكس الإفطار</div>
     `;
     return wrap;
   }
