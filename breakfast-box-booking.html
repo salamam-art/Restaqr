@@ -619,7 +619,7 @@
 
     try {
       await db.collection(COLLECTION).doc(key).set(payload, { merge: true });
-      showNotice('success', `تم تأكيد الحجز ✓ — ${qty} بوكس إفطار، ليصلك الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} إلى الغرفة ${room}.`);
+      showNotice('success', `تم تأكيد الحجز ✓ — ${qty} بوكس إفطار، الإستلام الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} من مطعم الجرين هاوس.`);
       lastCheckedKey = "";
       checkExisting();
     } catch (err) {
