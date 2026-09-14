@@ -259,6 +259,77 @@
   .notice.error{background:#fbecec;color:#a13a3a;border:1px solid #f0cfcf;}
   .notice.info{background:#eef1f8;color:#33436e;border:1px solid #d6ddef;}
 
+  /* ---------- شاشة تأكيد الحجز المنبثقة ---------- */
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(20,27,48,.6);
+    backdrop-filter:blur(3px);
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:999;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-card{
+    background:var(--card);
+    border-radius:20px;
+    max-width:400px;
+    width:100%;
+    padding:30px 26px 24px;
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    border:1px solid var(--line);
+  }
+  .modal-check{
+    width:56px;
+    height:56px;
+    margin:0 auto 16px;
+    border-radius:50%;
+    background:#eef5ef;
+    color:var(--ok);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+  }
+  .modal-title{
+    font-size:17px;
+    font-weight:700;
+    color:var(--text);
+    margin:0 0 10px;
+  }
+  .modal-text{
+    font-size:14.5px;
+    line-height:1.8;
+    color:var(--text);
+    margin:0 0 22px;
+  }
+  .modal-actions{
+    display:flex;
+    gap:10px;
+  }
+  .modal-btn{
+    flex:1;
+    padding:12px 10px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    border:none;
+    font-family:inherit;
+  }
+  .modal-btn.primary{
+    background:var(--ink);
+    color:var(--parchment);
+  }
+  .modal-btn.secondary{
+    background:var(--parchment);
+    color:var(--text);
+    border:1px solid var(--line);
+  }
+
   .existing-flag{
     display:none;
     align-items:center;
@@ -384,6 +455,19 @@
   </form>
 
   <footer>سيتم تجهيز البوكس وتسليمه صباح يوم التسليم المذكور أعلاه</footer>
+</div>
+
+<!-- شاشة تأكيد الحجز المنبثقة -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-card">
+    <div class="modal-check">✓</div>
+    <p class="modal-title">تم تأكيد الحجز</p>
+    <p class="modal-text" id="confirmModalText"></p>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn secondary" id="modalEditBtn">تعديل الحجز</button>
+      <button type="button" class="modal-btn primary" id="modalCloseBtn">تم، خروج</button>
+    </div>
+  </div>
 </div>
 
 <!-- ============================================================
@@ -580,6 +664,26 @@
     notice.textContent = text;
   }
 
+  // ---------- شاشة تأكيد الحجز المنبثقة ----------
+  const confirmModal = document.getElementById('confirmModal');
+  const confirmModalText = document.getElementById('confirmModalText');
+
+  function showConfirmModal(text) {
+    confirmModalText.textContent = text;
+    confirmModal.classList.add('show');
+  }
+  function closeConfirmModal() {
+    confirmModal.classList.remove('show');
+  }
+  document.getElementById('modalCloseBtn').addEventListener('click', closeConfirmModal);
+  document.getElementById('modalEditBtn').addEventListener('click', () => {
+    closeConfirmModal();
+    roomInput.focus();
+  });
+  confirmModal.addEventListener('click', (e) => {
+    if (e.target === confirmModal) closeConfirmModal();
+  });
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     notice.className = "notice";
@@ -619,7 +723,7 @@
 
     try {
       await db.collection(COLLECTION).doc(key).set(payload, { merge: true });
-      showNotice('success', `تم تأكيد الحجز ✓ — ${qty} بوكس إفطار، الإستلام الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} من مطعم الجرين هاوس.`);
+      showConfirmModal(`تم تأكيد الحجز ✓ — ${qty} بوكس إفطار، الإستلام الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} من مطعم الجرين هاوس.`);
       lastCheckedKey = "";
       checkExisting();
     } catch (err) {
