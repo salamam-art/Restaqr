@@ -441,9 +441,11 @@
   /* ---------- شريط حالة الاتصال ---------- */
   .conn-banner{
     display:none;
-    position:sticky;
+    position:fixed;
     top:0;
-    z-index:999;
+    left:0;
+    right:0;
+    z-index:9999;
     width:100%;
     padding:11px 16px;
     text-align:center;
@@ -451,13 +453,16 @@
     font-weight:700;
     font-size:13.5px;
     line-height:1.5;
+    color:#fff;
   }
   .conn-banner.show{display:block;}
-  .conn-banner.offline{background:#a13a3a;color:#fff;}
-  .conn-banner.server{background:#8a5a15;color:#fff;}
+  .conn-banner.offline{background:#a13a3a;}
+  .conn-banner.server{background:#8a5a15;}
+  body.conn-visible header{margin-top:44px;}
 </style>
 </head>
 <body>
+
 <div class="conn-banner" id="connBanner"></div>
 
 <header>
@@ -567,8 +572,7 @@
 </script>
 
 <!-- ============================================================
-     شريط حالة الاتصال — يظهر تحذير لو مفيش إنترنت أو تعذر الوصول لخادم Firebase
-     (الاتصال بـ Firestore بيتحدد فعليًا من metadata.fromCache فى استماع subscribe() بالأسفل)
+     شريط حالة الاتصال
      ============================================================ -->
 <script>
   const connBanner = document.getElementById('connBanner');
@@ -577,18 +581,27 @@
 
   function updateConnBanner() {
     if (!isNetOnline) {
-      connBanner.textContent = '📡 لا يوجد اتصال بالإنترنت — البيانات المعروضة قد لا تكون محدثة';
+      connBanner.textContent = '📡 لا يوجد اتصال بالإنترنت — البيانات قد لا تكون محدّثة';
       connBanner.className = 'conn-banner show offline';
+      document.body.classList.add('conn-visible');
     } else if (!isFirestoreOnline) {
-      connBanner.textContent = '⚠️ تعذر الاتصال بخادم البيانات (Firebase) — جارٍ إعادة المحاولة...';
+      connBanner.textContent = '⚠️ تعذر الاتصال بخادم البيانات — جارٍ إعادة المحاولة...';
       connBanner.className = 'conn-banner show server';
+      document.body.classList.add('conn-visible');
     } else {
       connBanner.className = 'conn-banner';
+      document.body.classList.remove('conn-visible');
     }
   }
 
-  window.addEventListener('online', () => { isNetOnline = true; updateConnBanner(); });
+  window.addEventListener('online',  () => { isNetOnline = true;  updateConnBanner(); });
   window.addEventListener('offline', () => { isNetOnline = false; updateConnBanner(); });
+
+  db.collection(COLLECTION).limit(1).onSnapshot(
+    { includeMetadataChanges: true },
+    snap => { isFirestoreOnline = !snap.metadata.fromCache; updateConnBanner(); },
+    ()   => { isFirestoreOnline = false; updateConnBanner(); }
+  );
 
   updateConnBanner();
 </script>
@@ -712,17 +725,12 @@
 
     unsubscribe = db.collection(COLLECTION)
       .where('deliveryDate', '==', currentDateKey)
-      .onSnapshot({ includeMetadataChanges: true }, snap => {
-        // fromCache = true يعني البيانات جاية من الكاش المحلي فعليًا مفيش اتصال حي بالخادم
-        isFirestoreOnline = !snap.metadata.fromCache;
-        updateConnBanner();
+      .onSnapshot(snap => {
         allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         allBookings.sort((a, b) => (a.deliveryTime || '').localeCompare(b.deliveryTime || ''));
         render();
       }, err => {
         console.error(err);
-        isFirestoreOnline = false;
-        updateConnBanner();
         document.getElementById('tableBody').innerHTML =
           '<tr><td colspan="5" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
       });

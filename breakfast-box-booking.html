@@ -368,9 +368,11 @@
   /* ---------- شريط حالة الاتصال ---------- */
   .conn-banner{
     display:none;
-    position:sticky;
+    position:fixed;
     top:0;
-    z-index:999;
+    left:0;
+    right:0;
+    z-index:9999;
     width:100%;
     padding:11px 16px;
     text-align:center;
@@ -382,6 +384,7 @@
   .conn-banner.show{display:block;}
   .conn-banner.offline{background:#a13a3a;color:#fff;}
   .conn-banner.server{background:#8a5a15;color:#fff;}
+  body.conn-visible{padding-top:48px;}
 </style>
 </head>
 <body>
@@ -525,13 +528,16 @@
     if (!isNetOnline) {
       connBanner.textContent = '📡 لا يوجد اتصال بالإنترنت — لا يمكن إتمام الحجز الآن';
       connBanner.className = 'conn-banner show offline';
+      document.body.classList.add('conn-visible');
       if (submitBtn && !submitting) { submitBtn.disabled = true; submitBtn.textContent = 'غير متصل بالإنترنت'; }
     } else if (!isFirestoreOnline) {
       connBanner.textContent = '⚠️ تعذر الاتصال بخادم الحجوزات — جارٍ إعادة المحاولة...';
       connBanner.className = 'conn-banner show server';
+      document.body.classList.add('conn-visible');
       if (submitBtn && !submitting) { submitBtn.disabled = true; submitBtn.textContent = 'تعذر الاتصال بالخادم'; }
     } else {
       connBanner.className = 'conn-banner';
+      document.body.classList.remove('conn-visible');
       // رجّع زرار الإرسال لحالته الطبيعية حسب باب الحجز (مفتوح/مغلق)
       if (submitBtn && !submitting && typeof currentWindow !== 'undefined') {
         if (currentWindow.isOpen) { submitBtn.disabled = false; submitBtn.textContent = 'تأكيد الحجز'; }
