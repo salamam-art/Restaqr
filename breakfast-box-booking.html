@@ -364,9 +364,28 @@
     text-align:center;
   }
   .closed-banner.show{display:block;}
+
+  /* ---------- شريط حالة الاتصال ---------- */
+  .conn-banner{
+    display:none;
+    position:sticky;
+    top:0;
+    z-index:999;
+    width:100%;
+    padding:11px 16px;
+    text-align:center;
+    font-family:'Cairo',sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    line-height:1.5;
+  }
+  .conn-banner.show{display:block;}
+  .conn-banner.offline{background:#a13a3a;color:#fff;}
+  .conn-banner.server{background:#8a5a15;color:#fff;}
 </style>
 </head>
 <body>
+<div class="conn-banner" id="connBanner"></div>
 <div class="wrap">
 
   <header>
@@ -489,6 +508,62 @@
   const COLLECTION = "breakfast_bookings";
 </script>
 
+<!-- ============================================================
+     شريط حالة الاتصال — يظهر تحذير لو مفيش إنترنت أو تعذر الوصول لخادم Firebase
+     ============================================================ -->
+<script>
+  const connBanner = document.getElementById('connBanner');
+  let isNetOnline = navigator.onLine;
+  let isFirestoreOnline = true; // بيتحدث فعليًا أول ما يوصل رد من الاستماع بالأسفل
+
+  // ملاحظة: isSubmitting و currentWindow بيتعرّفوا فى الـ script اللي بعد ده،
+  // فبنستخدم typeof للتحقق من وجودهم قبل أول استدعاء لِـ updateConnBanner
+  function updateConnBanner() {
+    const submitBtn = document.getElementById('submitBtn');
+    const submitting = (typeof isSubmitting !== 'undefined') && isSubmitting;
+
+    if (!isNetOnline) {
+      connBanner.textContent = '📡 لا يوجد اتصال بالإنترنت — لا يمكن إتمام الحجز الآن';
+      connBanner.className = 'conn-banner show offline';
+      if (submitBtn && !submitting) { submitBtn.disabled = true; submitBtn.textContent = 'غير متصل بالإنترنت'; }
+    } else if (!isFirestoreOnline) {
+      connBanner.textContent = '⚠️ تعذر الاتصال بخادم الحجوزات — جارٍ إعادة المحاولة...';
+      connBanner.className = 'conn-banner show server';
+      if (submitBtn && !submitting) { submitBtn.disabled = true; submitBtn.textContent = 'تعذر الاتصال بالخادم'; }
+    } else {
+      connBanner.className = 'conn-banner';
+      // رجّع زرار الإرسال لحالته الطبيعية حسب باب الحجز (مفتوح/مغلق)
+      if (submitBtn && !submitting && typeof currentWindow !== 'undefined') {
+        if (currentWindow.isOpen) { submitBtn.disabled = false; submitBtn.textContent = 'تأكيد الحجز'; }
+        else { submitBtn.disabled = true; submitBtn.textContent = 'الحجز مغلق حاليًا'; }
+      }
+    }
+  }
+
+  function isConnected() {
+    return isNetOnline && isFirestoreOnline;
+  }
+
+  window.addEventListener('online', () => { isNetOnline = true; updateConnBanner(); });
+  window.addEventListener('offline', () => { isNetOnline = false; updateConnBanner(); });
+
+  // استماع خفيف الوزن (مستند واحد فقط) هدفه الوحيد اكتشاف الاتصال الفعلي بـ Firestore،
+  // عن طريق فحص metadata.fromCache: لو البيانات جاية من الكاش المحلي يبقى فعليًا مفيش اتصال
+  db.collection(COLLECTION).limit(1).onSnapshot(
+    { includeMetadataChanges: true },
+    snap => {
+      isFirestoreOnline = !snap.metadata.fromCache;
+      updateConnBanner();
+    },
+    () => {
+      isFirestoreOnline = false;
+      updateConnBanner();
+    }
+  );
+
+  updateConnBanner();
+</script>
+
 <script>
   // ---------- منطق نافذة الحجز ----------
   // القاعدة: باب الحجز يُفتح يوميًا الساعة 11:00 صباحًا ويظل مفتوحًا حتى الساعة 1:00 صباحًا
@@ -551,7 +626,7 @@
       rowLabel.textContent = 'يُغلق الحجز خلال';
       diff = currentWindow.close - now;
       banner.classList.remove('show');
-      if (!isSubmitting) {
+      if (!isSubmitting && isConnected()) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'تأكيد الحجز';
       }
@@ -564,6 +639,9 @@
         submitBtn.textContent = 'الحجز مغلق حاليًا';
       }
     }
+
+    // لو فيه مشكلة اتصال، شريط الحالة هو اللي بيتحكم فى شكل الزرار
+    if (!isConnected()) updateConnBanner();
 
     if (diff < 0) diff = 0;
     const h = Math.floor(diff / 3600000);
@@ -692,6 +770,13 @@
 
     if (!room || !guestName) {
       showNotice('error', 'من فضلك أدخل رقم الغرفة واسم النزيل.');
+      return;
+    }
+
+    if (!isConnected()) {
+      showNotice('error', !isNetOnline
+        ? 'لا يوجد اتصال بالإنترنت حاليًا. من فضلك تأكد من اتصالك وحاول مرة أخرى — لم يتم إرسال الحجز.'
+        : 'تعذر الوصول لخادم الحجوزات حاليًا. من فضلك حاول مرة أخرى بعد قليل — لم يتم إرسال الحجز.');
       return;
     }
 

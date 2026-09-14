@@ -437,9 +437,28 @@
   }
   .status-badge.ok{background:#e8f3ea;color:var(--sage);}
   .status-badge.pending{background:#f6efe4;color:var(--gold);}
+
+  /* ---------- شريط حالة الاتصال ---------- */
+  .conn-banner{
+    display:none;
+    position:sticky;
+    top:0;
+    z-index:999;
+    width:100%;
+    padding:11px 16px;
+    text-align:center;
+    font-family:'Cairo',sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    line-height:1.5;
+  }
+  .conn-banner.show{display:block;}
+  .conn-banner.offline{background:#a13a3a;color:#fff;}
+  .conn-banner.server{background:#8a5a15;color:#fff;}
 </style>
 </head>
 <body>
+<div class="conn-banner" id="connBanner"></div>
 
 <header>
   <h1>🍳 حجوزات بوكس الإفطار</h1>
@@ -545,6 +564,33 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const COLLECTION = "breakfast_bookings";
+</script>
+
+<!-- ============================================================
+     شريط حالة الاتصال — يظهر تحذير لو مفيش إنترنت أو تعذر الوصول لخادم Firebase
+     (الاتصال بـ Firestore بيتحدد فعليًا من metadata.fromCache فى استماع subscribe() بالأسفل)
+     ============================================================ -->
+<script>
+  const connBanner = document.getElementById('connBanner');
+  let isNetOnline = navigator.onLine;
+  let isFirestoreOnline = true;
+
+  function updateConnBanner() {
+    if (!isNetOnline) {
+      connBanner.textContent = '📡 لا يوجد اتصال بالإنترنت — البيانات المعروضة قد لا تكون محدثة';
+      connBanner.className = 'conn-banner show offline';
+    } else if (!isFirestoreOnline) {
+      connBanner.textContent = '⚠️ تعذر الاتصال بخادم البيانات (Firebase) — جارٍ إعادة المحاولة...';
+      connBanner.className = 'conn-banner show server';
+    } else {
+      connBanner.className = 'conn-banner';
+    }
+  }
+
+  window.addEventListener('online', () => { isNetOnline = true; updateConnBanner(); });
+  window.addEventListener('offline', () => { isNetOnline = false; updateConnBanner(); });
+
+  updateConnBanner();
 </script>
 
 <script>
@@ -666,12 +712,17 @@
 
     unsubscribe = db.collection(COLLECTION)
       .where('deliveryDate', '==', currentDateKey)
-      .onSnapshot(snap => {
+      .onSnapshot({ includeMetadataChanges: true }, snap => {
+        // fromCache = true يعني البيانات جاية من الكاش المحلي فعليًا مفيش اتصال حي بالخادم
+        isFirestoreOnline = !snap.metadata.fromCache;
+        updateConnBanner();
         allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         allBookings.sort((a, b) => (a.deliveryTime || '').localeCompare(b.deliveryTime || ''));
         render();
       }, err => {
         console.error(err);
+        isFirestoreOnline = false;
+        updateConnBanner();
         document.getElementById('tableBody').innerHTML =
           '<tr><td colspan="5" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
       });
