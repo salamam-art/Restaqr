@@ -344,6 +344,20 @@
   }
   .existing-flag.show{display:flex;}
 
+  .invalid-flag{
+    display:none;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:#a33a3a;
+    background:#fbeaea;
+    border:1px solid #f0caca;
+    padding:9px 12px;
+    border-radius:10px;
+    margin-top:8px;
+  }
+  .invalid-flag.show{display:flex;}
+
   footer{
     text-align:center;
     margin-top:28px;
@@ -427,6 +441,7 @@
       <label for="roomNumber">رقم الغرفة</label>
       <input type="text" id="roomNumber" inputmode="numeric" placeholder="مثال: 214" maxlength="6" required>
       <div class="existing-flag" id="existingFlag">✓ لديك حجز مسجل لهذا اليوم — يمكنك تعديله وإعادة الإرسال</div>
+      <div class="invalid-flag" id="invalidFlag">⚠ رقم الغرفة غير موجود بالفندق — من فضلك تأكد من الرقم</div>
     </div>
 
     <div class="field">
@@ -715,8 +730,31 @@
       .toUpperCase();
   }
 
+  // ---------- قائمة أرقام الغرف المسجلة بالفندق (110 غرفة) ----------
+  const VALID_ROOMS = new Set([
+    // الدور الأول — 42 غرفة
+    '101','102','103','104','105','106','107','108','109','110',
+    '111','112','113','114','115','116','117','118','119','120',
+    '121','122','123','124','125','126','127','128','129','130',
+    '131','132','133','134','135','136','137','138','139','140',
+    '141','143',
+    // الدور الثاني — 38 غرفة
+    '201','202','203','204','205','206','207','208','209','210',
+    '211','212','213','214','215','216','217','218','219','220',
+    '221','222','223','224','225','226','227','228','229','230',
+    '231','232','233','235','237','238','239','240',
+    // الدور الثالث — 30 غرفة
+    '302','303','304','305','306','307','308','309','310','311',
+    '312','313','314','315','317','323','324','325','326','327',
+    '328','329','330','331','344','355','366','377','388','399'
+  ]);
+  function isValidRoom(room) {
+    return VALID_ROOMS.has(room);
+  }
+
   // ---------- التحقق من حجز سابق لنفس الغرفة/اليوم ----------
   const roomInput = document.getElementById('roomNumber');
+  const invalidFlag = document.getElementById('invalidFlag');
   let lastCheckedKey = "";
 
   // تحويل ما يكتبه النزيل فورًا إلى أرقام إنجليزية موحّدة أثناء الكتابة
@@ -728,15 +766,27 @@
       roomInput.value = normalized;
       roomInput.setSelectionRange(Math.max(0, pos - diff), Math.max(0, pos - diff));
     }
+    invalidFlag.classList.remove('show');
   });
 
   async function checkExisting() {
     const room = normalizeRoomNumber(roomInput.value.trim());
+    const flag = document.getElementById('existingFlag');
+
+    if (!room) { invalidFlag.classList.remove('show'); flag.classList.remove('show'); return; }
+
+    if (!isValidRoom(room)) {
+      invalidFlag.classList.add('show');
+      flag.classList.remove('show');
+      lastCheckedKey = "";
+      return;
+    }
+    invalidFlag.classList.remove('show');
+
     const key = room + "_" + dateKey(currentWindow.target);
-    if (!room || key === lastCheckedKey) return;
+    if (key === lastCheckedKey) return;
     lastCheckedKey = key;
 
-    const flag = document.getElementById('existingFlag');
     try {
       const doc = await db.collection(COLLECTION).doc(key).get();
       if (doc.exists) {
@@ -798,6 +848,13 @@
 
     if (!room || !guestName) {
       showNotice('error', 'من فضلك أدخل رقم الغرفة واسم النزيل.');
+      return;
+    }
+
+    if (!isValidRoom(room)) {
+      invalidFlag.classList.add('show');
+      showNotice('error', 'رقم الغرفة غير مسجل بالفندق. من فضلك تأكد من الرقم قبل إرسال الحجز.');
+      roomInput.focus();
       return;
     }
 
