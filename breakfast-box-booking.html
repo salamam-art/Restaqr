@@ -425,7 +425,7 @@
   <form id="bookingForm">
     <div class="field">
       <label for="roomNumber">رقم الغرفة</label>
-      <input type="text" id="roomNumber" inputmode="numeric" placeholder="مثال: 214" required>
+      <input type="text" id="roomNumber" inputmode="numeric" placeholder="مثال: 214" maxlength="6" required>
       <div class="existing-flag" id="existingFlag">✓ لديك حجز مسجل لهذا اليوم — يمكنك تعديله وإعادة الإرسال</div>
     </div>
 
@@ -704,12 +704,34 @@
     if (qty > 1) { qty--; qtyLabel.textContent = qty; }
   });
 
+  // ---------- توحيد رقم الغرفة (عربي/إنجليزي) لمنع الحجز المزدوج ----------
+  function normalizeRoomNumber(value) {
+    const arabicIndic = '٠١٢٣٤٥٦٧٨٩';   // الأرقام العربية الهندية
+    const persian = '۰۱۲۳۴۵۶۷۸۹';       // الأرقام الفارسية (احتياطًا)
+    return (value || '')
+      .replace(/[٠-٩]/g, d => arabicIndic.indexOf(d))
+      .replace(/[۰-۹]/g, d => persian.indexOf(d))
+      .replace(/[^0-9A-Za-z]/g, '') // إزالة المسافات وأي رموز أخرى
+      .toUpperCase();
+  }
+
   // ---------- التحقق من حجز سابق لنفس الغرفة/اليوم ----------
   const roomInput = document.getElementById('roomNumber');
   let lastCheckedKey = "";
 
+  // تحويل ما يكتبه النزيل فورًا إلى أرقام إنجليزية موحّدة أثناء الكتابة
+  roomInput.addEventListener('input', () => {
+    const normalized = normalizeRoomNumber(roomInput.value);
+    if (roomInput.value !== normalized) {
+      const pos = roomInput.selectionStart;
+      const diff = roomInput.value.length - normalized.length;
+      roomInput.value = normalized;
+      roomInput.setSelectionRange(Math.max(0, pos - diff), Math.max(0, pos - diff));
+    }
+  });
+
   async function checkExisting() {
-    const room = roomInput.value.trim();
+    const room = normalizeRoomNumber(roomInput.value.trim());
     const key = room + "_" + dateKey(currentWindow.target);
     if (!room || key === lastCheckedKey) return;
     lastCheckedKey = key;
@@ -770,7 +792,7 @@
     e.preventDefault();
     notice.className = "notice";
 
-    const room = roomInput.value.trim();
+    const room = normalizeRoomNumber(roomInput.value.trim());
     const guestName = document.getElementById('guestName').value.trim();
     const deliveryTime = document.getElementById('deliveryTime').value;
 
