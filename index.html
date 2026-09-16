@@ -23,7 +23,7 @@
       --burg-deep:  #4a1a28;
       --ink:        #140a0e;
       --cream:      #f5ede0;
-      --cream-dim:  #c9b99e;
+      --cream-dim:  #ddccae;
     }
 
     html {
@@ -106,7 +106,7 @@
       font-size: clamp(0.6rem, 1.8vw, 0.72rem);
       letter-spacing: 0.45em;
       text-transform: uppercase;
-      color: var(--gold-mid);
+      color: var(--gold-light);
       margin-bottom: 0.9rem;
     }
     .hotel-name {
@@ -149,8 +149,8 @@
 
     .card {
       position: relative;
-      background: rgba(74,26,40,0.25);
-      border: 1px solid rgba(133,113,77,0.22);
+      background: rgba(74,26,40,0.55);
+      border: 1px solid rgba(133,113,77,0.35);
       border-radius: 4px;
       padding: clamp(1.3rem, 4vw, 2rem) clamp(1rem, 3vw, 1.8rem);
       cursor: pointer;
@@ -238,27 +238,30 @@
 
     .card-title {
       font-family: 'Cormorant Garamond', serif;
-      font-weight: 500;
+      font-weight: 600;
       font-size: clamp(1rem, 3.5vw, 1.25rem);
       letter-spacing: 0.07em;
-      color: var(--gold-pale);
+      color: var(--cream);
       line-height: 1.2;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
     }
     .card-desc {
       font-size: clamp(0.6rem, 1.8vw, 0.72rem);
-      font-weight: 300;
+      font-weight: 400;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--gold-mid);
-      opacity: 0.75;
+      color: var(--gold-light);
+      opacity: 1;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     }
     .card-title-ar {
       font-family: Tahoma, Arial, sans-serif;
-      font-weight: 400;
+      font-weight: 500;
       font-size: clamp(0.78rem, 2.6vw, 0.92rem);
-      color: var(--cream-dim);
+      color: var(--cream);
       direction: rtl;
       margin-top: 0.1rem;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
     }
     .card-arrow {
       margin-top: 0.2rem;
