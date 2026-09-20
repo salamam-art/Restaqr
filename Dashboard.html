@@ -3334,26 +3334,16 @@ function renderSettings(){
         <label>رابط الشعار (Logo URL)</label>
         <input type="text" id="stLogoUrl" value="${escapeHtml(info.logoUrl || '')}">
       </div>
-      <div class="field">
-        <label>الأسعار الأساسية مؤكدة حتى تاريخ</label>
-        <input type="date" id="stPricingConfirmedUntil" value="${escapeHtml(info.pricingConfirmedUntil || '')}">
-      </div>
-      <p class="mini-note">
-        أي تاريخ حجز بعد هذا اليوم يُمنع تلقائيا من صفحة الضيف ما لم يكن له سعر موسمي محدد مسبقا من "الأسعار الموسمية" —
-        عشان الأسعار الأساسية (اللي دلوقت مضبوطة لسنة معينة) ماتتطبقش غلط على سنة جاية لسه معملهاش أسعار.
-        حدّث التاريخ ده كل ما تحددوا الأسعار الأساسية لسنة جديدة.
-      </p>
       <button class="btn btn-primary" id="btnSaveSettings">حفظ الإعدادات</button>
     </div>
   `;
   document.getElementById('btnSaveSettings').addEventListener('click', async () => {
     const name = document.getElementById('stHotelName').value.trim();
     const logoUrl = document.getElementById('stLogoUrl').value.trim();
-    const pricingConfirmedUntil = document.getElementById('stPricingConfirmedUntil').value;
     const btn = document.getElementById('btnSaveSettings');
     setBtnLoading(btn, true);
     try{
-      await db.ref('hotelInfo').update({ name, logoUrl, pricingConfirmedUntil });
+      await db.ref('hotelInfo').update({ name, logoUrl });
       toastMsg('تم حفظ الإعدادات', 'success');
     }catch(err){
       console.error(err);
