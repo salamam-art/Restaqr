@@ -1297,6 +1297,28 @@
     renderFeedback();
   });
 
+  // ---------- حذف استبيان ----------
+  document.getElementById('fbList').addEventListener('click', async (e) => {
+    const btn = e.target.closest('.delete-btn');
+    if (!btn) return;
+    const id = btn.dataset.deleteFbId;
+    const item = allFeedback.find(f => f.id === id);
+    if (!item) return;
+
+    const label = `غرفة ${item.roomNumber || '—'}` + (item.guestName ? ` (${item.guestName})` : '');
+    if (!confirm(`هل تريد حذف استبيان ${label}؟\nلا يمكن التراجع عن الحذف.`)) return;
+
+    btn.disabled = true;
+    try {
+      await db.collection(FEEDBACK_COLLECTION).doc(id).delete();
+      // القائمة والإحصائيات بتتحدّث تلقائيًا من onSnapshot
+    } catch (err) {
+      console.error(err);
+      btn.disabled = false;
+      alert('تعذّر حذف الاستبيان. تأكد من الاتصال وصلاحيات Firestore ثم حاول مرة أخرى.');
+    }
+  });
+
   function renderFeedback() {
     document.getElementById('fbTotal').textContent = allFeedback.length;
     fbSummarize('useful', 'fbUsefulPct', 'fbUsefulSub');
@@ -1332,6 +1354,7 @@
               <span class="fb-name">${escapeHtml(r.guestName || '—')}</span>
             </div>
             <span class="fb-date">${escapeHtml(formatBookedAt(r))}</span>
+            <button type="button" class="delete-btn" data-delete-fb-id="${r.id}">🗑️ حذف</button>
           </div>
           ${badges.length ? `<div class="fb-badges">${badges.join('')}</div>` : ''}
           ${r.comment ? `<div class="fb-comment">${escapeHtml(r.comment)}</div>` : ''}
