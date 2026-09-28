@@ -214,6 +214,23 @@
   }
   .deliver-toggle input{width:18px;height:18px;cursor:pointer;}
 
+  .delete-btn{
+    padding:7px 12px;
+    border-radius:10px;
+    border:1.5px solid #e6c4c4;
+    background:#fbecec;
+    color:#a13a3a;
+    font-family:'Cairo',sans-serif;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    white-space:nowrap;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .delete-btn:hover{background:#f6dcdc;}
+  .delete-btn:disabled{opacity:.5;cursor:default;}
+
   .empty-state{
     text-align:center;
     padding:60px 20px;
@@ -352,6 +369,7 @@
     .booking-card-footer{padding-top:5px;}
     .booking-card-footer .status-badge{font-size:11px;font-weight:800;padding:3px 8px;}
     .deliver-toggle-card{display:none !important;}
+    .delete-btn{display:none !important;}
   }
 
   /* ---------- تبويبات (الحجوزات / الأرشيف) ---------- */
@@ -542,10 +560,11 @@
             <th>ساعة التسليم</th>
             <th>وقت الحجز</th>
             <th>الحالة</th>
+            <th>حذف</th>
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="6" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>
+          <tr><td colspan="7" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>
         </tbody>
       </table>
     </div>
@@ -790,7 +809,7 @@
   function subscribe() {
     if (unsubscribe) unsubscribe();
     document.getElementById('tableBody').innerHTML =
-      '<tr><td colspan="6" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>';
+      '<tr><td colspan="7" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>';
 
     unsubscribe = db.collection(COLLECTION)
       .where('deliveryDate', '==', currentDateKey)
@@ -801,7 +820,7 @@
       }, err => {
         console.error(err);
         document.getElementById('tableBody').innerHTML =
-          '<tr><td colspan="6" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
+          '<tr><td colspan="7" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
       });
   }
 
@@ -826,7 +845,7 @@
     const mobileCards = document.getElementById('mobileCards');
 
     if (rows.length === 0) {
-      body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div></td></tr>`;
       mobileCards.innerHTML = `<div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div>`;
       return;
     }
@@ -845,6 +864,7 @@
             ${r.delivered ? 'تم التسليم' : 'تعليم كمُسلَّم'}
           </label>
         </td>
+        <td><button type="button" class="delete-btn" data-delete-id="${r.id}">🗑️ حذف</button></td>
       </tr>
     `).join('');
 
@@ -875,6 +895,7 @@
             <input type="checkbox" data-id="${r.id}" ${r.delivered ? 'checked' : ''}>
             ${r.delivered ? 'تم التسليم' : 'تعليم كمُسلَّم'}
           </label>
+          <button type="button" class="delete-btn" data-delete-id="${r.id}">🗑️ حذف</button>
         </div>
       </div>
     `).join('');
@@ -915,6 +936,30 @@
       });
     });
   }
+
+  // ---------- حذف حجز ----------
+  async function handleDeleteClick(e) {
+    const btn = e.target.closest('.delete-btn');
+    if (!btn) return;
+    const id = btn.dataset.deleteId;
+    const booking = allBookings.find(b => b.id === id);
+    if (!booking) return;
+
+    const label = `غرفة ${booking.roomNumber || '—'}` + (booking.guestName ? ` (${booking.guestName})` : '');
+    if (!confirm(`هل تريد حذف حجز ${label}؟\nلا يمكن التراجع عن الحذف.`)) return;
+
+    btn.disabled = true;
+    try {
+      await db.collection(COLLECTION).doc(id).delete();
+      // القائمة بتتحدّث تلقائيًا من onSnapshot
+    } catch (err) {
+      console.error(err);
+      btn.disabled = false;
+      alert('تعذّر حذف الحجز. تأكد من الاتصال وصلاحيات Firestore ثم حاول مرة أخرى.');
+    }
+  }
+  document.getElementById('tableBody').addEventListener('click', handleDeleteClick);
+  document.getElementById('mobileCards').addEventListener('click', handleDeleteClick);
 
   document.getElementById('searchInput').addEventListener('input', (e) => {
     searchTerm = e.target.value;

@@ -358,6 +358,52 @@
   }
   .invalid-flag.show{display:flex;}
 
+  /* ---------- استبيان رأي النزلاء (داخل الفورم) ---------- */
+  .survey{
+    background:var(--card);
+    border:1px dashed var(--line);
+    border-radius:14px;
+    padding:14px 16px 2px;
+    margin-bottom:18px;
+  }
+  .survey-title{
+    font-size:14px;
+    font-weight:800;
+    color:var(--ink);
+    margin-bottom:4px;
+  }
+  .survey-title span{font-size:12.5px;font-weight:600;color:var(--muted);}
+  .survey-q{
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--ink);
+    margin:12px 0 6px;
+  }
+  .opts{display:flex;flex-wrap:wrap;gap:4px 18px;}
+  .opt{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:4px 0;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--text);
+    cursor:pointer;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .opt input{
+    width:16px;
+    height:16px;
+    margin:0;
+    flex-shrink:0;
+    accent-color:var(--gold);
+    cursor:pointer;
+  }
+  .survey .field{margin:12px 0 14px;}
+  .survey .field label{font-size:13.5px;margin-bottom:6px;}
+  .survey .field textarea{min-height:56px;}
+
   footer{
     text-align:center;
     margin-top:28px;
@@ -481,6 +527,29 @@
       <label for="deliveryTime">ساعة التسليم</label>
       <select id="deliveryTime" required></select>
       <div class="hint">التسليم صباح اليوم التالي، اختر الموعد المناسب لك ضمن ساعات الخدمة</div>
+    </div>
+
+    <div class="survey">
+      <div class="survey-title">💬 رأيك يهمنا <span>(اختياري)</span></div>
+
+      <div class="survey-q">هل التطبيق مفيد بالنسبة لك؟</div>
+      <div class="opts" data-name="useful">
+        <label class="opt"><input type="checkbox" value="high"><span>مفيد جدًا</span></label>
+        <label class="opt"><input type="checkbox" value="mid"><span>مفيد إلى حد ما</span></label>
+        <label class="opt"><input type="checkbox" value="low"><span>غير مفيد</span></label>
+      </div>
+
+      <div class="survey-q">هل كان طلب البوكسات سهلًا؟</div>
+      <div class="opts" data-name="easy">
+        <label class="opt"><input type="checkbox" value="high"><span>سهل جدًا</span></label>
+        <label class="opt"><input type="checkbox" value="mid"><span>سهل إلى حد ما</span></label>
+        <label class="opt"><input type="checkbox" value="low"><span>صعب</span></label>
+      </div>
+
+      <div class="field">
+        <label for="fbComment">هل هناك تعديلات أو إضافات تحب أن نضيفها؟</label>
+        <textarea id="fbComment" maxlength="1000" rows="2" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+      </div>
     </div>
 
     <button type="submit" class="submit-btn" id="submitBtn">تأكيد الحجز</button>
@@ -889,7 +958,8 @@
 
     try {
       await db.collection(COLLECTION).doc(key).set(payload, { merge: true });
-      showConfirmModal(`تم تأكيد الحجز ✓ — ${qty} بوكس إفطار، الإستلام الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} من مطعم الجرين هاوس.`);
+      const feedbackSent = await sendSurveyFeedback(room, guestName);
+      showConfirmModal(`تم تأكيد الحجز ✓ — ${qty} بوكس إفطار، الإستلام الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} من مطعم الجرين هاوس.` + (feedbackSent ? ' شكرًا على رأيك 🙏' : ''));
       lastCheckedKey = "";
       checkExisting();
     } catch (err) {
@@ -901,6 +971,51 @@
       submitBtn.textContent = 'تأكيد الحجز';
     }
   });
+
+  // ---------- استبيان رأي النزلاء ----------
+  // الخيارات checkbox لكن كل مجموعة بتقبل اختيار واحد فقط (اختيار جديد يلغي القديم)
+  const FEEDBACK_COLLECTION = "breakfast_feedback";
+  const fbState = { useful: null, easy: null };
+
+  document.querySelectorAll('.survey .opts').forEach(group => {
+    const key = group.dataset.name;
+    const boxes = group.querySelectorAll('input[type=checkbox]');
+    boxes.forEach(box => {
+      box.addEventListener('change', () => {
+        if (box.checked) {
+          boxes.forEach(b => { if (b !== box) b.checked = false; });
+          fbState[key] = box.value;
+        } else {
+          fbState[key] = null;
+        }
+      });
+    });
+  });
+
+  // بيتنادى بعد نجاح الحجز — لو النزيل ما اختارش حاجة ولا كتب حاجة ما بيتبعتش شئ
+  // وفشل إرسال الرأي ما بيأثرش على الحجز نفسه
+  async function sendSurveyFeedback(room, guestName) {
+    const comment = document.getElementById('fbComment').value.trim();
+    if (!fbState.useful && !fbState.easy && !comment) return false;
+    try {
+      await db.collection(FEEDBACK_COLLECTION).add({
+        roomNumber: room,
+        guestName: guestName,
+        useful: fbState.useful,
+        easy: fbState.easy,
+        comment: comment,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      fbState.useful = null;
+      fbState.easy = null;
+      document.querySelectorAll('.survey input[type=checkbox]').forEach(b => { b.checked = false; });
+      document.getElementById('fbComment').value = '';
+      return true;
+    } catch (err) {
+      console.error('تعذر إرسال الرأي:', err);
+      return false;
+    }
+  }
 </script>
 </body>
 </html>
