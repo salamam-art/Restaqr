@@ -202,6 +202,7 @@
   .room-cell{font-weight:800;color:var(--ink);font-size:16px;}
   .time-cell{font-weight:700;color:var(--ink);direction:ltr;text-align:right;}
   .qty-cell{font-weight:800;text-align:center;}
+  .booked-cell{font-size:13px;color:var(--muted);white-space:nowrap;}
   .deliver-toggle{
     display:flex;
     align-items:center;
@@ -502,11 +503,12 @@
             <th>اسم النزيل</th>
             <th>الكمية</th>
             <th>ساعة التسليم</th>
+            <th>وقت الحجز</th>
             <th>الحالة</th>
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="5" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>
+          <tr><td colspan="6" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>
         </tbody>
       </table>
     </div>
@@ -541,6 +543,7 @@
               <th>اسم النزيل</th>
               <th>الكمية</th>
               <th>ساعة التسليم</th>
+            <th>وقت الحجز</th>
               <th>الحالة</th>
             </tr>
           </thead>
@@ -704,6 +707,22 @@
     `;
   }
 
+  // ---------- وقت إنشاء الحجز ----------
+  // بيقرأ createdAt (Firestore Timestamp) وبيقبل أسماء بديلة/نص ISO
+  function getBookedAtDate(r) {
+    const v = r.createdAt || r.bookedAt || r.timestamp;
+    if (!v) return null;
+    if (typeof v.toDate === 'function') return v.toDate();
+    const d = new Date(v);
+    return isNaN(d) ? null : d;
+  }
+
+  function formatBookedAt(r) {
+    const d = getBookedAtDate(r);
+    if (!d) return '—';
+    return d.toLocaleString('ar-EG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true });
+  }
+
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, c => ({
       '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -721,7 +740,7 @@
   function subscribe() {
     if (unsubscribe) unsubscribe();
     document.getElementById('tableBody').innerHTML =
-      '<tr><td colspan="5" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>';
+      '<tr><td colspan="6" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>';
 
     unsubscribe = db.collection(COLLECTION)
       .where('deliveryDate', '==', currentDateKey)
@@ -732,7 +751,7 @@
       }, err => {
         console.error(err);
         document.getElementById('tableBody').innerHTML =
-          '<tr><td colspan="5" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
+          '<tr><td colspan="6" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
       });
   }
 
@@ -757,7 +776,7 @@
     const mobileCards = document.getElementById('mobileCards');
 
     if (rows.length === 0) {
-      body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div></td></tr>`;
       mobileCards.innerHTML = `<div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div>`;
       return;
     }
@@ -769,6 +788,7 @@
         <td>${escapeHtml(r.guestName || '')}</td>
         <td class="qty-cell">${r.quantity || 1}</td>
         <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
+        <td class="booked-cell">${escapeHtml(formatBookedAt(r))}</td>
         <td>
           <label class="deliver-toggle">
             <input type="checkbox" data-id="${r.id}" ${r.delivered ? 'checked' : ''}>
@@ -793,6 +813,10 @@
           <div class="booking-card-field">
             <div class="field-label">عدد البوكسات</div>
             <div class="field-value">🧺 ${r.quantity || 1}</div>
+          </div>
+          <div class="booking-card-field" style="grid-column:1 / -1;">
+            <div class="field-label">وقت الحجز</div>
+            <div class="field-value">🕓 ${escapeHtml(formatBookedAt(r))}</div>
           </div>
         </div>
         <div class="booking-card-footer">
@@ -863,7 +887,7 @@
 
     const wrap = document.createElement('div');
     wrap.style.cssText =
-      'position:fixed;top:-9999px;left:-9999px;width:620px;background:#ffffff;' +
+      'position:fixed;top:-9999px;left:-9999px;width:max-content;min-width:340px;max-width:620px;background:#ffffff;' +
       'font-family:Cairo,sans-serif;direction:rtl;padding:18px;color:#22201a;';
 
     wrap.innerHTML = `
@@ -881,28 +905,24 @@
           <div style="font-size:8px;color:#726c5e;">بوكس إفطار</div>
         </div>
       </div>
-      <table style="width:100%;table-layout:fixed;border-collapse:collapse;font-size:10px;">
-        <colgroup>
-          <col style="width:14%;">
-          <col style="width:36%;">
-          <col style="width:14%;">
-          <col style="width:36%;">
-        </colgroup>
+      <table style="width:auto;min-width:0;max-width:none;margin:0 auto;border-collapse:collapse;font-size:11px;">
         <thead>
           <tr style="background:#f4f1ea;">
-            <th style="padding:5px 6px;text-align:right;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">الغرفة</th>
-            <th style="padding:5px 6px;text-align:right;border-bottom:1.5px solid #e2ddd0;">النزيل</th>
-            <th style="padding:5px 6px;text-align:center;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">الكمية</th>
-            <th style="padding:5px 6px;text-align:center;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">الوقت</th>
+            <th style="font-size:11px;padding:5px 12px;text-align:right;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">الغرفة</th>
+            <th style="font-size:11px;padding:5px 12px;text-align:right;border-bottom:1.5px solid #e2ddd0;">النزيل</th>
+            <th style="font-size:11px;padding:5px 12px;text-align:center;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">الكمية</th>
+            <th style="font-size:11px;padding:5px 12px;text-align:center;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">التسليم</th>
+            <th style="font-size:11px;padding:5px 12px;text-align:center;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">وقت الحجز</th>
           </tr>
         </thead>
         <tbody>
           ${rows.map(r => `
             <tr>
-              <td style="padding:4px 6px;border-bottom:1px solid #eee;font-weight:800;white-space:nowrap;">${escapeHtml(r.roomNumber || '')}</td>
-              <td style="padding:4px 6px;border-bottom:1px solid #eee;word-break:break-word;">${escapeHtml(r.guestName || '')}</td>
-              <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;font-weight:800;color:#b8863b;white-space:nowrap;">${r.quantity || 1}</td>
-              <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;direction:ltr;font-weight:700;white-space:nowrap;">${escapeHtml(r.deliveryTime || '—')}</td>
+              <td style="font-size:11px;padding:4px 12px;border-bottom:1px solid #eee;font-weight:800;white-space:nowrap;">${escapeHtml(r.roomNumber || '')}</td>
+              <td style="font-size:11px;padding:4px 12px;border-bottom:1px solid #eee;word-break:break-word;max-width:190px;">${escapeHtml(r.guestName || '')}</td>
+              <td style="font-size:11px;padding:4px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:800;color:#b8863b;white-space:nowrap;">${r.quantity || 1}</td>
+              <td style="font-size:11px;padding:4px 12px;border-bottom:1px solid #eee;text-align:center;direction:ltr;font-weight:700;white-space:nowrap;">${escapeHtml(r.deliveryTime || '—')}</td>
+              <td style="font-size:11px;padding:4px 12px;border-bottom:1px solid #eee;text-align:center;white-space:nowrap;">${escapeHtml(formatBookedAt(r))}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -1068,7 +1088,7 @@
     const mobileCards = document.getElementById('archiveMobileCards');
 
     if (rows.length === 0) {
-      body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مسجّلة لهذا اليوم</div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مسجّلة لهذا اليوم</div></td></tr>`;
       mobileCards.innerHTML = `<div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مسجّلة لهذا اليوم</div>`;
       return;
     }
@@ -1080,6 +1100,7 @@
         <td>${escapeHtml(r.guestName || '')}</td>
         <td class="qty-cell">${r.quantity || 1}</td>
         <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
+        <td class="booked-cell">${escapeHtml(formatBookedAt(r))}</td>
         <td><span class="status-badge ${r.delivered ? 'ok' : 'pending'}">${r.delivered ? 'تم التسليم' : 'لم يُسلَّم'}</span></td>
       </tr>
     `).join('');
@@ -1099,6 +1120,10 @@
           <div class="booking-card-field">
             <div class="field-label">عدد البوكسات</div>
             <div class="field-value">🧺 ${r.quantity || 1}</div>
+          </div>
+          <div class="booking-card-field" style="grid-column:1 / -1;">
+            <div class="field-label">وقت الحجز</div>
+            <div class="field-value">🕓 ${escapeHtml(formatBookedAt(r))}</div>
           </div>
         </div>
         <div class="booking-card-footer">
