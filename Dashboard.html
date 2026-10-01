@@ -288,6 +288,11 @@
     cursor:pointer;padding:4px 0;text-decoration:underline;
   }
   .link-btn-danger{color:var(--color-danger);}
+  /* روابط الاتصال / واتساب / البريد */
+  .contact-link{color:var(--color-primary);text-decoration:none;font-weight:600;}
+  .contact-link:hover{text-decoration:underline;}
+  .contact-wa{display:inline-flex;vertical-align:middle;margin-inline-start:8px;color:#25D366;}
+  .contact-wa svg{width:20px;height:20px;fill:currentColor;display:block;}
   .empty-state{
     text-align:center;padding:40px 20px;color:var(--color-text-muted);font-size:14px;
   }
@@ -687,6 +692,25 @@ function escapeHtml(str){
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+/* ===== روابط التواصل: اتصال مباشر / واتساب / بريد إلكتروني ===== */
+function phoneLinksHtml(phone){
+  const raw = String(phone || '').trim();
+  if(!raw) return '';
+  let tel = raw.replace(/[^\d+]/g, '');
+  let wa = raw.replace(/\D/g, '');
+  if(wa.startsWith('00')) wa = wa.slice(2);
+  else if(wa.startsWith('0')) wa = '20' + wa.slice(1);   // رقم محلي مصري → كود الدولة
+  if(!wa) return escapeHtml(raw);
+  return `<a class="contact-link" href="tel:${escapeHtml(tel)}" title="اتصال">${escapeHtml(raw)}</a>` +
+    `<a class="contact-wa" href="https://wa.me/${wa}" target="_blank" rel="noopener" title="مراسلة عبر واتساب" aria-label="واتساب">` +
+    `<svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.3-1.4-.8-.8-1.4-1.7-1.6-2-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-2.9-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.200z"/></svg></a>`;
+}
+function emailLinkHtml(email){
+  const raw = String(email || '').trim();
+  if(!raw) return '—';
+  return `<a class="contact-link" href="mailto:${escapeHtml(raw)}" title="إرسال بريد إلكتروني">${escapeHtml(raw)}</a>`;
 }
 
 function statusLabel(status){
@@ -2536,7 +2560,7 @@ function renderBookingsTable(pageKey){
           <tr>
             <td style="direction:ltr;text-align:left;">${escapeHtml(b.bookingNumber)}</td>
             <td>${escapeHtml(b.customerName)}</td>
-            <td style="direction:ltr;text-align:left;">${escapeHtml(b.phone)}</td>
+            <td style="direction:ltr;text-align:left;">${phoneLinksHtml(b.phone)}</td>
             <td>${b.arrivalDate}</td>
             <td>${b.departureDate}</td>
             <td>${roomsSummaryHtml(b.rooms)}</td>
@@ -2556,7 +2580,7 @@ function renderBookingsTable(pageKey){
       <div class="bk-card-top">
         <div>
           <div class="bk-card-name">${escapeHtml(b.customerName)}</div>
-          <div class="bk-card-phone">${escapeHtml(b.phone)}</div>
+          <div class="bk-card-phone">${phoneLinksHtml(b.phone)}</div>
         </div>
         <span class="pill ${statusPillClass(b.status)}">${statusLabel(b.status)}</span>
       </div>
@@ -2592,8 +2616,8 @@ function openBookingDetails(bookingId){
       <div class="modal-box" style="max-width:560px;">
         <div class="modal-title">تفاصيل الحجز — ${escapeHtml(b.bookingNumber)}</div>
         <div class="detail-row"><b>الاسم</b><span>${escapeHtml(b.customerName)}</span></div>
-        <div class="detail-row"><b>الهاتف</b><span style="direction:ltr;">${escapeHtml(b.phone)}</span></div>
-        <div class="detail-row"><b>البريد الإلكتروني</b><span>${escapeHtml(b.email || '—')}</span></div>
+        <div class="detail-row"><b>الهاتف</b><span style="direction:ltr;">${phoneLinksHtml(b.phone)}</span></div>
+        <div class="detail-row"><b>البريد الإلكتروني</b><span style="direction:ltr;">${emailLinkHtml(b.email)}</span></div>
         <div class="detail-row"><b>الوصول</b><span>${b.arrivalDate}</span></div>
         <div class="detail-row"><b>المغادرة</b><span>${b.departureDate}</span></div>
         <div class="detail-row"><b>الغرف</b><span style="text-align:left;">${roomsSummaryHtml(b.rooms)}</span></div>
@@ -3205,7 +3229,7 @@ function renderUsers(){
             ${list.length === 0 ? '' : list.map(([uid, u]) => `
               <tr>
                 <td><b>${escapeHtml(u.name)}</b></td>
-                <td style="direction:ltr;text-align:left;">${escapeHtml(u.email)}</td>
+                <td style="direction:ltr;text-align:left;">${emailLinkHtml(u.email)}</td>
                 <td>مدير</td>
                 <td><span class="pill ${u.active !== false ? 'pill-active' : 'pill-inactive'}">${u.active !== false ? 'مفعّل' : 'معطّل'}</span></td>
                 <td class="row-actions">
@@ -3220,7 +3244,7 @@ function renderUsers(){
         ${list.length === 0 ? '' : list.map(([uid, u]) => `
           <div class="mob-card">
             <div class="mob-card-title">${escapeHtml(u.name)}</div>
-            <div class="mob-card-row"><b>البريد</b><span style="direction:ltr;">${escapeHtml(u.email || '—')}</span></div>
+            <div class="mob-card-row"><b>البريد</b><span style="direction:ltr;">${emailLinkHtml(u.email)}</span></div>
             <div class="mob-card-row"><b>الدور</b><span>مدير</span></div>
             <div class="mob-card-row"><b>الحالة</b><span class="pill ${u.active !== false ? 'pill-active' : 'pill-inactive'}">${u.active !== false ? 'مفعّل' : 'معطّل'}</span></div>
             <div class="mob-card-actions">
