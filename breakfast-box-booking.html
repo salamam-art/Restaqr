@@ -545,11 +545,6 @@
         <label class="opt"><input type="checkbox" value="mid"><span>سهل إلى حد ما</span></label>
         <label class="opt"><input type="checkbox" value="low"><span>صعب</span></label>
       </div>
-
-      <div class="field">
-        <label for="fbComment">هل هناك تعديلات أو إضافات تحب أن نضيفها؟</label>
-        <textarea id="fbComment" maxlength="1000" rows="2" placeholder="اكتب ملاحظاتك هنا..."></textarea>
-      </div>
     </div>
 
     <button type="submit" class="submit-btn" id="submitBtn">تأكيد الحجز</button>
@@ -992,24 +987,21 @@
     });
   });
 
-  // بيتنادى بعد نجاح الحجز — لو النزيل ما اختارش حاجة ولا كتب حاجة ما بيتبعتش شئ
+  // بيتنادى بعد نجاح الحجز — لو النزيل ما اختارش حاجة ما بيتبعتش شئ
   // وفشل إرسال الرأي ما بيأثرش على الحجز نفسه
   async function sendSurveyFeedback(room, guestName) {
-    const comment = document.getElementById('fbComment').value.trim();
-    if (!fbState.useful && !fbState.easy && !comment) return false;
+    if (!fbState.useful && !fbState.easy) return false;
     try {
       await db.collection(FEEDBACK_COLLECTION).add({
         roomNumber: room,
         guestName: guestName,
         useful: fbState.useful,
         easy: fbState.easy,
-        comment: comment,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       fbState.useful = null;
       fbState.easy = null;
       document.querySelectorAll('.survey input[type=checkbox]').forEach(b => { b.checked = false; });
-      document.getElementById('fbComment').value = '';
       return true;
     } catch (err) {
       console.error('تعذر إرسال الرأي:', err);
