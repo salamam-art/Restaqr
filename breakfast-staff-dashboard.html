@@ -202,6 +202,17 @@
   .room-cell{font-weight:800;color:var(--ink);font-size:16px;}
   .time-cell{font-weight:700;color:var(--ink);direction:ltr;text-align:right;}
   .qty-cell{font-weight:800;text-align:center;}
+  .multi-tag{
+    display:inline-block;
+    margin-right:6px;
+    padding:2px 8px;
+    border-radius:10px;
+    font-size:11px;
+    font-weight:700;
+    color:var(--gold);
+    background:#f6efe4;
+    vertical-align:middle;
+  }
   .booked-cell{font-size:13px;color:var(--muted);white-space:nowrap;}
   .deliver-toggle{
     display:flex;
@@ -322,7 +333,7 @@
     }
 
     .summary{
-      grid-template-columns:repeat(3, 1fr);
+      grid-template-columns:repeat(4, 1fr);
       gap:6px;
       margin-bottom:10px;
     }
@@ -522,8 +533,9 @@
     <div class="print-date-heading" id="printDateHeading"></div>
     <div class="summary" id="summary">
       <div class="card"><div class="num" id="totalRooms">—</div><div class="lbl">عدد الغرف</div></div>
+      <div class="card"><div class="num" id="totalBookings">—</div><div class="lbl">عدد الحجوزات</div></div>
       <div class="card"><div class="num" id="totalBoxes">—</div><div class="lbl">إجمالي البوكسات</div></div>
-      <div class="card delivered"><div class="num" id="totalDelivered">—</div><div class="lbl">تم تسليمه</div></div>
+      <div class="card delivered"><div class="num" id="totalDelivered">—</div><div class="lbl">حجوزات تم تسليمها</div></div>
     </div>
 
     <div class="contents-panel" id="contentsPanel"></div>
@@ -569,8 +581,9 @@
       <h2 id="archiveDetailTitle" style="margin:0 0 14px;font-size:18px;color:var(--ink);"></h2>
       <div class="summary">
         <div class="card"><div class="num" id="archTotalRooms">—</div><div class="lbl">عدد الغرف</div></div>
+        <div class="card"><div class="num" id="archTotalBookings">—</div><div class="lbl">عدد الحجوزات</div></div>
         <div class="card"><div class="num" id="archTotalBoxes">—</div><div class="lbl">إجمالي البوكسات</div></div>
-        <div class="card delivered"><div class="num" id="archTotalDelivered">—</div><div class="lbl">تم تسليمه</div></div>
+        <div class="card delivered"><div class="num" id="archTotalDelivered">—</div><div class="lbl">حجوزات تم تسليمها</div></div>
       </div>
       <div class="table-wrap">
         <table>
@@ -782,6 +795,24 @@
 
   renderContentsPanel();
 
+  // ---------- أكثر من حجز للغرفة الواحدة ----------
+  function uniqueRooms(list) { return new Set(list.map(r => r.roomNumber || '')).size; }
+  function roomCountMap(list) {
+    const m = new Map();
+    list.forEach(r => m.set(r.roomNumber, (m.get(r.roomNumber) || 0) + 1));
+    return m;
+  }
+  function multiTag(r, counts) {
+    const n = counts.get(r.roomNumber) || 1;
+    return n > 1 ? `<span class="multi-tag">${n} حجوزات</span>` : '';
+  }
+  function sortBookings(list) {
+    return list.sort((a, b) =>
+      (a.deliveryTime || '').localeCompare(b.deliveryTime || '') ||
+      (a.roomNumber || '').localeCompare(b.roomNumber || '') ||
+      (a.guestName || '').localeCompare(b.guestName || ''));
+  }
+
   // ---------- بيانات ----------
   let allBookings = [];
   let unsubscribe = null;
@@ -797,7 +828,7 @@
       .where('deliveryDate', '==', currentDateKey)
       .onSnapshot(snap => {
         allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        allBookings.sort((a, b) => (a.deliveryTime || '').localeCompare(b.deliveryTime || ''));
+        sortBookings(allBookings);
         render();
       }, err => {
         console.error(err);
@@ -819,12 +850,14 @@
     }
 
     // ملخص يُحسب دائمًا من كامل حجوزات اليوم (غير متأثر بالفلتر/البحث)
-    document.getElementById('totalRooms').textContent = allBookings.length;
+    document.getElementById('totalRooms').textContent = uniqueRooms(allBookings);
+    document.getElementById('totalBookings').textContent = allBookings.length;
     document.getElementById('totalBoxes').textContent = allBookings.reduce((s, r) => s + (r.quantity || 0), 0);
     document.getElementById('totalDelivered').textContent = allBookings.filter(r => r.delivered).length;
 
     const body = document.getElementById('tableBody');
     const mobileCards = document.getElementById('mobileCards');
+    const roomCounts = roomCountMap(allBookings);
 
     if (rows.length === 0) {
       body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div></td></tr>`;
@@ -835,7 +868,7 @@
     // ---------- جدول الديسكتوب ----------
     body.innerHTML = rows.map(r => `
       <tr class="${r.delivered ? 'delivered' : ''}">
-        <td class="room-cell">${escapeHtml(r.roomNumber || '')}</td>
+        <td class="room-cell">${escapeHtml(r.roomNumber || '')}${multiTag(r, roomCounts)}</td>
         <td>${escapeHtml(r.guestName || '')}</td>
         <td class="qty-cell">${r.quantity || 1}</td>
         <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
@@ -853,7 +886,7 @@
     mobileCards.innerHTML = rows.map(r => `
       <div class="booking-card ${r.delivered ? 'delivered' : ''}" data-id="${r.id}">
         <div class="booking-card-header">
-          <div class="booking-card-room">🚪 ${escapeHtml(r.roomNumber || '—')}</div>
+          <div class="booking-card-room">🚪 ${escapeHtml(r.roomNumber || '—')}${multiTag(r, roomCounts)}</div>
           <div class="booking-card-time">🕐 ${escapeHtml(r.deliveryTime || '—')}</div>
         </div>
         <div class="booking-card-body">
@@ -933,7 +966,7 @@
 
   // ---------- مشاركة الحجوزات كصورة ----------
   function buildShareCard() {
-    const rows = allBookings.slice().sort((a, b) => (a.deliveryTime || '').localeCompare(b.deliveryTime || ''));
+    const rows = sortBookings(allBookings.slice());
     const totalBoxes = rows.reduce((s, r) => s + (r.quantity || 0), 0);
 
     const wrap = document.createElement('div');
@@ -948,7 +981,7 @@
       </div>
       <div style="display:flex;justify-content:center;gap:8px;margin-bottom:12px;">
         <div style="background:#f4f1ea;border-radius:8px;padding:6px 16px;text-align:center;">
-          <div style="font-size:14px;font-weight:800;color:#1c2541;">${rows.length}</div>
+          <div style="font-size:14px;font-weight:800;color:#1c2541;">${uniqueRooms(rows)}</div>
           <div style="font-size:8px;color:#726c5e;">غرفة</div>
         </div>
         <div style="background:#f4f1ea;border-radius:8px;padding:6px 16px;text-align:center;">
@@ -1068,10 +1101,12 @@
           const key = r.deliveryDate;
           if (!key) return;
           if (!archiveGroups.has(key)) {
-            archiveGroups.set(key, { date: key, rooms: 0, boxes: 0, delivered: 0 });
+            archiveGroups.set(key, { date: key, roomSet: new Set(), rooms: 0, bookings: 0, boxes: 0, delivered: 0 });
           }
           const g = archiveGroups.get(key);
-          g.rooms += 1;
+          g.roomSet.add(r.roomNumber || '');
+          g.rooms = g.roomSet.size;
+          g.bookings += 1;
           g.boxes += (r.quantity || 0);
           if (r.delivered) g.delivered += 1;
         });
@@ -1099,8 +1134,9 @@
           <div class="ad-date">${formatDateArFromKey(d.date)}</div>
           <div class="ad-stats">
             <span>${d.rooms} غرفة</span>
+            <span>${d.bookings} حجز</span>
             <span>${d.boxes} بوكس</span>
-            <span class="ad-delivered">${d.delivered}/${d.rooms} تم التسليم</span>
+            <span class="ad-delivered">${d.delivered}/${d.bookings} تم التسليم</span>
           </div>
         </div>
         <div class="ad-arrow">‹</div>
@@ -1128,10 +1164,13 @@
   function renderArchiveDetail() {
     const rows = archiveAllBookings
       .filter(r => r.deliveryDate === archiveDetailDate)
-      .sort((a, b) => (a.deliveryTime || '').localeCompare(b.deliveryTime || ''));
+      ;
+    sortBookings(rows);
+    const archCounts = roomCountMap(rows);
 
     document.getElementById('archiveDetailTitle').textContent = formatDateArFromKey(archiveDetailDate);
-    document.getElementById('archTotalRooms').textContent = rows.length;
+    document.getElementById('archTotalRooms').textContent = uniqueRooms(rows);
+    document.getElementById('archTotalBookings').textContent = rows.length;
     document.getElementById('archTotalBoxes').textContent = rows.reduce((s, r) => s + (r.quantity || 0), 0);
     document.getElementById('archTotalDelivered').textContent = rows.filter(r => r.delivered).length;
 
@@ -1147,7 +1186,7 @@
     // ---------- جدول الديسكتوب ----------
     body.innerHTML = rows.map(r => `
       <tr class="${r.delivered ? 'delivered' : ''}">
-        <td class="room-cell">${escapeHtml(r.roomNumber || '')}</td>
+        <td class="room-cell">${escapeHtml(r.roomNumber || '')}${multiTag(r, archCounts)}</td>
         <td>${escapeHtml(r.guestName || '')}</td>
         <td class="qty-cell">${r.quantity || 1}</td>
         <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
@@ -1160,7 +1199,7 @@
     mobileCards.innerHTML = rows.map(r => `
       <div class="booking-card ${r.delivered ? 'delivered' : ''}">
         <div class="booking-card-header">
-          <div class="booking-card-room">🚪 ${escapeHtml(r.roomNumber || '—')}</div>
+          <div class="booking-card-room">🚪 ${escapeHtml(r.roomNumber || '—')}${multiTag(r, archCounts)}</div>
           <div class="booking-card-time">🕐 ${escapeHtml(r.deliveryTime || '—')}</div>
         </div>
         <div class="booking-card-body">

@@ -438,6 +438,93 @@
     50%{opacity:.15;text-shadow:none;}
   }
 
+
+  /* ---------- حجوزات الغرفة المتعددة ---------- */
+  .room-bookings{
+    display:none;
+    margin-top:10px;
+    background:#fffaf0;
+    border:1.5px solid #ecd9ae;
+    border-radius:12px;
+    padding:12px 14px;
+  }
+  .room-bookings.show{display:block;}
+  .rb-title{font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:8px;}
+  .rb-title span{color:var(--clay);}
+  .rb-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:8px 0;
+    border-top:1px dashed var(--line);
+  }
+  .rb-item:first-of-type{border-top:none;}
+  .rb-item.editing{background:#f3ecd9;border-radius:8px;padding:8px 8px;}
+  .rb-info{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .rb-name{font-size:14px;font-weight:700;color:var(--text);word-break:break-word;}
+  .rb-meta{font-size:12.5px;color:var(--muted);}
+  .rb-edit{
+    flex-shrink:0;
+    padding:6px 14px;
+    border-radius:8px;
+    border:1.5px solid var(--gold);
+    background:transparent;
+    color:var(--gold);
+    font-family:'Cairo',sans-serif;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    touch-action:manipulation;
+  }
+  .rb-note{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.7;}
+  .rb-full{
+    display:none;
+    margin-top:8px;
+    font-size:13px;
+    font-weight:700;
+    color:#a13a3a;
+    background:#fbeaea;
+    border:1px solid #f0caca;
+    padding:8px 10px;
+    border-radius:10px;
+    line-height:1.6;
+  }
+  .rb-full.show{display:block;}
+  .edit-banner{
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background:#eef1f8;
+    border:1px solid #d6ddef;
+    color:#33436e;
+    border-radius:12px;
+    padding:10px 14px;
+    margin-bottom:18px;
+    font-size:13.5px;
+    font-weight:700;
+  }
+  .edit-banner.show{display:flex;}
+  .edit-banner button{
+    flex-shrink:0;
+    padding:6px 12px;
+    border-radius:8px;
+    border:1.5px solid #33436e;
+    background:transparent;
+    color:#33436e;
+    font-family:'Cairo',sans-serif;
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .hint.warn{color:#a13a3a;font-weight:700;}
+  .hint.flash{animation:hintFlash .9s ease;}
+  @keyframes hintFlash{
+    0%,100%{background:transparent;}
+    30%{background:#fbeaea;}
+  }
+
   /* ---------- شريط حالة الاتصال ---------- */
   .conn-banner{
     display:none;
@@ -499,8 +586,18 @@
     <div class="field">
       <label for="roomNumber">رقم الغرفة</label>
       <input type="text" id="roomNumber" inputmode="numeric" placeholder="مثال: 214" maxlength="6" required>
-      <div class="existing-flag" id="existingFlag">✓ لديك حجز مسجل لهذا اليوم — يمكنك تعديله وإعادة الإرسال</div>
+      <div class="room-bookings" id="roomBookings">
+        <div class="rb-title">حجوزات هذه الغرفة لهذا اليوم: <span id="rbTotal"></span></div>
+        <div id="rbList"></div>
+        <div class="rb-full" id="rbFull">اكتمل الحد الأقصى لهذه الغرفة (3 بوكسات). يمكنك فقط تعديل أحد الحجوزات الموجودة.</div>
+        <div class="rb-note">لإضافة حجز جديد باسمك، املأ بياناتك بالأسفل. ولتعديل حجز موجود اضغط «تعديل» بجانبه.</div>
+      </div>
       <div class="invalid-flag" id="invalidFlag">⚠ رقم الغرفة غير موجود بالفندق — من فضلك تأكد من الرقم</div>
+    </div>
+
+    <div class="edit-banner" id="editBanner">
+      <span id="editBannerText"></span>
+      <button type="button" id="cancelEditBtn">إلغاء التعديل</button>
     </div>
 
     <div class="field">
@@ -535,6 +632,7 @@
         <span class="count" id="qtyCount">1</span>
         <button type="button" id="plusBtn">+</button>
       </div>
+      <div class="hint" id="qtyHint">الحد الأقصى للغرفة الواحدة: 3 بوكسات</div>
     </div>
 
     <div class="field">
@@ -633,7 +731,7 @@
       document.body.classList.remove('conn-visible');
       // رجّع زرار الإرسال لحالته الطبيعية حسب باب الحجز (مفتوح/مغلق)
       if (submitBtn && !submitting && typeof currentWindow !== 'undefined') {
-        if (currentWindow.isOpen) { submitBtn.disabled = false; submitBtn.textContent = 'تأكيد الحجز'; }
+        if (currentWindow.isOpen) { submitBtn.disabled = false; submitBtn.textContent = (typeof submitLabel === 'function') ? submitLabel() : 'تأكيد الحجز'; }
         else { submitBtn.disabled = true; submitBtn.textContent = 'الحجز مغلق حاليًا'; }
       }
     }
@@ -709,6 +807,9 @@
 
   let currentWindow = getBookingWindow();
   let isSubmitting = false;
+  let editingId = null;     // معرّف الحجز الجاري تعديله (null = حجز جديد)
+  let roomBookings = [];    // كل حجوزات الغرفة المكتوبة لهذا اليوم
+  function submitLabel() { return editingId ? 'حفظ التعديل' : 'تأكيد الحجز'; }
 
   function refreshStatus() {
     currentWindow = getBookingWindow();
@@ -727,7 +828,7 @@
       banner.classList.remove('show');
       if (!isSubmitting && isConnected()) {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'تأكيد الحجز';
+        submitBtn.textContent = submitLabel();
       }
     } else {
       rowLabel.textContent = 'يُفتح الحجز خلال';
@@ -791,7 +892,11 @@
   let qty = 1;
   const qtyLabel = document.getElementById('qtyCount');
   document.getElementById('plusBtn').addEventListener('click', () => {
-    if (qty < 3) { qty++; qtyLabel.textContent = qty; }
+    if (qty < maxQty()) { qty++; qtyLabel.textContent = qty; }
+    else {
+      const h = document.getElementById('qtyHint');
+      h.classList.remove('flash'); void h.offsetWidth; h.classList.add('flash');
+    }
   });
   document.getElementById('minusBtn').addEventListener('click', () => {
     if (qty > 1) { qty--; qtyLabel.textContent = qty; }
@@ -830,10 +935,123 @@
     return VALID_ROOMS.has(room);
   }
 
-  // ---------- التحقق من حجز سابق لنفس الغرفة/اليوم ----------
+  // ---------- حجوزات الغرفة (يسمح بأكثر من حجز للغرفة الواحدة، بحد أقصى 3 بوكسات) ----------
+  const MAX_BOXES_PER_ROOM = 3;
   const roomInput = document.getElementById('roomNumber');
   const invalidFlag = document.getElementById('invalidFlag');
+  const roomBox = document.getElementById('roomBookings');
+  const rbList = document.getElementById('rbList');
+  const rbTotal = document.getElementById('rbTotal');
+  const rbFull = document.getElementById('rbFull');
+  const editBanner = document.getElementById('editBanner');
+  const editBannerText = document.getElementById('editBannerText');
+  const qtyHint = document.getElementById('qtyHint');
+  const guestNameInput = document.getElementById('guestName');
   let lastCheckedKey = "";
+  let roomUnsub = null;
+  let lastSavedId = null;
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function fmtTimeValue(v) {
+    if (!v) return '—';
+    const [h, m] = String(v).split(':').map(Number);
+    return (isNaN(h) || isNaN(m)) ? v : formatTimeAr(h, m);
+  }
+  // توحيد الاسم للمقارنة (إزالة التشكيل والمسافات الزائدة وتوحيد الهمزات)
+  function normName(str) {
+    return (str || '').toLowerCase()
+      .replace(/[\u064B-\u0652\u0640]/g, '')
+      .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي')
+      .replace(/\s+/g, ' ').trim();
+  }
+  function othersTotal() {
+    return roomBookings.filter(b => b.id !== editingId).reduce((sum, b) => sum + (b.quantity || 0), 0);
+  }
+  function maxQty() {
+    return Math.max(1, MAX_BOXES_PER_ROOM - othersTotal());
+  }
+  function syncSubmitLabel() {
+    const btn = document.getElementById('submitBtn');
+    if (!isSubmitting && !btn.disabled) btn.textContent = submitLabel();
+  }
+
+  function updateQtyUi() {
+    const left = MAX_BOXES_PER_ROOM - othersTotal();
+    if (qty > Math.max(1, left)) { qty = Math.max(1, left); qtyLabel.textContent = qty; }
+    if (!roomBookings.length) {
+      qtyHint.textContent = `الحد الأقصى للغرفة الواحدة: ${MAX_BOXES_PER_ROOM} بوكسات`;
+    } else if (left <= 0) {
+      qtyHint.textContent = `اكتمل الحد الأقصى لهذه الغرفة (${MAX_BOXES_PER_ROOM} بوكسات)`;
+    } else {
+      qtyHint.textContent = `المتاح لهذه الغرفة: ${left} من ${MAX_BOXES_PER_ROOM} بوكسات`;
+    }
+    qtyHint.classList.toggle('warn', roomBookings.length > 0 && left <= 0);
+  }
+
+  function renderRoomBookings() {
+    if (!roomBookings.length) {
+      roomBox.classList.remove('show');
+      rbList.innerHTML = '';
+      updateQtyUi();
+      return;
+    }
+    const total = roomBookings.reduce((sum, b) => sum + (b.quantity || 0), 0);
+    rbTotal.textContent = `${total} من ${MAX_BOXES_PER_ROOM} بوكسات`;
+    const sorted = roomBookings.slice().sort((a, b) => (a.deliveryTime || '').localeCompare(b.deliveryTime || ''));
+    rbList.innerHTML = sorted.map(b => `
+      <div class="rb-item${b.id === editingId ? ' editing' : ''}">
+        <div class="rb-info">
+          <span class="rb-name">${escapeHtml(b.guestName || '—')}</span>
+          <span class="rb-meta">${b.quantity || 1} بوكس · ${escapeHtml(fmtTimeValue(b.deliveryTime))}</span>
+        </div>
+        <button type="button" class="rb-edit" data-id="${escapeHtml(b.id)}">${b.id === editingId ? 'قيد التعديل' : 'تعديل'}</button>
+      </div>
+    `).join('');
+    rbList.querySelectorAll('.rb-edit').forEach(btn => {
+      btn.addEventListener('click', () => startEdit(btn.dataset.id));
+    });
+    rbFull.classList.toggle('show', total >= MAX_BOXES_PER_ROOM && !editingId);
+    roomBox.classList.add('show');
+    updateQtyUi();
+  }
+
+  function startEdit(id) {
+    const b = roomBookings.find(x => x.id === id);
+    if (!b) return;
+    editingId = id;
+    guestNameInput.value = b.guestName || '';
+    qty = b.quantity || 1;
+    qtyLabel.textContent = qty;
+    if (b.deliveryTime) document.getElementById('deliveryTime').value = b.deliveryTime;
+    editBannerText.textContent = `أنت الآن تعدّل حجز: ${b.guestName || '—'}`;
+    editBanner.classList.add('show');
+    syncSubmitLabel();
+    renderRoomBookings();
+    guestNameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function cancelEdit(clearFields = true) {
+    editingId = null;
+    editBanner.classList.remove('show');
+    if (clearFields) {
+      guestNameInput.value = '';
+      qty = 1;
+      qtyLabel.textContent = qty;
+    }
+    syncSubmitLabel();
+    renderRoomBookings();
+  }
+  document.getElementById('cancelEditBtn').addEventListener('click', () => cancelEdit(true));
+
+  function stopRoomWatch() {
+    if (!roomUnsub && !lastCheckedKey && !roomBookings.length) return;
+    if (roomUnsub) { roomUnsub(); roomUnsub = null; }
+    lastCheckedKey = "";
+    roomBookings = [];
+    if (editingId) cancelEdit(true); else renderRoomBookings();
+  }
 
   // تحويل ما يكتبه النزيل فورًا إلى أرقام إنجليزية موحّدة أثناء الكتابة
   roomInput.addEventListener('input', () => {
@@ -847,41 +1065,42 @@
     invalidFlag.classList.remove('show');
   });
 
+  // متابعة لحظية لحجوزات الغرفة المكتوبة (تتحدّث تلقائيًا لو نزيل آخر حجز من نفس الغرفة)
   async function checkExisting() {
     const room = normalizeRoomNumber(roomInput.value.trim());
-    const flag = document.getElementById('existingFlag');
 
-    if (!room) { invalidFlag.classList.remove('show'); flag.classList.remove('show'); return; }
-
+    if (!room) { invalidFlag.classList.remove('show'); stopRoomWatch(); return; }
     if (!isValidRoom(room)) {
       invalidFlag.classList.add('show');
-      flag.classList.remove('show');
-      lastCheckedKey = "";
+      stopRoomWatch();
       return;
     }
     invalidFlag.classList.remove('show');
 
-    const key = room + "_" + dateKey(currentWindow.target);
+    const dKey = dateKey(currentWindow.target);
+    const key = room + "_" + dKey;
     if (key === lastCheckedKey) return;
     lastCheckedKey = key;
 
-    try {
-      const doc = await db.collection(COLLECTION).doc(key).get();
-      if (doc.exists) {
-        const data = doc.data();
-        document.getElementById('guestName').value = data.guestName || "";
-        qty = data.quantity || 1;
-        qtyLabel.textContent = qty;
-        if (data.deliveryTime) {
-          document.getElementById('deliveryTime').value = data.deliveryTime;
+    if (roomUnsub) { roomUnsub(); roomUnsub = null; }
+    if (editingId) cancelEdit(true);
+    roomBookings = [];
+    renderRoomBookings();
+
+    roomUnsub = db.collection(COLLECTION)
+      .where('roomNumber', '==', room)
+      .where('deliveryDate', '==', dKey)
+      .onSnapshot(snap => {
+        roomBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (editingId && !roomBookings.some(b => b.id === editingId)) {
+          editingId = null;
+          editBanner.classList.remove('show');
+          syncSubmitLabel();
         }
-        flag.classList.add('show');
-      } else {
-        flag.classList.remove('show');
-      }
-    } catch (err) {
-      console.error("تعذر التحقق من الحجز السابق:", err);
-    }
+        renderRoomBookings();
+      }, err => {
+        console.error("تعذر تحميل حجوزات الغرفة:", err);
+      });
   }
   roomInput.addEventListener('blur', checkExisting);
 
@@ -910,7 +1129,8 @@
   });
   document.getElementById('modalEditBtn').addEventListener('click', () => {
     closeConfirmModal();
-    roomInput.focus();
+    if (lastSavedId && roomBookings.some(b => b.id === lastSavedId)) startEdit(lastSavedId);
+    else roomInput.focus();
   });
   confirmModal.addEventListener('click', (e) => {
     if (e.target === confirmModal) closeConfirmModal();
@@ -954,30 +1174,69 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'جارٍ الحجز...';
 
-    const key = room + "_" + dateKey(currentWindow.target);
-    const payload = {
-      roomNumber: room,
-      guestName: guestName,
-      quantity: qty,
-      deliveryTime: deliveryTime,
-      deliveryDate: dateKey(currentWindow.target),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
+    const dKey = dateKey(currentWindow.target);
 
     try {
-      await db.collection(COLLECTION).doc(key).set(payload, { merge: true });
+      // فحص حديث من الخادم قبل الحفظ لتفادي تجاوز الحد الأقصى للغرفة
+      const snap = await db.collection(COLLECTION)
+        .where('roomNumber', '==', room)
+        .where('deliveryDate', '==', dKey)
+        .get();
+      const existing = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      let targetId = editingId;
+      let autoMerged = false;
+      if (!targetId) {
+        // نفس الاسم فى نفس الغرفة = تعديل على الحجز السابق وليس حجزًا جديدًا
+        const match = existing.find(b => normName(b.guestName) === normName(guestName));
+        if (match) { targetId = match.id; autoMerged = true; }
+      }
+
+      const others = existing.filter(b => b.id !== targetId).reduce((sum, b) => sum + (b.quantity || 0), 0);
+      if (others + qty > MAX_BOXES_PER_ROOM) {
+        const left = Math.max(0, MAX_BOXES_PER_ROOM - others);
+        showNotice('error', left === 0
+          ? `هذه الغرفة وصلت للحد الأقصى (${MAX_BOXES_PER_ROOM} بوكسات) بالفعل. يمكنك فقط تعديل أحد الحجوزات الموجودة.`
+          : `المتاح لهذه الغرفة ${left} بوكس فقط (الحد الأقصى ${MAX_BOXES_PER_ROOM} بوكسات للغرفة). من فضلك قلّل العدد.`);
+        return;
+      }
+
+      const payload = {
+        roomNumber: room,
+        guestName: guestName,
+        quantity: qty,
+        deliveryTime: deliveryTime,
+        deliveryDate: dKey,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      let docId;
+      if (targetId) {
+        docId = targetId;
+      } else {
+        docId = `${room}_${dKey}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+        payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      }
+
+      await db.collection(COLLECTION).doc(docId).set(payload, { merge: true });
+      lastSavedId = docId;
+      const updated = !!targetId;
       const feedbackSent = await sendSurveyFeedback(room, guestName);
-      showConfirmModal(`تم تأكيد الحجز ✓ — ${qty} بوكس إفطار، الإستلام الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} من مطعم الجرين هاوس.` + (feedbackSent ? ' شكرًا على رأيك 🙏' : ''));
-      lastCheckedKey = "";
-      checkExisting();
+      showConfirmModal(`${updated ? 'تم تحديث الحجز' : 'تم تأكيد الحجز'} ✓ — ${guestName}: ${qty} بوكس إفطار، الإستلام الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} من مطعم الجرين هاوس.` + (autoMerged ? ' (تم تحديث حجزك السابق بنفس الاسم)' : '') + (feedbackSent ? ' شكرًا على رأيك 🙏' : ''));
+
+      // تفريغ النموذج لتسهيل إضافة حجز جديد من نفس الغرفة
+      editingId = null;
+      editBanner.classList.remove('show');
+      guestNameInput.value = '';
+      qty = 1;
+      qtyLabel.textContent = qty;
+      renderRoomBookings();
     } catch (err) {
       console.error(err);
       showNotice('error', 'حدث خطأ أثناء إرسال الحجز. من فضلك حاول مرة أخرى.');
     } finally {
       isSubmitting = false;
       submitBtn.disabled = false;
-      submitBtn.textContent = 'تأكيد الحجز';
+      submitBtn.textContent = submitLabel();
     }
   });
 
