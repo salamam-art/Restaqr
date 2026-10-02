@@ -174,32 +174,30 @@
 
   .single-box-card{
     border:1.5px solid var(--line);
-    border-radius:14px;
+    border-radius:12px;
     background:linear-gradient(180deg, #fffaf0, #fff8ee);
-    padding:16px 18px;
+    padding:8px 12px;
   }
   .single-box-card ul{
     margin:0;
     padding:0;
     list-style:none;
     columns:2;
-    column-gap:18px;
+    column-gap:12px;
   }
   .single-box-card li{
-    font-size:14px;
+    font-size:12px;
+    line-height:1.5;
     color:var(--text);
-    padding:5px 0;
+    padding:2px 0;
     break-inside:avoid;
     display:flex;
     align-items:baseline;
-    gap:6px;
+    gap:4px;
   }
   .single-box-card li::before{
     content:"🥐";
-    font-size:12px;
-  }
-  @media (max-width:420px){
-    .single-box-card ul{columns:1;}
+    font-size:10px;
   }
 
   .stepper{
@@ -589,8 +587,8 @@
       <div class="room-bookings" id="roomBookings">
         <div class="rb-title">حجوزات هذه الغرفة لهذا اليوم: <span id="rbTotal"></span></div>
         <div id="rbList"></div>
-        <div class="rb-full" id="rbFull">اكتمل الحد الأقصى لهذه الغرفة (3 بوكسات). يمكنك فقط تعديل أحد الحجوزات الموجودة.</div>
-        <div class="rb-note">لإضافة حجز جديد باسمك، املأ بياناتك بالأسفل. ولتعديل حجز موجود اضغط «تعديل» بجانبه.</div>
+        <div class="rb-full" id="rbFull">اكتمل الحد الأقصى لهذه الغرفة (3 بوكسات). للتعديل تواصل مع الاستقبال.</div>
+        <div class="rb-note">لإضافة حجز جديد باسمك، املأ بياناتك بالأسفل. وللتعديل على حجز موجود تواصل مع الاستقبال.</div>
       </div>
       <div class="invalid-flag" id="invalidFlag">⚠ رقم الغرفة غير موجود بالفندق — من فضلك تأكد من الرقم</div>
     </div>
@@ -603,6 +601,22 @@
     <div class="field">
       <label for="guestName">اسم النزيل</label>
       <input type="text" id="guestName" placeholder="الاسم بالكامل" required>
+    </div>
+
+    <div class="field">
+      <label>عدد البوكسات <span class="qty-alert">(تأكد من عدد البوكسات المطلوبة)</span></label>
+      <div class="stepper">
+        <button type="button" id="minusBtn">−</button>
+        <span class="count" id="qtyCount">1</span>
+        <button type="button" id="plusBtn">+</button>
+      </div>
+      <div class="hint" id="qtyHint">الحد الأقصى للغرفة الواحدة: 3 بوكسات</div>
+    </div>
+
+    <div class="field">
+      <label for="deliveryTime">ساعة التسليم</label>
+      <select id="deliveryTime" required></select>
+      <div class="hint">التسليم صباح اليوم التالي، اختر الموعد المناسب لك ضمن ساعات الخدمة</div>
     </div>
 
     <div class="field">
@@ -623,22 +637,6 @@
           <li>عسل</li>
         </ul>
       </div>
-    </div>
-
-    <div class="field">
-      <label>عدد البوكسات <span class="qty-alert">(تأكد من عدد البوكسات المطلوبة)</span></label>
-      <div class="stepper">
-        <button type="button" id="minusBtn">−</button>
-        <span class="count" id="qtyCount">1</span>
-        <button type="button" id="plusBtn">+</button>
-      </div>
-      <div class="hint" id="qtyHint">الحد الأقصى للغرفة الواحدة: 3 بوكسات</div>
-    </div>
-
-    <div class="field">
-      <label for="deliveryTime">ساعة التسليم</label>
-      <select id="deliveryTime" required></select>
-      <div class="hint">التسليم صباح اليوم التالي، اختر الموعد المناسب لك ضمن ساعات الخدمة</div>
     </div>
 
     <div class="survey">
@@ -1006,12 +1004,8 @@
           <span class="rb-name">${escapeHtml(b.guestName || '—')}</span>
           <span class="rb-meta">${b.quantity || 1} بوكس · ${escapeHtml(fmtTimeValue(b.deliveryTime))}</span>
         </div>
-        <button type="button" class="rb-edit" data-id="${escapeHtml(b.id)}">${b.id === editingId ? 'قيد التعديل' : 'تعديل'}</button>
       </div>
     `).join('');
-    rbList.querySelectorAll('.rb-edit').forEach(btn => {
-      btn.addEventListener('click', () => startEdit(btn.dataset.id));
-    });
     rbFull.classList.toggle('show', total >= MAX_BOXES_PER_ROOM && !editingId);
     roomBox.classList.add('show');
     updateQtyUi();
@@ -1184,19 +1178,19 @@
         .get();
       const existing = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-      let targetId = editingId;
-      let autoMerged = false;
-      if (!targetId) {
-        // نفس الاسم فى نفس الغرفة = تعديل على الحجز السابق وليس حجزًا جديدًا
-        const match = existing.find(b => normName(b.guestName) === normName(guestName));
-        if (match) { targetId = match.id; autoMerged = true; }
+      const targetId = editingId;
+      // منع تكرار نفس الاسم فى نفس الغرفة (حتى لا يعدّل شخص حجز شخص آخر)
+      const duplicate = existing.find(b => b.id !== targetId && normName(b.guestName) === normName(guestName));
+      if (duplicate) {
+        showNotice('error', 'يوجد حجز بنفس الاسم فى هذه الغرفة. للتعديل من فضلك تواصل مع الاستقبال.');
+        return;
       }
 
       const others = existing.filter(b => b.id !== targetId).reduce((sum, b) => sum + (b.quantity || 0), 0);
       if (others + qty > MAX_BOXES_PER_ROOM) {
         const left = Math.max(0, MAX_BOXES_PER_ROOM - others);
         showNotice('error', left === 0
-          ? `هذه الغرفة وصلت للحد الأقصى (${MAX_BOXES_PER_ROOM} بوكسات) بالفعل. يمكنك فقط تعديل أحد الحجوزات الموجودة.`
+          ? `هذه الغرفة وصلت للحد الأقصى (${MAX_BOXES_PER_ROOM} بوكسات) بالفعل. للتعديل من فضلك تواصل مع الاستقبال.`
           : `المتاح لهذه الغرفة ${left} بوكس فقط (الحد الأقصى ${MAX_BOXES_PER_ROOM} بوكسات للغرفة). من فضلك قلّل العدد.`);
         return;
       }
@@ -1221,7 +1215,7 @@
       lastSavedId = docId;
       const updated = !!targetId;
       const feedbackSent = await sendSurveyFeedback(room, guestName);
-      showConfirmModal(`${updated ? 'تم تحديث الحجز' : 'تم تأكيد الحجز'} ✓ — ${guestName}: ${qty} بوكس إفطار، الإستلام الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} من مطعم الجرين هاوس.` + (autoMerged ? ' (تم تحديث حجزك السابق بنفس الاسم)' : '') + (feedbackSent ? ' شكرًا على رأيك 🙏' : ''));
+      showConfirmModal(`${updated ? 'تم تحديث الحجز' : 'تم تأكيد الحجز'} ✓ — ${guestName}: ${qty} بوكس إفطار، الإستلام الساعة ${formatTimeAr(...deliveryTime.split(':').map(Number))} صباح ${formatDateAr(currentWindow.target)} من مطعم الجرين هاوس.` + (feedbackSent ? ' شكرًا على رأيك 🙏' : ''));
 
       // تفريغ النموذج لتسهيل إضافة حجز جديد من نفس الغرفة
       editingId = null;
