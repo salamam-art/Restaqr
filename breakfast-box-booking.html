@@ -425,6 +425,19 @@
   }
   .closed-banner.show{display:block;}
 
+
+  /* ---------- تنبيه وميض عدد البوكسات ---------- */
+  .qty-alert{
+    color:#b23b3b;
+    font-weight:800;
+    font-size:13px;
+    animation:qtyBlink 1s ease-in-out infinite;
+  }
+  @keyframes qtyBlink{
+    0%,100%{opacity:1;text-shadow:0 0 8px rgba(178,59,59,.55);}
+    50%{opacity:.15;text-shadow:none;}
+  }
+
   /* ---------- شريط حالة الاتصال ---------- */
   .conn-banner{
     display:none;
@@ -516,7 +529,7 @@
     </div>
 
     <div class="field">
-      <label>عدد البوكسات</label>
+      <label>عدد البوكسات <span class="qty-alert">(تأكد من عدد البوكسات المطلوبة)</span></label>
       <div class="stepper">
         <button type="button" id="minusBtn">−</button>
         <span class="count" id="qtyCount">1</span>
