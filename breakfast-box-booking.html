@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1c2541">
 <title>حجز بوكس الإفطار</title>
 <link rel="icon" type="image/png" href="001.png">
 <link rel="apple-touch-icon" href="001.png">
@@ -498,6 +499,173 @@
   .conn-banner.offline{background:#a13a3a;color:#fff;}
   .conn-banner.server{background:#8a5a15;color:#fff;}
   body.conn-visible{padding-top:48px;}
+
+  /* ================= تحسينات الواجهة ================= */
+  :root{--shadow-soft:0 18px 40px -22px rgba(28,37,65,.35);--ease:cubic-bezier(.2,.8,.2,1);}
+  html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
+  @keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  @keyframes popIn{from{opacity:0;transform:scale(.92) translateY(10px);}to{opacity:1;transform:none;}}
+  @keyframes checkPop{0%{transform:scale(0);}60%{transform:scale(1.18);}100%{transform:scale(1);}}
+  @keyframes shine{0%{transform:translateX(120%);}60%,100%{transform:translateX(-120%);}}
+
+  body{
+    background:
+      radial-gradient(900px 480px at 85% -8%, rgba(184,134,59,.22) 0%, transparent 60%),
+      radial-gradient(1100px 560px at 15% -10%, #2a3860 0%, transparent 62%),
+      linear-gradient(180deg, var(--ink) 0%, var(--ink) 250px, var(--parchment) 250px, var(--parchment) 100%);
+  }
+  header{padding:36px 10px 40px;animation:riseIn .6s var(--ease) both;}
+  header .logo{
+    width:84px;height:84px;padding:6px;background:rgba(255,255,255,.06);
+    border:1.5px solid rgba(228,201,138,.55);border-radius:50%;
+    box-shadow:0 0 0 6px rgba(184,134,59,.12),0 10px 30px -8px rgba(0,0,0,.5);
+  }
+  header h1{font-size:34px;letter-spacing:.3px;}
+  header h1::after{
+    content:"";display:block;width:64px;height:2px;margin:12px auto 0;border-radius:2px;
+    background:linear-gradient(90deg,transparent,var(--gold-light),transparent);
+  }
+
+  .status-card{
+    margin-top:-34px;border-radius:20px;box-shadow:var(--shadow-soft);
+    display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0;overflow:hidden;
+    animation:riseIn .6s .08s var(--ease) both;
+  }
+  .status-card .status-row{
+    flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;
+    padding:16px 20px;margin:0;border:0;
+  }
+  .status-card .status-row + .status-row{
+    border-inline-start:1px dashed var(--line);margin:0;padding-top:16px;border-top:0;
+  }
+  .status-value{font-size:16px;}
+  .countdown{
+    font-size:20px;background:#fbefe9;padding:2px 12px;border-radius:999px;
+    font-variant-numeric:tabular-nums;
+  }
+  .countdown.warn{background:#fbe6e6;}
+
+  .policy-notice{
+    margin:14px 0 0;border-radius:16px;background:linear-gradient(180deg,#fffaf0,var(--card));
+    border-color:#eadfc3;animation:riseIn .6s .14s var(--ease) both;
+  }
+  .policy-notice .pn-icon{
+    width:28px;height:28px;border-radius:50%;background:#f3ead4;display:flex;
+    align-items:center;justify-content:center;font-size:14px;
+  }
+  .policy-notice .pn-row.pn-warning .pn-icon{background:#f6e3dc;}
+
+  /* الفورم كبطاقة واحدة + ترقيم الخطوات */
+  form{
+    background:var(--card);border:1px solid var(--line);border-radius:22px;
+    padding:22px 20px 18px;margin-top:18px;box-shadow:var(--shadow-soft);
+    counter-reset:step;animation:riseIn .6s .2s var(--ease) both;
+  }
+  .field > label{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .field > label::before{
+    counter-increment:step;content:counter(step);flex-shrink:0;
+    width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    font-size:12.5px;font-weight:800;color:var(--gold-light);
+    background:linear-gradient(180deg,#22304f,var(--ink-2));
+  }
+  .field input[type=text],.field input[type=number],.field select,.field textarea{
+    background:#fffefb;border-radius:14px;padding:14px 16px;
+    transition:border-color .15s,box-shadow .2s,background .2s;
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{
+    border-color:var(--gold);box-shadow:0 0 0 4px rgba(184,134,59,.16);background:#fff;
+  }
+  #roomNumber{font-size:20px;font-weight:700;letter-spacing:2px;text-align:center;}
+  #roomNumber::placeholder{font-size:15px;font-weight:400;letter-spacing:0;}
+
+  .stepper{
+    justify-content:center;gap:18px;padding:10px;border:1.5px solid var(--line);
+    border-radius:16px;background:#fffefb;
+  }
+  .stepper button{
+    width:52px;height:52px;border-radius:50%;font-size:24px;line-height:1;
+    border:0;color:var(--ink-2);
+    background:linear-gradient(180deg,var(--gold-light),#d1a95c);
+    box-shadow:0 8px 16px -8px rgba(184,134,59,.8);
+    transition:transform .12s,box-shadow .12s,opacity .2s;
+  }
+  .stepper button:active{transform:scale(.9);background:linear-gradient(180deg,var(--gold-light),#d1a95c);}
+  .stepper button:disabled{opacity:.35;box-shadow:none;}
+  .stepper .count{min-width:56px;font-size:34px;font-family:'Amiri',serif;}
+
+  /* محتويات البوكس كشرائح */
+  .single-box-card{padding:12px;border-radius:16px;}
+  .single-box-card ul{columns:auto;display:flex;flex-wrap:wrap;gap:7px;}
+  .single-box-card li{
+    font-size:12.5px;padding:5px 11px;border-radius:999px;background:#fff;
+    border:1px solid #eadfc3;
+  }
+  .single-box-card li::before{font-size:11px;}
+
+  /* زر التأكيد ثابت أسفل الشاشة على الموبايل */
+  .submit-btn{
+    position:sticky;bottom:14px;z-index:5;overflow:hidden;padding:17px;font-size:17px;
+    background:linear-gradient(180deg,#e9cf8f,#c9a04f);color:var(--ink-2);
+    box-shadow:0 14px 28px -10px rgba(184,134,59,.75),0 0 0 4px rgba(247,241,230,.9);
+  }
+  .submit-btn::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);
+    transform:translateX(120%);animation:shine 4.5s 1s infinite;pointer-events:none;
+  }
+  .submit-btn:disabled::after{display:none;}
+
+  .notice{border-radius:14px;}
+  footer{color:var(--muted);}
+
+  /* نافذة التأكيد */
+  .modal-overlay{backdrop-filter:blur(5px);}
+  .modal-overlay.show .modal-card{animation:popIn .35s var(--ease) both;}
+  .modal-card{border-radius:24px;}
+  .modal-check{
+    width:68px;height:68px;font-size:34px;color:#fff;
+    background:linear-gradient(180deg,#5b8f6c,var(--ok));
+    box-shadow:0 0 0 8px #eef5ef;
+  }
+  .modal-overlay.show .modal-check{animation:checkPop .5s .15s var(--ease) both;}
+  .modal-title{font-family:'Amiri',serif;font-size:22px;}
+
+  @media (max-width:380px){
+    .status-card{grid-template-columns:1fr;}
+    .status-card .status-row + .status-row{border-inline-start:0;border-top:1px dashed var(--line);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+  }
+
+  /* ===== شرائح الوقت / الملخص / اللغة / التقويم ===== */
+  .chips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .chip{
+    padding:11px 4px;border-radius:12px;border:1.5px solid var(--line);background:#fffefb;
+    font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer;
+    transition:all .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  }
+  .chip.on{background:linear-gradient(180deg,#22304f,var(--ink-2));color:var(--gold-light);border-color:var(--ink-2);
+    box-shadow:0 8px 16px -8px rgba(20,27,48,.7);transform:translateY(-1px);}
+  #roomNumber.valid{
+    border-color:#8fbf9f;
+    background:#fffefb url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><circle cx='12' cy='12' r='11' fill='%233f6b4f'/><path d='M7 12.5l3.2 3.2L17 9' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat left 14px center;
+  }
+  .summary{
+    display:none;margin:4px 0 16px;padding:14px 16px;border-radius:16px;
+    background:linear-gradient(180deg,#fffaf0,#fbf3df);border:1.5px dashed #d9c391;animation:riseIn .35s var(--ease) both;
+  }
+  .summary.show{display:block;}
+  .summary .sm-t{font-size:12.5px;font-weight:800;color:var(--gold);margin-bottom:6px;letter-spacing:.3px;}
+  .summary .sm-b{font-size:14.5px;line-height:1.9;color:var(--ink);}
+  header{position:relative;}
+  .lang-btn{
+    position:absolute;top:14px;inset-inline-start:0;padding:6px 14px;border-radius:999px;cursor:pointer;
+    border:1px solid rgba(228,201,138,.5);background:rgba(255,255,255,.08);color:var(--gold-light);
+    font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;
+  }
+  html[dir=ltr] .field select{background-position:right 14px center;padding-left:14px;}
+  html[dir=ltr] #roomNumber.valid{background-position:right 14px center;}
 </style>
 </head>
 <body>
@@ -1171,6 +1339,148 @@
     }
   });
 
+</script>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const sel=$('deliveryTime'), room=$('roomNumber'), nameI=$('guestName'), qtyEl=$('qtyCount'), submit=$('submitBtn');
+  const store={get(k){try{return localStorage.getItem(k)||''}catch(e){return ''}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+  let LANG=store.get('bb_lang')==='en'?'en':'ar';
+  const AR_T=formatTimeAr, AR_D=formatDateAr;
+  const EN_T=(h,m)=>((h%12)||12)+':'+String(m).padStart(2,'0')+' '+(h<12?'AM':'PM');
+  const EN_D=d=>d.toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long'});
+  const toEnTime=t=>t.replace(/(\d+:\d\d) ص/g,'$1 AM').replace(/(\d+:\d\d) م/g,'$1 PM');
+  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  /* ---------- 1) ذاكرة الغرفة والاسم ---------- */
+  try{localStorage.removeItem('bb_room');}catch(e){}
+  if(!nameI.value&&store.get('bb_name'))nameI.value=store.get('bb_name');
+  nameI.addEventListener('input',()=>store.set('bb_name',nameI.value.trim()));
+
+  /* ---------- 2) شرائح اختيار الساعة ---------- */
+  const chips=document.createElement('div');chips.className='chips';
+  sel.style.display='none';sel.parentNode.insertBefore(chips,sel);
+  chips.addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;sel.value=b.dataset.v;update();});
+  function buildChips(){
+    chips.innerHTML='';
+    [...sel.options].forEach(o=>{if(!o.value)return;const b=document.createElement('button');b.type='button';b.className='chip';b.dataset.v=o.value;b.textContent=o.textContent;chips.appendChild(b);});
+  }
+
+  /* ---------- 3) ملخص الحجز + علامة صحة الغرفة ---------- */
+  const sm=document.createElement('div');sm.className='summary';submit.parentNode.insertBefore(sm,submit);
+  function update(){
+    const r=normalizeRoomNumber(room.value),ok=isValidRoom(r),n=nameI.value.trim();
+    room.classList.toggle('valid',ok);
+    chips.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.v===sel.value));
+    const t=sel.value?((sel.options[sel.selectedIndex]||{}).textContent||''):'—',q=qtyEl.textContent,en=LANG==='en';
+    let h='';
+    if(ok&&n){
+      const d=en?EN_D(currentWindow.target):AR_D(currentWindow.target);
+      h=en?`<div class="sm-t">YOUR BOOKING SUMMARY</div><div class="sm-b">🛏 Room <b>${r}</b> · 👤 ${esc(n)}</div><div class="sm-b">🥐 <b>${q}</b> box(es) · 🕗 <b>${t}</b></div><div class="sm-b">📅 ${d}</div>`
+          :`<div class="sm-t">ملخص حجزك</div><div class="sm-b">🛏 غرفة <b>${r}</b> · 👤 ${esc(n)}</div><div class="sm-b">🥐 <b>${q}</b> بوكس · 🕗 <b>${t}</b></div><div class="sm-b">📅 ${d}</div>`;
+    }
+    if(sm._h!==h){sm._h=h;sm.innerHTML=h;}
+    sm.classList.toggle('show',!!h);
+  }
+  [room,nameI].forEach(el=>el.addEventListener('input',update));
+  setInterval(update,400);
+
+  /* ---------- 5) English / عربي ---------- */
+  const DICT={'تاريخ التسليم':'Delivery date','رقم الغرفة':'Room number','اسم النزيل':'Guest name','عدد البوكسات':'Number of boxes',
+   '(تأكد من عدد البوكسات المطلوبة)':'(double-check the number of boxes)','ساعة التسليم':'Delivery time','محتويات بوكس الإفطار':'Box contents',
+   'جبن رومي':'Roumy cheese','جبنة بيضاء':'White cheese','جبن شيدر':'Cheddar','دانش، كرواسان، إنجليش كيك':'Danish, croissant, English cake',
+   'بيض مسلوق':'Boiled eggs','فول':'Foul (fava beans)','زبادي':'Yogurt','فاكهة الموسم':'Seasonal fruit','عيش كايزر + عيش شامي':'Kaiser roll + pita',
+   'سلطة خضراء طازجة':'Fresh green salad','مربى':'Jam','عسل':'Honey','تأكيد الحجز':'Confirm booking','حفظ التعديل':'Save changes',
+   'الحجز مغلق حاليًا':'Booking closed','جارٍ الحجز...':'Booking...','غير متصل بالإنترنت':'Offline','تعذر الاتصال بالخادم':'Server unreachable',
+   'يُغلق الحجز خلال':'Booking closes in','يُفتح الحجز خلال':'Booking opens in','تم تأكيد الحجز':'Booking confirmed','تعديل الحجز':'Edit booking',
+   'تم، خروج':'Done, exit','إلغاء التعديل':'Cancel edit',
+   'سيتم تجهيز البوكس وتسليمه صباح يوم التسليم المذكور أعلاه':'Your box will be prepared and delivered on the morning of the delivery date above',
+   'التسليم صباح اليوم التالي، اختر الموعد المناسب لك ضمن ساعات الخدمة':'Delivered next morning — pick the time that suits you',
+   '⚠ رقم الغرفة غير موجود بالفندق — من فضلك تأكد من الرقم':'⚠ Room number not found — please check it',
+   'الحجز مغلق حاليًا. باب الحجز يُفتح يوميًا من الساعة 11:00 صباحًا وحتى الساعة 1:00 صباحًا من اليوم التالي.':'Booking is currently closed. It opens daily from 11:00 AM until 1:00 AM the next day.',
+   'حجوزات هذه الغرفة لهذا اليوم:':'Bookings for this room today:',
+   'لإضافة حجز جديد باسمك، املأ بياناتك بالأسفل. وللتعديل على حجز موجود تواصل مع الاستقبال.':'To add a new booking under your name, fill in your details below. To change an existing one, contact reception.',
+   'اكتمل الحد الأقصى لهذه الغرفة (3 بوكسات). للتعديل تواصل مع الاستقبال.':'This room has reached the maximum (3 boxes). To change a booking, contact reception.',
+   'من فضلك أدخل رقم الغرفة واسم النزيل.':'Please enter the room number and guest name.',
+   'رقم الغرفة غير مسجل بالفندق. من فضلك تأكد من الرقم قبل إرسال الحجز.':'Room number is not registered. Please check it before submitting.',
+   'يوجد حجز بنفس الاسم فى هذه الغرفة. للتعديل من فضلك تواصل مع الاستقبال.':'A booking with this name already exists in this room. To change it, contact reception.',
+   'حدث خطأ أثناء إرسال الحجز. من فضلك حاول مرة أخرى.':'Something went wrong while sending your booking. Please try again.',
+   '📡 لا يوجد اتصال بالإنترنت — لا يمكن إتمام الحجز الآن':'📡 No internet connection — booking is unavailable right now',
+   '⚠️ تعذر الاتصال بخادم الحجوزات — جارٍ إعادة المحاولة...':'⚠️ Cannot reach the booking server — retrying...'};
+  const RULES=[
+   [/^الحد الأقصى للغرفة الواحدة: (\d+) بوكسات$/,'Maximum per room: $1 boxes'],
+   [/^المتاح لهذه الغرفة: (\d+) من (\d+) بوكسات$/,'Available for this room: $1 of $2 boxes'],
+   [/^اكتمل الحد الأقصى لهذه الغرفة \((\d+) بوكسات\)$/,'This room has reached the maximum ($1 boxes)'],
+   [/^(\d+) من (\d+) بوكسات$/,'$1 of $2 boxes'],
+   [/^(\d+) بوكس · (.+)$/,(m,q,t)=>q+' box(es) · '+toEnTime(t)],
+   [/^أنت الآن تعدّل حجز: (.+)$/,'You are editing the booking of: $1'],
+   [/^(?:تم تأكيد الحجز|تم تحديث الحجز) ✓ — (.+): (\d+) بوكس إفطار، الإستلام الساعة (.+) صباح (.+) من مطعم الجرين هاوس\.$/,
+     (m,n,q,t,d)=>`Booking confirmed ✓ — ${n}: ${q} breakfast box(es), pickup at ${toEnTime(t)} on the morning of ${d} from the Green House restaurant.`],
+   [/^عذرًا، تم إغلاق باب الحجز للتو.*$/,'Sorry, booking has just closed. It opens daily from 11:00 AM until 1:00 AM.'],
+   [/^المتاح لهذه الغرفة (\d+) بوكس فقط.*$/,'Only $1 box(es) left for this room. Please reduce the quantity.'],
+   [/^هذه الغرفة وصلت للحد الأقصى.*$/,'This room has already reached its maximum. To change a booking, contact reception.']];
+  const HTMLS=[['.pn-row:nth-child(1) > span:last-child','Booking is open daily from <b>11:00 AM</b> until <b>1:00 AM</b> the next day, with delivery the following morning.'],
+   ['.pn-row.pn-warning > span:last-child','If you book a <b>breakfast box</b>, guests may not use the <b>open buffet</b> on the same day.']];
+  const orig=new Map(),htmlOrig=[];
+  function trNode(n){
+    if(LANG!=='en')return;const raw=n.nodeValue,t=raw.trim();
+    if(!t||!/[\u0600-\u06FF]/.test(t))return;
+    let out=DICT[t];
+    if(!out)for(const[re,f]of RULES){if(re.test(t)){out=t.replace(re,f);break;}}
+    if(out){orig.set(n,raw);n.nodeValue=raw.replace(t,()=>out);}
+  }
+  function walk(root){
+    if(root.nodeType===3)return trNode(root);
+    if(root.nodeType!==1||/^(SCRIPT|STYLE)$/.test(root.tagName))return;
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode()))trNode(n);
+  }
+  new MutationObserver(ms=>{if(LANG!=='en')return;ms.forEach(m=>{
+    if(m.type==='characterData')trNode(m.target);else m.addedNodes.forEach(walk);});})
+   .observe(document.body,{childList:true,characterData:true,subtree:true});
+
+  const btn=document.createElement('button');btn.type='button';btn.className='lang-btn';
+  document.querySelector('header').appendChild(btn);
+  const AR_TITLE=document.title;
+  function repopulate(){
+    const v=sel.value;populateDeliveryTimes();
+    const ph=document.createElement('option');ph.value='';ph.disabled=true;
+    ph.textContent=LANG==='en'?'Select delivery time':'اختر ساعة التسليم';
+    sel.insertBefore(ph,sel.firstChild);sel.value=v;buildChips();
+  }
+  sel.removeAttribute('required');
+  document.addEventListener('submit',e=>{
+    if(e.target.id!=='bookingForm'||sel.value)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    showNotice('error',LANG==='en'?'Please choose a delivery time.':'من فضلك اختر ساعة التسليم.');
+    chips.scrollIntoView({behavior:'smooth',block:'center'});
+    chips.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:300});
+  },true);
+  function setLang(l){
+    LANG=l;store.set('bb_lang',l);
+    const en=l==='en';
+    document.documentElement.lang=l;document.documentElement.dir=en?'ltr':'rtl';
+    formatTimeAr=en?EN_T:AR_T;formatDateAr=en?EN_D:AR_D;
+    btn.textContent=en?'عربي':'EN';document.title=en?'Breakfast Box Booking':AR_TITLE;
+    room.placeholder=en?'e.g. 214':'مثال: 214';nameI.placeholder=en?'Full name':'الاسم بالكامل';
+    if(en){
+      HTMLS.forEach(([q,h])=>{const el=document.querySelector(q);if(el){htmlOrig.push([el,el.innerHTML]);el.innerHTML=h;}});
+      repopulate();walk(document.body);
+    }else{
+      orig.forEach((r,n)=>{if(n.isConnected)n.nodeValue=r;});orig.clear();
+      htmlOrig.forEach(([el,h])=>{el.innerHTML=h;});htmlOrig.length=0;
+      repopulate();
+    }
+    refreshStatus();sm._h=null;update();
+  }
+  btn.addEventListener('click',()=>setLang(LANG==='en'?'ar':'en'));
+
+  sel.value='';repopulate();
+  /* بعد كل حجز ناجح: نفضّي ساعة التسليم ليختارها النزيل من جديد */
+  new MutationObserver(()=>{if($('confirmModal').classList.contains('show')){sel.value='';update();}})
+    .observe($('confirmModal'),{attributes:true,attributeFilter:['class']});
+  if(LANG==='en')setLang('en');else{btn.textContent='EN';update();}
+})();
 </script>
 </body>
 </html>
