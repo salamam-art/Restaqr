@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1c2541">
 <title>لوحة حجوزات بوكس الإفطار — الموظفين</title>
 <link rel="icon" type="image/png" href="M.png">
 <link rel="apple-touch-icon" href="M.png">
@@ -10,311 +11,171 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1c2541;
-    --parchment:#f4f1ea;
-    --card:#ffffff;
-    --gold:#b8863b;
-    --clay:#a8543e;
-    --sage:#3f6b4f;
-    --line:#e2ddd0;
-    --muted:#726c5e;
-    --text:#22201a;
+    --ink:#1c2541; --parchment:#f6f3ec; --card:#ffffff;
+    --gold:#b8863b; --gold-soft:#f6efe4; --clay:#a8543e;
+    --sage:#3f6b4f; --sage-soft:#e8f3ea;
+    --line:#e6e1d4; --muted:#6f695b; --text:#22201a;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:'Cairo', sans-serif;
-    background:var(--parchment);
-    color:var(--text);
-    min-height:100vh;
-  }
-  header{
-    background:var(--ink);
-    color:#f4f1ea;
-    padding:20px 24px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:14px;
-  }
-  header h1{
-    font-size:20px;
-    margin:0;
-    font-weight:800;
-  }
-  .controls{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-  }
+  .stub{display:none !important;}
+  body{margin:0;font-family:'Cairo', sans-serif;background:var(--parchment);color:var(--text);min-height:100vh;line-height:1.6;-webkit-text-size-adjust:100%;}
+  button,input{font-family:inherit;}
+  :focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+
+  header{background:var(--ink);color:#f6f3ec;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:3px solid var(--gold);}
+  header h1{font-size:21px;margin:0;font-weight:800;}
+  .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .controls label{font-size:13px;color:#c7cde0;}
-  .current-date-label{
-    padding:9px 14px;
-    border-radius:10px;
-    border:1px solid #3a4568;
-    background:#242f4d;
-    color:#fff;
-    font-family:'Cairo',sans-serif;
-    font-size:14px;
-    font-weight:700;
-  }
-  .btn{
-    padding:9px 16px;
-    border-radius:10px;
-    border:1px solid #3a4568;
-    background:#242f4d;
-    color:#f4f1ea;
-    font-family:'Cairo',sans-serif;
-    font-size:14px;
-    font-weight:700;
-    cursor:pointer;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .btn:hover{background:#2c395c;}
-  .btn.gold{
-    background:var(--gold);
-    border-color:var(--gold);
-    color:#221a0c;
-  }
+  .current-date-label{padding:8px 16px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:14px;font-weight:700;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#f6f3ec;font-size:14px;font-weight:700;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s,transform .1s;}
+  .btn:hover{background:rgba(255,255,255,.1);}
+  .btn:active{transform:scale(.97);}
+  .btn:disabled{opacity:.6;cursor:default;}
+  .btn.gold{background:var(--gold);border-color:var(--gold);color:#1d1507;}
+  .btn.gold:hover{background:#c8963f;}
+  .btn::before{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:var(--ico) center/contain no-repeat;mask:var(--ico) center/contain no-repeat;}
+  #printBtn{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9V3h12v6'/%3E%3Crect x='6' y='14' width='12' height='7'/%3E%3Cpath d='M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2'/%3E%3C/svg%3E");}
+  #shareBtn{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7'/%3E%3Cpath d='M16 6l-4-4-4 4'/%3E%3Cpath d='M12 2v14'/%3E%3C/svg%3E");}
 
-  main{max-width:1100px;margin:0 auto;padding:22px 18px 60px;}
+  main{max-width:1100px;margin:0 auto;padding:20px 18px 64px;}
 
-  .summary{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(150px,1fr));
-    gap:12px;
-    margin-bottom:22px;
-  }
-  .summary .card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:16px 18px;
-    text-align:center;
-  }
-  .summary .card .num{font-size:28px;font-weight:800;color:var(--ink);}
-  .summary .card .lbl{font-size:12.5px;color:var(--muted);margin-top:4px;}
+  /* التبويبات */
+  .tabs{display:flex;gap:6px;max-width:1100px;margin:16px auto 0;padding:0 18px;overflow-x:auto;scrollbar-width:none;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab-btn{flex:none;padding:10px 20px;border-radius:999px;background:transparent;color:var(--muted);font-size:14.5px;font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s;}
+  .tab-btn:hover{background:#ece7da;}
+  .tab-btn.active{background:var(--ink);color:#fff;}
+
+  /* الملخص */
+  .summary{display:grid;grid-template-columns:repeat(auto-fit, minmax(150px,1fr));gap:12px;margin-bottom:20px;}
+  .summary .card{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;text-align:center;}
+  .summary .card::before{content:"";position:absolute;top:0;right:0;left:0;height:4px;background:#c9ccd9;}
+  .summary .card:nth-child(3)::before{background:var(--gold);}
+  .summary .card.delivered::before{background:var(--sage);}
+  .summary .card .num{font-size:32px;line-height:1.2;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .summary .card .lbl{font-size:13px;color:var(--muted);margin-top:4px;}
   .summary .card.delivered .num{color:var(--sage);}
+  .progress{height:6px;border-radius:99px;background:var(--sage-soft);margin-top:10px;overflow:hidden;}
+  .progress i{display:block;height:100%;width:0;background:var(--sage);border-radius:99px;transition:width .4s ease;}
 
-  .contents-panel{margin-bottom:22px;}
+  /* مكونات البوكس (قابلة للطي) */
+  .contents-panel{margin-bottom:20px;}
   .print-date-heading{display:none;}
-  .contents-card{
-    background:var(--card);
-    border:1.5px solid var(--line);
-    border-top:4px solid var(--gold);
-    border-radius:16px;
-    padding:18px 20px;
-  }
-  .contents-card h3{
-    margin:0 0 12px;
-    font-size:15.5px;
-    font-weight:800;
-    color:var(--ink);
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .contents-card ul{
-    margin:0;
-    padding:0;
-    list-style:none;
-    columns:3;
-    column-gap:18px;
-  }
-  .contents-card li{
-    font-size:13.5px;
-    color:var(--text);
-    padding:5px 0;
-    break-inside:avoid;
-    display:flex;
-    align-items:baseline;
-    gap:6px;
-  }
-  .contents-card li::before{
-    content:"—";
-    color:var(--muted);
-  }
+  .contents-card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+  .contents-card summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 18px;font-size:15.5px;font-weight:800;color:var(--ink);touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+  .contents-card summary::-webkit-details-marker{display:none;}
+  .contents-card .cnt{margin-inline-start:auto;font-size:12px;font-weight:700;color:var(--gold);background:var(--gold-soft);padding:2px 12px;border-radius:99px;}
+  .contents-card .chev{width:9px;height:9px;border-inline-end:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin-top:-4px;transition:transform .2s;}
+  .contents-card[open] .chev{transform:rotate(-135deg);margin-top:4px;}
+  .contents-card ul{margin:0;padding:2px 18px 18px;list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .contents-card li{font-size:13.5px;background:#faf8f3;border:1px solid var(--line);border-radius:10px;padding:8px 12px;}
+  @media (max-width: 700px){ .contents-card ul{grid-template-columns:1fr 1fr;} }
+  @media (max-width: 420px){ .contents-card ul{grid-template-columns:1fr;} }
 
-  @media (max-width: 700px){
-    .contents-card ul{columns:1;}
-  }
+  /* البحث والفلاتر */
+  .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .toolbar input[type=text]{flex:1 1 240px;min-height:46px;padding:10px 46px 10px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f695b' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E") no-repeat right 15px center / 18px;font-size:16px;color:var(--text);}
+  .toolbar input[type=text]:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(28,37,65,.12);}
+  .filter-chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{min-height:42px;padding:8px 18px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s;}
+  .chip.active{background:var(--ink);border-color:var(--ink);color:#fff;}
 
-  .toolbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-bottom:14px;
-  }
-  .toolbar input[type=text]{
-    padding:10px 14px;
-    border-radius:10px;
-    border:1.5px solid var(--line);
-    font-family:'Cairo',sans-serif;
-    font-size:16px;
-    min-width:220px;
-  }
-  .filter-chips{display:flex;gap:8px;}
-  .chip{
-    padding:8px 14px;
-    border-radius:20px;
-    border:1.5px solid var(--line);
-    background:var(--card);
-    font-size:13px;
-    font-weight:700;
-    color:var(--muted);
-    cursor:pointer;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .chip.active{border-color:var(--ink);color:var(--ink);background:#eceafc22;}
-
-  .table-wrap{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:16px;
-    overflow:hidden;
-  }
+  /* الجدول */
+  .table-wrap{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
   table{width:100%;border-collapse:collapse;}
-  thead th{
-    text-align:right;
-    font-size:12.5px;
-    color:var(--muted);
-    text-transform:none;
-    padding:14px 16px;
-    border-bottom:1.5px solid var(--line);
-    background:#faf8f3;
-    white-space:nowrap;
-  }
-  tbody td{
-    padding:14px 16px;
-    border-bottom:1px solid var(--line);
-    font-size:14.5px;
-    vertical-align:middle;
-  }
+  thead th{text-align:right;font-size:12.5px;font-weight:700;color:var(--muted);padding:13px 16px;border-bottom:1.5px solid var(--line);background:#faf8f3;white-space:nowrap;}
+  tbody td{padding:13px 16px;border-bottom:1px solid var(--line);font-size:14.5px;vertical-align:middle;}
   tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#fcfaf6;}
   tbody tr.delivered{background:#f4faf5;}
   tbody tr.delivered td{color:#7c8a7f;}
-  .room-cell{font-weight:800;color:var(--ink);font-size:16px;}
+  .room-cell{font-weight:800;color:var(--ink);font-size:17px;}
   .time-cell{font-weight:700;color:var(--ink);direction:ltr;text-align:right;}
-  .qty-cell{font-weight:800;text-align:center;}
-  .multi-tag{
-    display:inline-block;
-    margin-right:6px;
-    padding:2px 8px;
-    border-radius:10px;
-    font-size:11px;
-    font-weight:700;
-    color:var(--gold);
-    background:#f6efe4;
-    vertical-align:middle;
-  }
+  .qty-cell{font-weight:800;text-align:center;font-size:16px;}
+  .multi-tag{display:inline-block;margin-right:8px;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;color:#7a5518;background:var(--gold-soft);vertical-align:middle;}
   .booked-cell{font-size:13px;color:var(--muted);white-space:nowrap;}
-  .deliver-toggle{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    cursor:pointer;
-    font-size:13px;
-    font-weight:700;
-    color:var(--sage);
-  }
-  .deliver-toggle input{width:18px;height:18px;cursor:pointer;}
 
-  .empty-state{
-    text-align:center;
-    padding:60px 20px;
-    color:var(--muted);
-  }
-  .empty-state .big{font-size:40px;margin-bottom:10px;}
+  /* زر التسليم (نفس الـ checkbox لكن بشكل زر كبير) */
+  .deliver-toggle,.deliver-toggle-card{position:relative;display:inline-flex;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+  .deliver-toggle input,.deliver-toggle-card input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;}
+  .deliver-toggle span,.deliver-toggle-card span{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:8px 16px;border-radius:12px;border:1.5px solid var(--gold);background:#fff;color:#7a5518;font-size:13.5px;font-weight:700;white-space:nowrap;transition:background .15s,color .15s,border-color .15s;}
+  .deliver-toggle span::before,.deliver-toggle-card span::before{content:"";width:18px;height:18px;border-radius:50%;border:2px solid currentColor;flex:none;}
+  .deliver-toggle input:checked + span,.deliver-toggle-card input:checked + span{background:var(--sage);border-color:var(--sage);color:#fff;}
+  .deliver-toggle input:checked + span::before,.deliver-toggle-card input:checked + span::before{border-color:#fff;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7' stroke='%233f6b4f' stroke-width='3.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat;}
+  .deliver-toggle input:focus-visible + span,.deliver-toggle-card input:focus-visible + span{outline:3px solid var(--gold);outline-offset:2px;}
+  .deliver-toggle-card span{min-height:46px;padding:10px 18px;font-size:14.5px;}
 
+  .empty-state{text-align:center;padding:56px 20px;color:var(--muted);font-weight:600;}
+  .empty-state .big{font-size:44px;margin-bottom:10px;}
   .loading-row{text-align:center;padding:40px;color:var(--muted);}
 
-  @media (max-width: 760px){
-    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-    table{min-width:700px;}
-  }
-
-  /* ---------- كروت الموبايل ---------- */
+  /* كروت الموبايل */
   .mobile-cards{display:none;flex-direction:column;gap:12px;}
-  .booking-card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:16px 18px;
-    transition:border-color .15s;
-  }
-  .booking-card.delivered{
-    background:#f4faf5;
-    border-color:#c5dfc8;
-  }
-  .booking-card-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:10px;
-  }
-  .booking-card-room{
-    font-size:22px;
-    font-weight:800;
-    color:var(--ink);
-  }
-  .booking-card-time{
-    font-size:15px;
-    font-weight:700;
-    color:var(--gold);
-    direction:ltr;
-  }
-  .booking-card-body{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px 14px;
-    margin-bottom:12px;
-  }
-  .booking-card-field{}
-  .booking-card-field .field-label{
-    font-size:11px;
-    color:var(--muted);
-    margin-bottom:2px;
-  }
-  .booking-card-field .field-value{
-    font-size:14px;
-    font-weight:700;
-    color:var(--text);
-  }
-  .booking-card-footer{
-    border-top:1px solid var(--line);
-    padding-top:12px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-  }
-  .deliver-toggle-card{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    cursor:pointer;
-    font-size:14px;
-    font-weight:700;
-    color:var(--sage);
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .deliver-toggle-card input{
-    width:22px;
-    height:22px;
-    cursor:pointer;
-    accent-color:var(--sage);
-  }
+  .booking-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:inset -5px 0 0 var(--gold);transition:background .2s,border-color .2s;}
+  .booking-card.delivered{background:#f4faf5;border-color:#c5dfc8;box-shadow:inset -5px 0 0 var(--sage);}
+  .booking-card.delivered .booking-card-body{opacity:.75;}
+  .booking-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .booking-card-room{font-size:24px;font-weight:800;color:var(--ink);}
+  .booking-card-time{font-size:16px;font-weight:800;color:var(--gold);direction:ltr;}
+  .booking-card-body{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-bottom:12px;}
+  .booking-card-field .field-label{font-size:11.5px;color:var(--muted);margin-bottom:2px;}
+  .booking-card-field .field-value{font-size:14.5px;font-weight:700;color:var(--text);}
+  .booking-card-footer{border-top:1px solid var(--line);padding-top:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
 
+  .status-badge{display:inline-block;padding:5px 12px;border-radius:99px;font-size:12.5px;font-weight:700;}
+  .status-badge.ok{background:var(--sage-soft);color:var(--sage);}
+  .status-badge.pending{background:var(--gold-soft);color:#7a5518;}
+
+  /* الأرشيف */
+  .archive-day-card{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,background .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+  .archive-day-card:hover{border-color:var(--gold);}
+  .archive-day-card:active{background:#faf8f3;}
+  .ad-date{font-weight:800;color:var(--ink);font-size:15.5px;margin-bottom:6px;}
+  .ad-stats{display:flex;gap:8px;font-size:12.5px;color:var(--muted);flex-wrap:wrap;}
+  .ad-stats span{background:#f4f1ea;padding:2px 10px;border-radius:99px;}
+  .ad-stats .ad-delivered{background:var(--sage-soft);color:var(--sage);font-weight:700;}
+  .ad-arrow{flex:none;width:34px;height:34px;border-radius:50%;background:#f4f1ea;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;color:var(--ink);}
+  .archive-more{display:none;text-align:center;margin:6px 0 4px;}
+  .archive-more-note{font-size:13px;color:var(--muted);margin-bottom:10px;}
+  .archive-more-btn,.back-btn{min-height:44px;padding:10px 18px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:border-color .15s,background .15s;}
+  .archive-more-btn:hover:not(:disabled){border-color:var(--gold);}
+  .archive-more-btn:disabled{opacity:.5;cursor:default;}
+  .back-btn{display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;}
+  .back-btn:hover{background:#faf8f3;}
+
+  /* آراء النزلاء */
+  .fb-summary .card .sub{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6;}
+  .fb-list{display:flex;flex-direction:column;gap:12px;}
+  .fb-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;}
+  .fb-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .fb-who{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .fb-room{font-size:16px;font-weight:800;color:#fff;background:var(--ink);padding:2px 12px;border-radius:10px;}
+  .fb-name{font-size:14.5px;font-weight:700;color:var(--text);}
+  .fb-date{font-size:12px;color:var(--muted);}
+  .fb-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .fb-badge{padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;}
+  .fb-badge.high{background:var(--sage-soft);color:var(--sage);}
+  .fb-badge.mid{background:var(--gold-soft);color:#7a5518;}
+  .fb-badge.low{background:#fbecec;color:#a13a3a;}
+  .fb-comment{font-size:14.5px;line-height:1.9;white-space:pre-wrap;word-break:break-word;background:#faf8f3;border-radius:10px;border-right:3px solid var(--gold);padding:10px 14px;}
+
+  /* موبايل */
   @media (max-width: 760px){
+    header{padding:14px 16px;}
+    header h1{font-size:19px;}
+    .controls{width:100%;}
+    .current-date-label{flex:1 1 100%;text-align:center;}
+    .controls .btn{flex:1 1 0;}
+    .tabs{padding:0 14px;}
+    main{padding:16px 14px 48px;}
+    .summary{grid-template-columns:repeat(2,1fr);}
+    .toolbar{flex-direction:column;align-items:stretch;}
+    .filter-chips .chip{flex:1 1 0;padding:8px 6px;}
     .table-wrap{display:none;}
     .mobile-cards{display:flex;}
+    .deliver-toggle-card{flex:1 1 auto;justify-content:flex-end;}
   }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
 
   @media print{
     header, .toolbar, .filter-chips, .tabs{display:none !important;}
@@ -365,144 +226,11 @@
     .deliver-toggle-card{display:none !important;}
   }
 
-  /* ---------- تبويبات (الحجوزات / الأرشيف) ---------- */
-  .tabs{
-    display:flex;
-    gap:8px;
-    max-width:1100px;
-    margin:18px auto 0;
-    padding:0 18px;
-  }
-  .tab-btn{
-    padding:10px 20px;
-    border-radius:12px 12px 0 0;
-    border:1.5px solid var(--line);
-    border-bottom:none;
-    background:#eee9db;
-    color:var(--muted);
-    font-family:'Cairo',sans-serif;
-    font-size:14.5px;
-    font-weight:700;
-    cursor:pointer;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .tab-btn.active{
-    background:var(--card);
-    color:var(--ink);
-    border-color:var(--line);
-  }
 
-  /* ---------- الأرشيف ---------- */
-  .archive-day-card{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:14px;
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:16px 18px;
-    margin-bottom:10px;
-    cursor:pointer;
-    transition:border-color .15s;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:transparent;
+  @media print{
+    .summary .card::before, .progress{display:none !important;}
+    .booking-card{box-shadow:none !important;}
   }
-  .archive-day-card:hover{border-color:var(--gold);}
-  .ad-date{font-weight:800;color:var(--ink);font-size:15px;}
-  .ad-stats{
-    display:flex;
-    gap:14px;
-    font-size:13px;
-    color:var(--muted);
-    flex-wrap:wrap;
-  }
-  .ad-stats .ad-delivered{color:var(--sage);font-weight:700;}
-  .ad-arrow{font-size:22px;color:var(--muted);}
-  .archive-more{display:none;text-align:center;margin:6px 0 4px;}
-  .archive-more-note{font-size:13px;color:var(--muted);margin-bottom:10px;}
-  .archive-more-btn{
-    padding:10px 18px;
-    border-radius:12px;
-    border:1.5px solid var(--line);
-    background:var(--card);
-    color:var(--ink);
-    font-family:'Cairo',sans-serif;
-    font-size:14px;
-    font-weight:700;
-    cursor:pointer;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .archive-more-btn:hover:not(:disabled){border-color:var(--gold);}
-  .archive-more-btn:disabled{opacity:.5;cursor:default;}
-
-  .back-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:8px 14px;
-    border-radius:10px;
-    border:1.5px solid var(--line);
-    background:var(--card);
-    color:var(--ink);
-    font-family:'Cairo',sans-serif;
-    font-size:13.5px;
-    font-weight:700;
-    cursor:pointer;
-    margin-bottom:16px;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .back-btn:hover{background:#faf8f3;}
-
-  .status-badge{
-    display:inline-block;
-    padding:5px 12px;
-    border-radius:20px;
-    font-size:12.5px;
-    font-weight:700;
-  }
-  .status-badge.ok{background:#e8f3ea;color:var(--sage);}
-  .status-badge.pending{background:#f6efe4;color:var(--gold);}
-
-  /* ---------- آراء النزلاء ---------- */
-  .fb-summary .card .sub{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.6;}
-  .fb-list{display:flex;flex-direction:column;gap:12px;}
-  .fb-card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:16px 18px;
-  }
-  .fb-card-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:10px;
-  }
-  .fb-who{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .fb-room{font-size:18px;font-weight:800;color:var(--ink);}
-  .fb-name{font-size:14.5px;font-weight:700;color:var(--text);}
-  .fb-date{font-size:12px;color:var(--muted);}
-  .fb-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
-  .fb-badge{padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700;}
-  .fb-badge.high{background:#e8f3ea;color:var(--sage);}
-  .fb-badge.mid{background:#f6efe4;color:var(--gold);}
-  .fb-badge.low{background:#fbecec;color:#a13a3a;}
-  .fb-comment{
-    font-size:14.5px;
-    line-height:1.8;
-    white-space:pre-wrap;
-    word-break:break-word;
-    background:#faf8f3;
-    border-radius:10px;
-    padding:10px 12px;
-  }
-
   /* ---------- شريط حالة الاتصال ---------- */
   .conn-banner{
     display:none;
@@ -550,15 +278,18 @@
     <div class="print-date-heading" id="printDateHeading"></div>
     <div class="summary" id="summary">
       <div class="card"><div class="num" id="totalRooms">—</div><div class="lbl">عدد الغرف</div></div>
-      <div class="card"><div class="num" id="totalBookings">—</div><div class="lbl">عدد الحجوزات</div></div>
+      <div class="card stub"><div class="num" id="totalBookings">—</div></div>
       <div class="card"><div class="num" id="totalBoxes">—</div><div class="lbl">إجمالي البوكسات</div></div>
-      <div class="card delivered"><div class="num" id="totalDelivered">—</div><div class="lbl">حجوزات تم تسليمها</div></div>
+      <div class="card stub"><div class="num" id="totalDelivered">—</div><i id="deliveredBar"></i></div>
     </div>
 
     <div class="contents-panel" id="contentsPanel"></div>
 
-    <div class="toolbar">
-      <input type="text" id="searchInput" placeholder="بحث برقم الغرفة أو اسم النزيل...">
+    <div class="stub">
+      <input type="text" id="searchInput">
+      <button type="button" class="chip active" data-filter="all"></button>
+      <button type="button" class="chip" data-filter="pending"></button>
+      <button type="button" class="chip" data-filter="delivered"></button>
     </div>
 
     <div class="table-wrap">
@@ -785,10 +516,10 @@
   function renderContentsPanel() {
     const panel = document.getElementById('contentsPanel');
     panel.innerHTML = `
-      <div class="contents-card single">
-        <h3>${BOX_CONTENTS.icon} ${BOX_CONTENTS.label} — المكونات كاملة</h3>
+      <details class="contents-card single">
+        <summary><span>${BOX_CONTENTS.icon} ${BOX_CONTENTS.label} — المكونات كاملة</span><span class="cnt">${BOX_CONTENTS.items.length} أصناف</span><span class="chev"></span></summary>
         <ul>${BOX_CONTENTS.items.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
-      </div>
+      </details>
     `;
   }
 
@@ -875,6 +606,7 @@
     document.getElementById('totalBookings').textContent = allBookings.length;
     document.getElementById('totalBoxes').textContent = allBookings.reduce((s, r) => s + (r.quantity || 0), 0);
     document.getElementById('totalDelivered').textContent = allBookings.filter(r => r.delivered).length;
+    document.getElementById('deliveredBar').style.width = allBookings.length ? Math.round(allBookings.filter(r => r.delivered).length / allBookings.length * 100) + '%' : '0%';
 
     const body = document.getElementById('tableBody');
     const mobileCards = document.getElementById('mobileCards');
@@ -894,12 +626,7 @@
         <td class="qty-cell">${r.quantity || 1}</td>
         <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
         <td class="booked-cell">${escapeHtml(formatBookedAt(r))}</td>
-        <td>
-          <label class="deliver-toggle">
-            <input type="checkbox" data-id="${r.id}" ${r.delivered ? 'checked' : ''}>
-            ${r.delivered ? 'تم التسليم' : 'تعليم كمُسلَّم'}
-          </label>
-        </td>
+        <td>${r.delivered ? '<span class="status-badge ok">تم التسليم</span>' : ''}</td>
       </tr>
     `).join('');
 
@@ -924,13 +651,7 @@
             <div class="field-value">🕓 ${escapeHtml(formatBookedAt(r))}</div>
           </div>
         </div>
-        <div class="booking-card-footer">
-          <span class="status-badge ${r.delivered ? 'ok' : 'pending'}">${r.delivered ? '✅ تم التسليم' : '⏳ لم يُسلَّم'}</span>
-          <label class="deliver-toggle-card">
-            <input type="checkbox" data-id="${r.id}" ${r.delivered ? 'checked' : ''}>
-            ${r.delivered ? 'تم التسليم' : 'تعليم كمُسلَّم'}
-          </label>
-        </div>
+        ${r.delivered ? '<div class="booking-card-footer"><span class="status-badge ok">✅ تم التسليم</span></div>' : ''}
       </div>
     `).join('');
 
