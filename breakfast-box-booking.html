@@ -323,6 +323,8 @@
     background:var(--ink);
     color:var(--parchment);
   }
+  .modal-check.alert{background:#fbecec;color:#a13a3a;}
+  .modal-check.alert.info{background:#eef1f8;color:#33436e;}
   .modal-btn.secondary{
     background:var(--parchment);
     color:var(--text);
@@ -764,8 +766,6 @@
 
 
     <button type="submit" class="submit-btn" id="submitBtn">تأكيد الحجز</button>
-
-    <div class="notice" id="notice"></div>
   </form>
 
   <footer>سيتم تجهيز البوكس وتسليمه صباح يوم التسليم المذكور أعلاه</footer>
@@ -780,6 +780,18 @@
     <div class="modal-actions">
       <button type="button" class="modal-btn secondary" id="modalEditBtn">تعديل الحجز</button>
       <button type="button" class="modal-btn primary" id="modalCloseBtn">تم، خروج</button>
+    </div>
+  </div>
+</div>
+
+<!-- شاشة التنبيهات المنبثقة -->
+<div class="modal-overlay" id="alertModal">
+  <div class="modal-card" role="alertdialog" aria-modal="true">
+    <div class="modal-check alert" id="alertModalIcon">!</div>
+    <p class="modal-title">تنبيه</p>
+    <p class="modal-text" id="alertModalText"></p>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn primary" id="alertModalBtn">حسنًا</button>
     </div>
   </div>
 </div>
@@ -1206,12 +1218,28 @@
 
   // ---------- إرسال الحجز ----------
   const form = document.getElementById('bookingForm');
-  const notice = document.getElementById('notice');
+  const alertModal = document.getElementById('alertModal');
+  const alertModalText = document.getElementById('alertModalText');
+  const alertModalIcon = document.getElementById('alertModalIcon');
 
+  // كل التنبيهات تظهر الآن فى شاشة منبثقة أمام العميل
   function showNotice(type, text) {
-    notice.className = "notice show " + type;
-    notice.textContent = text;
+    alertModalText.textContent = text;
+    alertModalIcon.className = 'modal-check alert' + (type === 'info' ? ' info' : '');
+    alertModalIcon.textContent = type === 'info' ? 'i' : '!';
+    alertModal.classList.add('show');
+    document.getElementById('alertModalBtn').focus();
   }
+  function closeAlertModal() {
+    alertModal.classList.remove('show');
+  }
+  document.getElementById('alertModalBtn').addEventListener('click', closeAlertModal);
+  alertModal.addEventListener('click', (e) => {
+    if (e.target === alertModal) closeAlertModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAlertModal();
+  });
 
   // ---------- شاشة تأكيد الحجز المنبثقة ----------
   const confirmModal = document.getElementById('confirmModal');
@@ -1238,7 +1266,7 @@
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    notice.className = "notice";
+    closeAlertModal();
 
     const room = normalizeRoomNumber(roomInput.value.trim());
     const guestName = document.getElementById('guestName').value.trim();
@@ -1394,7 +1422,7 @@
    'سلطة خضراء طازجة':'Fresh green salad','مربى':'Jam','عسل':'Honey','تأكيد الحجز':'Confirm booking','حفظ التعديل':'Save changes',
    'الحجز مغلق حاليًا':'Booking closed','جارٍ الحجز...':'Booking...','غير متصل بالإنترنت':'Offline','تعذر الاتصال بالخادم':'Server unreachable',
    'يُغلق الحجز خلال':'Booking closes in','يُفتح الحجز خلال':'Booking opens in','تم تأكيد الحجز':'Booking confirmed','تعديل الحجز':'Edit booking',
-   'تم، خروج':'Done, exit','إلغاء التعديل':'Cancel edit',
+   'تم، خروج':'Done, exit','تنبيه':'Notice','حسنًا':'OK','إلغاء التعديل':'Cancel edit',
    'سيتم تجهيز البوكس وتسليمه صباح يوم التسليم المذكور أعلاه':'Your box will be prepared and delivered on the morning of the delivery date above',
    'التسليم صباح اليوم التالي، اختر الموعد المناسب لك ضمن ساعات الخدمة':'Delivered next morning — pick the time that suits you',
    '⚠ رقم الغرفة غير موجود بالفندق — من فضلك تأكد من الرقم':'⚠ Room number not found — please check it',
