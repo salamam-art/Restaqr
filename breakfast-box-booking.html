@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#1c2541">
+<meta name="theme-color" content="#5e1527">
 <title>حجز بوكس الإفطار</title>
 <link rel="icon" type="image/png" href="001.png">
 <link rel="apple-touch-icon" href="001.png">
@@ -11,8 +11,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1c2541;
-    --ink-2:#141b30;
+    --ink:#5e1527;
+    --ink-2:#3b0c18;
     --parchment:#f7f1e6;
     --card:#fffdf8;
     --gold:#b8863b;
@@ -28,7 +28,7 @@
   html,body{margin:0;padding:0;}
   body{
     background:
-      radial-gradient(1200px 600px at 20% -10%, #24304f 0%, transparent 60%),
+      radial-gradient(1200px 600px at 20% -10%, #7a1f35 0%, transparent 60%),
       linear-gradient(180deg, var(--ink) 0%, var(--ink) 220px, var(--parchment) 220px, var(--parchment) 100%);
     font-family:'Cairo', sans-serif;
     color:var(--text);
@@ -73,7 +73,7 @@
   }
   header p{
     margin:0;
-    color:#c7cde0;
+    color:#e8c9d0;
     font-size:14.5px;
   }
 
@@ -83,7 +83,7 @@
     border-radius:18px;
     padding:20px 22px;
     margin-top:-38px;
-    box-shadow:0 18px 40px -20px rgba(28,37,65,.35);
+    box-shadow:0 18px 40px -20px rgba(94,21,39,.35);
   }
 
   .policy-notice{
@@ -231,13 +231,13 @@
     padding:16px;
     border:none;
     border-radius:14px;
-    background:linear-gradient(180deg, #22304f, var(--ink-2));
+    background:linear-gradient(180deg, #6e1a2f, var(--ink-2));
     color:var(--gold-light);
     font-family:'Cairo',sans-serif;
     font-weight:800;
     font-size:16px;
     cursor:pointer;
-    box-shadow:0 12px 24px -10px rgba(20,27,48,.5);
+    box-shadow:0 12px 24px -10px rgba(59,12,24,.5);
     transition:opacity .15s, transform .1s;
     touch-action:manipulation;
     -webkit-tap-highlight-color:transparent;
@@ -256,14 +256,14 @@
   .notice.show{display:block;}
   .notice.success{background:#eef5ef;color:var(--ok);border:1px solid #cde3d1;}
   .notice.error{background:#fbecec;color:#a13a3a;border:1px solid #f0cfcf;}
-  .notice.info{background:#eef1f8;color:#33436e;border:1px solid #d6ddef;}
+  .notice.info{background:#f8eef0;color:#7a1f35;border:1px solid #ecd3d9;}
 
   /* ---------- شاشة تأكيد الحجز المنبثقة ---------- */
   .modal-overlay{
     display:none;
     position:fixed;
     inset:0;
-    background:rgba(20,27,48,.6);
+    background:rgba(59,12,24,.6);
     backdrop-filter:blur(3px);
     align-items:center;
     justify-content:center;
@@ -323,8 +323,6 @@
     background:var(--ink);
     color:var(--parchment);
   }
-  .modal-check.alert{background:#fbecec;color:#a13a3a;}
-  .modal-check.alert.info{background:#eef1f8;color:#33436e;}
   .modal-btn.secondary{
     background:var(--parchment);
     color:var(--text);
@@ -452,9 +450,9 @@
     align-items:center;
     justify-content:space-between;
     gap:10px;
-    background:#eef1f8;
-    border:1px solid #d6ddef;
-    color:#33436e;
+    background:#f8eef0;
+    border:1px solid #ecd3d9;
+    color:#7a1f35;
     border-radius:12px;
     padding:10px 14px;
     margin-bottom:18px;
@@ -466,9 +464,9 @@
     flex-shrink:0;
     padding:6px 12px;
     border-radius:8px;
-    border:1.5px solid #33436e;
+    border:1.5px solid #7a1f35;
     background:transparent;
-    color:#33436e;
+    color:#7a1f35;
     font-family:'Cairo',sans-serif;
     font-size:12.5px;
     font-weight:700;
@@ -503,7 +501,7 @@
   body.conn-visible{padding-top:48px;}
 
   /* ================= تحسينات الواجهة ================= */
-  :root{--shadow-soft:0 18px 40px -22px rgba(28,37,65,.35);--ease:cubic-bezier(.2,.8,.2,1);}
+  :root{--shadow-soft:0 18px 40px -22px rgba(94,21,39,.35);--ease:cubic-bezier(.2,.8,.2,1);}
   html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
   @keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
   @keyframes popIn{from{opacity:0;transform:scale(.92) translateY(10px);}to{opacity:1;transform:none;}}
@@ -513,7 +511,7 @@
   body{
     background:
       radial-gradient(900px 480px at 85% -8%, rgba(184,134,59,.22) 0%, transparent 60%),
-      radial-gradient(1100px 560px at 15% -10%, #2a3860 0%, transparent 62%),
+      radial-gradient(1100px 560px at 15% -10%, #862439 0%, transparent 62%),
       linear-gradient(180deg, var(--ink) 0%, var(--ink) 250px, var(--parchment) 250px, var(--parchment) 100%);
   }
   header{padding:36px 10px 40px;animation:riseIn .6s var(--ease) both;}
@@ -568,7 +566,7 @@
     counter-increment:step;content:counter(step);flex-shrink:0;
     width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
     font-size:12.5px;font-weight:800;color:var(--gold-light);
-    background:linear-gradient(180deg,#22304f,var(--ink-2));
+    background:linear-gradient(180deg,#6e1a2f,var(--ink-2));
   }
   .field input[type=text],.field input[type=number],.field select,.field textarea{
     background:#fffefb;border-radius:14px;padding:14px 16px;
@@ -647,8 +645,8 @@
     font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer;
     transition:all .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
   }
-  .chip.on{background:linear-gradient(180deg,#22304f,var(--ink-2));color:var(--gold-light);border-color:var(--ink-2);
-    box-shadow:0 8px 16px -8px rgba(20,27,48,.7);transform:translateY(-1px);}
+  .chip.on{background:linear-gradient(180deg,#6e1a2f,var(--ink-2));color:var(--gold-light);border-color:var(--ink-2);
+    box-shadow:0 8px 16px -8px rgba(59,12,24,.7);transform:translateY(-1px);}
   #roomNumber.valid{
     border-color:#8fbf9f;
     background:#fffefb url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><circle cx='12' cy='12' r='11' fill='%233f6b4f'/><path d='M7 12.5l3.2 3.2L17 9' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat left 14px center;
@@ -766,6 +764,8 @@
 
 
     <button type="submit" class="submit-btn" id="submitBtn">تأكيد الحجز</button>
+
+    <div class="notice" id="notice"></div>
   </form>
 
   <footer>سيتم تجهيز البوكس وتسليمه صباح يوم التسليم المذكور أعلاه</footer>
@@ -780,18 +780,6 @@
     <div class="modal-actions">
       <button type="button" class="modal-btn secondary" id="modalEditBtn">تعديل الحجز</button>
       <button type="button" class="modal-btn primary" id="modalCloseBtn">تم، خروج</button>
-    </div>
-  </div>
-</div>
-
-<!-- شاشة التنبيهات المنبثقة -->
-<div class="modal-overlay" id="alertModal">
-  <div class="modal-card" role="alertdialog" aria-modal="true">
-    <div class="modal-check alert" id="alertModalIcon">!</div>
-    <p class="modal-title">تنبيه</p>
-    <p class="modal-text" id="alertModalText"></p>
-    <div class="modal-actions">
-      <button type="button" class="modal-btn primary" id="alertModalBtn">حسنًا</button>
     </div>
   </div>
 </div>
@@ -1218,28 +1206,12 @@
 
   // ---------- إرسال الحجز ----------
   const form = document.getElementById('bookingForm');
-  const alertModal = document.getElementById('alertModal');
-  const alertModalText = document.getElementById('alertModalText');
-  const alertModalIcon = document.getElementById('alertModalIcon');
+  const notice = document.getElementById('notice');
 
-  // كل التنبيهات تظهر الآن فى شاشة منبثقة أمام العميل
   function showNotice(type, text) {
-    alertModalText.textContent = text;
-    alertModalIcon.className = 'modal-check alert' + (type === 'info' ? ' info' : '');
-    alertModalIcon.textContent = type === 'info' ? 'i' : '!';
-    alertModal.classList.add('show');
-    document.getElementById('alertModalBtn').focus();
+    notice.className = "notice show " + type;
+    notice.textContent = text;
   }
-  function closeAlertModal() {
-    alertModal.classList.remove('show');
-  }
-  document.getElementById('alertModalBtn').addEventListener('click', closeAlertModal);
-  alertModal.addEventListener('click', (e) => {
-    if (e.target === alertModal) closeAlertModal();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeAlertModal();
-  });
 
   // ---------- شاشة تأكيد الحجز المنبثقة ----------
   const confirmModal = document.getElementById('confirmModal');
@@ -1266,7 +1238,7 @@
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    closeAlertModal();
+    notice.className = "notice";
 
     const room = normalizeRoomNumber(roomInput.value.trim());
     const guestName = document.getElementById('guestName').value.trim();
@@ -1422,7 +1394,7 @@
    'سلطة خضراء طازجة':'Fresh green salad','مربى':'Jam','عسل':'Honey','تأكيد الحجز':'Confirm booking','حفظ التعديل':'Save changes',
    'الحجز مغلق حاليًا':'Booking closed','جارٍ الحجز...':'Booking...','غير متصل بالإنترنت':'Offline','تعذر الاتصال بالخادم':'Server unreachable',
    'يُغلق الحجز خلال':'Booking closes in','يُفتح الحجز خلال':'Booking opens in','تم تأكيد الحجز':'Booking confirmed','تعديل الحجز':'Edit booking',
-   'تم، خروج':'Done, exit','تنبيه':'Notice','حسنًا':'OK','إلغاء التعديل':'Cancel edit',
+   'تم، خروج':'Done, exit','إلغاء التعديل':'Cancel edit',
    'سيتم تجهيز البوكس وتسليمه صباح يوم التسليم المذكور أعلاه':'Your box will be prepared and delivered on the morning of the delivery date above',
    'التسليم صباح اليوم التالي، اختر الموعد المناسب لك ضمن ساعات الخدمة':'Delivered next morning — pick the time that suits you',
    '⚠ رقم الغرفة غير موجود بالفندق — من فضلك تأكد من الرقم':'⚠ Room number not found — please check it',
