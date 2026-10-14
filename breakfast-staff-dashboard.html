@@ -159,6 +159,32 @@
   .fb-badge.low{background:#fbecec;color:#a13a3a;}
   .fb-comment{font-size:14.5px;line-height:1.9;white-space:pre-wrap;word-break:break-word;background:#faf8f3;border-radius:10px;border-right:3px solid var(--gold);padding:10px 14px;}
 
+
+  /* ---------- ملاحظات الغرف ---------- */
+  .note-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;min-width:40px;padding:6px 12px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,color .15s;}
+  .note-btn::before{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") center/contain no-repeat;}
+  .note-btn:hover{border-color:var(--gold);color:#7a5518;}
+  .note-btn.has-note{background:var(--gold);border-color:var(--gold);color:#1d1507;}
+  .note-cell{min-width:150px;}
+  .note-preview{margin-top:6px;font-size:12.5px;line-height:1.7;color:#7a5518;font-weight:700;white-space:pre-wrap;word-break:break-word;max-width:260px;}
+  .booking-card-note{margin-bottom:12px;padding:9px 12px;border-radius:10px;background:var(--gold-soft);border-right:3px solid var(--gold);font-size:13.5px;font-weight:700;line-height:1.8;color:#5c3f0f;white-space:pre-wrap;word-break:break-word;}
+  .booking-card-actions{margin-bottom:12px;}
+  .booking-card-actions .note-btn{width:100%;}
+
+  .note-modal{display:none;position:fixed;inset:0;z-index:10000;background:rgba(28,37,65,.55);align-items:center;justify-content:center;padding:16px;}
+  .note-modal.show{display:flex;}
+  .note-dialog{background:#fff;border-radius:18px;width:100%;max-width:440px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.3);}
+  .note-dialog h3{margin:0 0 4px;font-size:18px;color:var(--ink);}
+  .note-dialog .note-sub{font-size:12.5px;color:var(--muted);margin-bottom:12px;}
+  .note-dialog textarea{width:100%;min-height:130px;resize:vertical;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);font-family:inherit;font-size:15px;line-height:1.8;background:#faf8f3;color:var(--text);}
+  .note-dialog textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(28,37,65,.12);}
+  .note-counter{font-size:11.5px;color:var(--muted);text-align:left;margin-top:4px;direction:ltr;}
+  .note-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .note-actions button{flex:1 1 auto;min-height:44px;padding:8px 16px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;touch-action:manipulation;border:1.5px solid var(--line);background:#fff;color:var(--ink);}
+  .note-actions .save{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .note-actions .del{color:#a13a3a;border-color:#e8c4c4;}
+  .note-actions button:disabled{opacity:.6;cursor:default;}
+
   /* موبايل */
   @media (max-width: 760px){
     header{padding:14px 16px;}
@@ -224,6 +250,8 @@
     .booking-card-footer{padding-top:5px;}
     .booking-card-footer .status-badge{font-size:11px;font-weight:800;padding:3px 8px;}
     .deliver-toggle-card{display:none !important;}
+    .note-btn, .booking-card-actions, .note-modal{display:none !important;}
+    .booking-card-note{margin-bottom:5px;padding:4px 7px;border-radius:6px;font-size:11.5px;font-weight:800;line-height:1.6;border:1px solid #b8863b;border-right-width:3px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   }
 
 
@@ -301,11 +329,12 @@
             <th>الكمية</th>
             <th>ساعة التسليم</th>
             <th>وقت الحجز</th>
+            <th>ملاحظات</th>
             <th>الحالة</th>
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="6" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>
+          <tr><td colspan="7" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>
         </tbody>
       </table>
     </div>
@@ -369,6 +398,20 @@
     <div class="fb-list" id="fbList"><div class="loading-row">جارٍ تحميل الآراء...</div></div>
   </section>
 </main>
+
+<div class="note-modal" id="noteModal" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+  <div class="note-dialog">
+    <h3 id="noteModalTitle">ملاحظات الغرفة</h3>
+    <div class="note-sub">تظهر الملاحظة في الطباعة وفي الصورة المشاركة.</div>
+    <textarea id="noteTextarea" maxlength="300" placeholder="اكتب ملاحظة لهذه الغرفة... (مثال: حساسية من البيض، التسليم عند الباب)"></textarea>
+    <div class="note-counter"><span id="noteCount">0</span>/300</div>
+    <div class="note-actions">
+      <button type="button" class="save" id="noteSaveBtn">حفظ</button>
+      <button type="button" class="del" id="noteDeleteBtn">حذف الملاحظة</button>
+      <button type="button" id="noteCancelBtn">إلغاء</button>
+    </div>
+  </div>
+</div>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -565,6 +608,71 @@
       (a.guestName || '').localeCompare(b.guestName || ''));
   }
 
+  // ---------- ملاحظات الغرف ----------
+  // الملاحظة لكل غرفة (مش لكل حجز): بتتخزن في staffNote على كل حجوزات الغرفة في نفس اليوم
+  function roomNoteMap(list) {
+    const m = new Map();
+    list.forEach(r => {
+      const n = (r.staffNote || '').trim();
+      if (n && !m.has(r.roomNumber)) m.set(r.roomNumber, n);
+    });
+    return m;
+  }
+  function noteBtn(room, hasNote, withLabel) {
+    const label = withLabel ? (hasNote ? 'تعديل الملاحظة' : 'إضافة ملاحظة') : '';
+    return `<button type="button" class="note-btn ${hasNote ? 'has-note' : ''}" data-room="${escapeHtml(room || '')}" title="ملاحظات الغرفة" aria-label="ملاحظات الغرفة ${escapeHtml(room || '')}">${label}</button>`;
+  }
+
+  let noteRoom = null;
+  const noteModal = document.getElementById('noteModal');
+  const noteTextarea = document.getElementById('noteTextarea');
+
+  function openNoteModal(room) {
+    noteRoom = room;
+    const existing = roomNoteMap(allBookings).get(room) || '';
+    document.getElementById('noteModalTitle').textContent = '📝 ملاحظات الغرفة ' + room;
+    noteTextarea.value = existing;
+    document.getElementById('noteCount').textContent = existing.length;
+    document.getElementById('noteDeleteBtn').style.display = existing ? '' : 'none';
+    noteModal.classList.add('show');
+    setTimeout(() => noteTextarea.focus(), 50);
+  }
+  function closeNoteModal() { noteModal.classList.remove('show'); noteRoom = null; }
+
+  async function saveRoomNote(text) {
+    const room = noteRoom;
+    const ids = allBookings.filter(r => (r.roomNumber || '') === room).map(r => r.id);
+    if (!ids.length) { closeNoteModal(); return; }
+    const saveBtn = document.getElementById('noteSaveBtn');
+    const delBtn = document.getElementById('noteDeleteBtn');
+    saveBtn.disabled = delBtn.disabled = true;
+    try {
+      const batch = db.batch();
+      ids.forEach(id => batch.update(db.collection(COLLECTION).doc(id), {
+        staffNote: text ? text : firebase.firestore.FieldValue.delete(),
+        staffNoteAt: firebase.firestore.FieldValue.serverTimestamp()
+      }));
+      await batch.commit();
+      closeNoteModal();
+    } catch (err) {
+      console.error(err);
+      alert('تعذّر حفظ الملاحظة. تأكد من الاتصال وقواعد Firestore ثم حاول مرة أخرى.');
+    } finally {
+      saveBtn.disabled = delBtn.disabled = false;
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.note-btn');
+    if (btn) { openNoteModal(btn.dataset.room); return; }
+    if (e.target === noteModal) closeNoteModal();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && noteModal.classList.contains('show')) closeNoteModal(); });
+  noteTextarea.addEventListener('input', () => { document.getElementById('noteCount').textContent = noteTextarea.value.length; });
+  document.getElementById('noteSaveBtn').addEventListener('click', () => saveRoomNote(noteTextarea.value.trim()));
+  document.getElementById('noteDeleteBtn').addEventListener('click', () => { if (confirm('حذف ملاحظة هذه الغرفة؟')) saveRoomNote(''); });
+  document.getElementById('noteCancelBtn').addEventListener('click', closeNoteModal);
+
   // ---------- بيانات ----------
   let allBookings = [];
   let unsubscribe = null;
@@ -574,7 +682,7 @@
   function subscribe() {
     if (unsubscribe) unsubscribe();
     document.getElementById('tableBody').innerHTML =
-      '<tr><td colspan="6" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>';
+      '<tr><td colspan="7" class="loading-row">جارٍ تحميل الحجوزات...</td></tr>';
 
     unsubscribe = db.collection(COLLECTION)
       .where('deliveryDate', '==', currentDateKey)
@@ -585,7 +693,7 @@
       }, err => {
         console.error(err);
         document.getElementById('tableBody').innerHTML =
-          '<tr><td colspan="6" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
+          '<tr><td colspan="7" class="loading-row">تعذّر تحميل البيانات. تأكد من قواعد Firestore.</td></tr>';
       });
   }
 
@@ -611,9 +719,10 @@
     const body = document.getElementById('tableBody');
     const mobileCards = document.getElementById('mobileCards');
     const roomCounts = roomCountMap(allBookings);
+    const roomNotes = roomNoteMap(allBookings);
 
     if (rows.length === 0) {
-      body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div></td></tr>`;
       mobileCards.innerHTML = `<div class="empty-state"><div class="big">🗒️</div>لا توجد حجوزات مطابقة لهذا اليوم</div>`;
       return;
     }
@@ -626,6 +735,7 @@
         <td class="qty-cell">${r.quantity || 1}</td>
         <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
         <td class="booked-cell">${escapeHtml(formatBookedAt(r))}</td>
+        <td class="note-cell">${noteBtn(r.roomNumber, roomNotes.has(r.roomNumber), false)}${roomNotes.has(r.roomNumber) ? `<div class="note-preview">${escapeHtml(roomNotes.get(r.roomNumber))}</div>` : ''}</td>
         <td>${r.delivered ? '<span class="status-badge ok">تم التسليم</span>' : ''}</td>
       </tr>
     `).join('');
@@ -651,6 +761,8 @@
             <div class="field-value">🕓 ${escapeHtml(formatBookedAt(r))}</div>
           </div>
         </div>
+        ${roomNotes.has(r.roomNumber) ? `<div class="booking-card-note">📝 ${escapeHtml(roomNotes.get(r.roomNumber))}</div>` : ''}
+        <div class="booking-card-actions">${noteBtn(r.roomNumber, roomNotes.has(r.roomNumber), true)}</div>
         ${r.delivered ? '<div class="booking-card-footer"><span class="status-badge ok">✅ تم التسليم</span></div>' : ''}
       </div>
     `).join('');
@@ -710,6 +822,8 @@
   function buildShareCard() {
     const rows = sortBookings(allBookings.slice());
     const totalBoxes = rows.reduce((s, r) => s + (r.quantity || 0), 0);
+    const shareNotes = roomNoteMap(rows);
+    const hasShareNotes = shareNotes.size > 0;
 
     const wrap = document.createElement('div');
     wrap.style.cssText =
@@ -739,6 +853,7 @@
             <th style="font-size:11px;padding:5px 12px;text-align:center;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">الكمية</th>
             <th style="font-size:11px;padding:5px 12px;text-align:center;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">التسليم</th>
             <th style="font-size:11px;padding:5px 12px;text-align:center;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">وقت الحجز</th>
+            ${hasShareNotes ? '<th style="font-size:11px;padding:5px 12px;text-align:right;border-bottom:1.5px solid #e2ddd0;white-space:nowrap;">ملاحظات</th>' : ''}
           </tr>
         </thead>
         <tbody>
@@ -749,6 +864,7 @@
               <td style="font-size:11px;padding:4px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:800;color:#b8863b;white-space:nowrap;">${r.quantity || 1}</td>
               <td style="font-size:11px;padding:4px 12px;border-bottom:1px solid #eee;text-align:center;direction:ltr;font-weight:700;white-space:nowrap;">${escapeHtml(r.deliveryTime || '—')}</td>
               <td style="font-size:11px;padding:4px 12px;border-bottom:1px solid #eee;text-align:center;white-space:nowrap;">${escapeHtml(formatBookedAt(r))}</td>
+              ${hasShareNotes ? `<td style="font-size:11px;padding:4px 12px;border-bottom:1px solid #eee;font-weight:700;color:#7a5518;max-width:200px;word-break:break-word;white-space:pre-wrap;">${escapeHtml(shareNotes.get(r.roomNumber) || '')}</td>` : ''}
             </tr>
           `).join('')}
         </tbody>
@@ -946,6 +1062,7 @@
       ;
     sortBookings(rows);
     const archCounts = roomCountMap(rows);
+    const archNotes = roomNoteMap(rows);
 
     document.getElementById('archiveDetailTitle').textContent = formatDateArFromKey(archiveDetailDate);
     document.getElementById('archTotalRooms').textContent = uniqueRooms(rows);
@@ -966,7 +1083,7 @@
     body.innerHTML = rows.map(r => `
       <tr class="${r.delivered ? 'delivered' : ''}">
         <td class="room-cell">${escapeHtml(r.roomNumber || '')}${multiTag(r, archCounts)}</td>
-        <td>${escapeHtml(r.guestName || '')}</td>
+        <td>${escapeHtml(r.guestName || '')}${archNotes.has(r.roomNumber) ? `<div class="note-preview">📝 ${escapeHtml(archNotes.get(r.roomNumber))}</div>` : ''}</td>
         <td class="qty-cell">${r.quantity || 1}</td>
         <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
         <td class="booked-cell">${escapeHtml(formatBookedAt(r))}</td>
@@ -995,6 +1112,7 @@
             <div class="field-value">🕓 ${escapeHtml(formatBookedAt(r))}</div>
           </div>
         </div>
+        ${archNotes.has(r.roomNumber) ? `<div class="booking-card-note">📝 ${escapeHtml(archNotes.get(r.roomNumber))}</div>` : ''}
         <div class="booking-card-footer">
           <span class="status-badge ${r.delivered ? 'ok' : 'pending'}">${r.delivered ? '✅ تم التسليم' : '⏳ لم يُسلَّم'}</span>
         </div>
