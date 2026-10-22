@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5e1527">
+<title>حجز بوكس الإفطار — نسخة العاملين</title>
+<link rel="icon" type="image/png" href="001.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#5e1527;--ink-2:#3b0c18;--parchment:#f7f1e6;--card:#fffdf8;
+    --gold:#b8863b;--gold-light:#e4c98a;--clay:#a8543e;--line:#e4dcc9;
+    --muted:#7c7566;--text:#26221a;--ok:#3f6b4f;--bad:#b23b3b;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:linear-gradient(180deg,var(--ink) 0,var(--ink) 170px,var(--parchment) 170px);
+    font-family:'Cairo',sans-serif;color:var(--text);min-height:100vh;
+    display:flex;justify-content:center;padding-bottom:40px;
+  }
+  .wrap{width:100%;max-width:560px;padding:0 14px;}
+  header{text-align:center;padding:26px 10px 18px;color:var(--parchment);}
+  header img{width:56px;height:56px;object-fit:contain;border-radius:10px;display:block;margin:0 auto 8px;}
+  .badge{display:inline-block;font-size:12.5px;color:var(--gold-light);background:rgba(184,134,59,.14);
+    border:1px solid rgba(184,134,59,.45);padding:4px 12px;border-radius:20px;margin-bottom:8px;}
+  h1{font-family:'Amiri',serif;font-size:28px;margin:0;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;
+    box-shadow:0 14px 30px -22px rgba(94,21,39,.45);}
+  .card h2{font-size:14.5px;margin:0 0 10px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  label.l{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:5px;}
+  input[type=text],input[type=date],select{
+    width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fffefb;
+    font-family:'Cairo',sans-serif;font-size:15.5px;color:var(--text);outline:none;
+  }
+  input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,134,59,.16);}
+  .dval{padding:9px 12px;border-radius:12px;background:#fbf3df;border:1.5px solid #e4d3a8;color:var(--ink);font-weight:800;font-size:15px;text-align:center;}
+  .dsub{font-size:11.5px;color:var(--muted);text-align:center;margin-top:4px;}
+
+  .stepper{display:flex;align-items:center;justify-content:center;gap:12px;border:1.5px solid var(--line);
+    border-radius:12px;background:#fffefb;padding:4px;height:46px;}
+  .stepper button,.mini button{border:0;border-radius:50%;background:linear-gradient(180deg,var(--gold-light),#d1a95c);
+    color:var(--ink-2);font-size:20px;line-height:1;cursor:pointer;touch-action:manipulation;}
+  .stepper button{width:36px;height:36px;}
+  .stepper b{min-width:24px;text-align:center;font-size:20px;font-family:'Amiri',serif;}
+  .btn-line{margin-top:10px;width:100%;padding:10px;border-radius:12px;border:1.5px dashed #d9c391;
+    background:#fbf3df;color:var(--ink);font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
+
+  .add-row{display:flex;gap:8px;}
+  .add-row input{flex:1;font-size:18px;font-weight:700;letter-spacing:1px;text-align:center;}
+  .add-btn{padding:0 20px;border:0;border-radius:12px;background:linear-gradient(180deg,#6e1a2f,var(--ink-2));
+    color:var(--gold-light);font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;cursor:pointer;}
+  .hint{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.7;}
+  .err{font-size:12.5px;color:var(--bad);margin-top:6px;font-weight:600;display:none;}
+  .err.show{display:block;}
+
+  .count{font-size:12.5px;font-weight:700;color:var(--gold);}
+  .empty{text-align:center;color:var(--muted);font-size:13.5px;padding:18px 6px;}
+  .row{border:1.5px solid var(--line);border-radius:14px;padding:10px;margin-bottom:9px;background:#fffefb;}
+  .row.full{border-color:#e2b3b3;background:#fdf3f3;}
+  .r-top{display:flex;align-items:center;gap:8px;}
+  .r-room{min-width:58px;text-align:center;padding:7px 6px;border-radius:10px;font-weight:800;font-size:18px;
+    color:var(--gold-light);background:linear-gradient(180deg,#6e1a2f,var(--ink-2));}
+  .r-name{flex:1;min-width:0;padding:9px 10px !important;font-size:14px !important;}
+  .r-x{width:34px;height:34px;border-radius:50%;border:0;background:#f1e8e8;color:var(--bad);font-size:20px;cursor:pointer;flex-shrink:0;}
+  .r-bot{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .mini{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:3px 6px;background:#fff;}
+  .mini button{width:32px;height:32px;font-size:18px;}
+  .mini button:disabled{opacity:.3;}
+  .mini b{min-width:20px;text-align:center;font-size:18px;font-family:'Amiri',serif;}
+  .r-bot select{flex:1;padding:9px 10px;font-size:14px;}
+  .r-note{font-size:12px;color:var(--muted);margin-top:6px;}
+  .row.full .r-note{color:var(--bad);font-weight:700;}
+
+  .submit{position:sticky;bottom:12px;z-index:5;width:100%;padding:16px;border:0;border-radius:16px;
+    background:linear-gradient(180deg,#e9cf8f,#c9a04f);color:var(--ink-2);font-family:'Cairo',sans-serif;
+    font-weight:800;font-size:17px;cursor:pointer;box-shadow:0 14px 28px -10px rgba(184,134,59,.75),0 0 0 4px rgba(247,241,230,.95);}
+  .submit:disabled{opacity:.5;box-shadow:0 0 0 4px rgba(247,241,230,.95);}
+  .notice{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;font-size:13.5px;line-height:1.8;font-weight:600;}
+  .notice.show{display:block;}
+  .notice.error{background:#fbeaea;color:var(--bad);border:1px solid #efc4c4;}
+  .conn{display:none;background:var(--bad);color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:700;position:sticky;top:0;z-index:20;}
+  .conn.show{display:block;}
+
+  .overlay{position:fixed;inset:0;background:rgba(38,12,20,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:50;backdrop-filter:blur(4px);}
+  .overlay.show{display:flex;}
+  .modal{background:var(--card);border-radius:22px;padding:24px 20px;width:100%;max-width:380px;text-align:center;max-height:85vh;overflow:auto;}
+  .check{width:60px;height:60px;border-radius:50%;background:var(--ok);color:#fff;font-size:30px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;}
+  .modal h3{font-family:'Amiri',serif;font-size:22px;margin:0 0 6px;}
+  .modal p{margin:0 0 10px;font-size:14px;color:var(--muted);}
+  .m-list{text-align:right;font-size:13px;line-height:1.9;border-top:1px dashed var(--line);padding-top:8px;margin-bottom:14px;}
+  .modal button{width:100%;padding:13px;border:0;border-radius:12px;background:linear-gradient(180deg,#6e1a2f,var(--ink-2));color:var(--gold-light);font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;cursor:pointer;}
+
+  .floors{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+  .fl{position:relative;padding:11px 4px;border-radius:12px;border:1.5px solid var(--line);background:#fffefb;
+    font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;color:var(--ink);cursor:pointer;line-height:1.3;}
+  .fl small{display:block;font-weight:600;font-size:11px;color:var(--muted);}
+  .fl.open{background:linear-gradient(180deg,#6e1a2f,var(--ink-2));color:var(--gold-light);border-color:var(--ink-2);}
+  .fl.open small{color:#e8c9d0;}
+  .fl .nb{position:absolute;top:-7px;inset-inline-start:-4px;min-width:20px;height:20px;border-radius:10px;padding:0 5px;
+    background:var(--gold);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .picker{display:none;margin-bottom:12px;padding:10px;border:1.5px dashed #d9c391;border-radius:14px;background:#fbf6ea;}
+  .picker.show{display:block;}
+  .rgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+  .rm{position:relative;padding:10px 0;border-radius:10px;border:1.5px solid var(--line);background:#fff;
+    font-family:'Cairo',sans-serif;font-weight:700;font-size:15px;color:var(--text);cursor:pointer;touch-action:manipulation;}
+  .rm small{display:block;font-size:10px;font-weight:700;line-height:1;margin-top:1px;color:#8a6a2c;}
+  .rm.part{background:#fff4d6;border-color:#e4c98a;}
+  .rm.sel{background:linear-gradient(180deg,#6e1a2f,var(--ink-2));color:var(--gold-light);border-color:var(--ink-2);}
+  .rm.sel small{color:var(--gold-light);}
+  .rm.full{background:#f6e1e1;border-color:#e2b3b3;color:#a66;cursor:not-allowed;}
+  .rm.full small{color:var(--bad);}
+  .rm.added{background:#e5f1e8;border-color:#9fc4ab;color:var(--ok);cursor:default;}
+  .rm.added small{color:var(--ok);}
+  .p-legend{font-size:11.5px;color:var(--muted);margin:8px 0;line-height:1.8;}
+  .p-actions{display:flex;gap:8px;}
+  .p-actions .add-btn{flex:1;padding:11px;}
+  .p-clear{padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--muted);
+    font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="conn" id="conn">📡 لا يوجد اتصال بالإنترنت</div>
+
+  <header>
+    <img src="001.png" alt="" onerror="this.style.display='none'">
+    <span class="badge">نسخة العاملين</span>
+    <h1>حجز بوكس الإفطار</h1>
+  </header>
+
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <label class="l">تاريخ التسليم</label>
+        <input type="hidden" id="date">
+        <div class="dval" id="dlabel"></div>
+        <div class="dsub">صباح اليوم التالي</div>
+      </div>
+      <div>
+        <label class="l" for="defTime">الساعة (للغرف الجديدة)</label>
+        <select id="defTime"></select>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label class="l" for="defName">الاسم / الشركة (لكل الغرف)</label>
+      <input type="text" id="defName" placeholder="مثال: شركة النور" autocomplete="off">
+    </div>
+    <div style="margin-top:10px">
+      <label class="l">عدد البوكسات لكل غرفة (للغرف الجديدة)</label>
+      <div class="stepper"><button type="button" id="defMinus">−</button><b id="defQty">1</b><button type="button" id="defPlus">+</button></div>
+    </div>
+    <button type="button" class="btn-line" id="applyAll">تطبيق الاسم والساعة والعدد على كل الغرف</button>
+  </div>
+
+  <div class="card">
+    <h2>أرقام الغرف</h2>
+    <div class="floors" id="floors"></div>
+    <div class="picker" id="picker"></div>
+    <div class="add-row">
+      <input type="text" id="roomsInput" inputmode="numeric" autocomplete="off" placeholder="">
+      <button type="button" class="add-btn" id="addBtn">إضافة</button>
+    </div>
+    <div class="err" id="roomsErr"></div>
+    <div class="hint">أو اكتب كل الغرف بمسافة أو فاصلة بينها (أو الصق قائمة) ثم اضغط <b>إضافة</b>. ويمكنك كتابة نطاق مثل <b>201-205</b>.</div>
+  </div>
+
+  <div class="card">
+    <h2><span>الغرف المضافة</span><span class="count" id="count"></span></h2>
+    <div id="rows"></div>
+  </div>
+
+  <button type="button" class="submit" id="submitBtn" disabled>أضف غرفًا أولًا</button>
+  <div class="notice" id="notice"></div>
+</div>
+
+<div class="overlay" id="modal">
+  <div class="modal">
+    <div class="check">✓</div>
+    <h3>تم تأكيد الحجز</h3>
+    <p id="mText"></p>
+    <div class="m-list" id="mList"></div>
+    <button type="button" id="mClose">تمام</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCWHvSIgejpa-nviCauNefRhH0bMwkj2UY",
+    authDomain: "hotel-breakfast-booking.firebaseapp.com",
+    projectId: "hotel-breakfast-booking",
+    storageBucket: "hotel-breakfast-booking.firebasestorage.app",
+    messagingSenderId: "195033849524",
+    appId: "1:195033849524:web:b104ab36cae329e488c1e1",
+    measurementId: "G-80WWMVTY5J"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const COLLECTION = "breakfast_bookings";
+</script>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const MAX_BOXES_PER_ROOM = 3;
+  const DELIVERY_START_HOUR = 3, DELIVERY_END_HOUR = 10.5, DELIVERY_STEP_MINUTES = 30;
+
+  const VALID_ROOMS = new Set([
+    '101','102','103','104','105','106','107','108','109','110','111','112','113','114','115','116','117','118','119','120',
+    '121','122','123','124','125','126','127','128','129','130','131','132','133','134','135','136','137','138','139','140','141','143',
+    '201','202','203','204','205','206','207','208','209','210','211','212','213','214','215','216','217','218','219','220',
+    '221','222','223','224','225','226','227','228','229','230','231','232','233','235','237','238','239','240',
+    '302','303','304','305','306','307','308','309','310','311','312','313','314','315','317','323','324','325','326','327',
+    '328','329','330','331','344','355','366','377','388','399'
+  ]);
+
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const pad = n => String(n).padStart(2, '0');
+  function dateKey(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  function fmtTime(v){
+    const [h, m] = v.split(':').map(Number);
+    return `${(h % 12) || 12}:${pad(m)} ${h < 12 ? 'ص' : 'م'}`;
+  }
+  function normalize(v){
+    return (v || '')
+      .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+      .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+  }
+
+  // التاريخ الافتراضي: نفس منطق نافذة الحجز في النسخة الأساسية (التوصيل صباح اليوم التالي)
+  function defaultTarget(){
+    const now = new Date(), t = new Date(now);
+    if (now.getHours() < 1) t.setDate(t.getDate() - 1);
+    t.setDate(t.getDate() + 1);
+    return t;
+  }
+
+  // ---------- الحالة ----------
+  let rows = [];                 // [{room,name,qty,time}]
+  let existing = {};             // رقم الغرفة -> عدد البوكسات المحجوزة مسبقًا لنفس اليوم
+  let def = { qty: 1, time: '07:00', name: '' };
+  let unsub = null, busy = false;
+  let selected = new Set(), openFloor = null;
+
+  const avail = room => Math.max(0, MAX_BOXES_PER_ROOM - (existing[room] || 0));
+
+  // ---------- الأوقات ----------
+  const times = [];
+  for (let m = DELIVERY_START_HOUR * 60; m <= DELIVERY_END_HOUR * 60; m += DELIVERY_STEP_MINUTES)
+    times.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
+  const timeOpts = sel => times.map(t => `<option value="${t}"${t === sel ? ' selected' : ''}>${fmtTime(t)}</option>`).join('');
+  $('defTime').innerHTML = timeOpts(def.time);
+  $('defName').addEventListener('input', e => { def.name = e.target.value; });
+  $('defTime').addEventListener('change', e => { def.time = e.target.value; });
+
+  // ---------- التاريخ ----------
+  const dateEl = $('date');
+  dateEl.value = dateKey(defaultTarget());
+  function dateLabel(){
+    const d = new Date(dateEl.value + 'T00:00:00');
+    $('dlabel').textContent = isNaN(d) ? '' : d.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  function watchDate(){
+    if (unsub) { unsub(); unsub = null; }
+    existing = {};
+    dateLabel();
+    if (!dateEl.value) { render(); return; }
+    unsub = db.collection(COLLECTION).where('deliveryDate', '==', dateEl.value).onSnapshot(snap => {
+      const next = {};
+      snap.docs.forEach(d => { const b = d.data(); next[b.roomNumber] = (next[b.roomNumber] || 0) + (b.quantity || 0); });
+      if (JSON.stringify(next) !== JSON.stringify(existing)) { existing = next; render(); }
+    }, () => {});
+    render();
+  }
+  // التاريخ ثابت (اليوم التالي) ويتحدّث تلقائيًا عند تغيّر نافذة الحجز
+  setInterval(() => {
+    const k = dateKey(defaultTarget());
+    if (dateEl.value !== k) { dateEl.value = k; watchDate(); }
+  }, 30000);
+
+  // ---------- العدد الافتراضي ----------
+  $('defPlus').addEventListener('click', () => { if (def.qty < MAX_BOXES_PER_ROOM) $('defQty').textContent = ++def.qty; });
+  $('defMinus').addEventListener('click', () => { if (def.qty > 1) $('defQty').textContent = --def.qty; });
+  $('applyAll').addEventListener('click', () => {
+    rows.forEach(r => { if (def.name.trim()) r.name = def.name.trim(); r.time = def.time; r.qty = Math.min(def.qty, Math.max(1, avail(r.room))); });
+    render();
+  });
+
+  // ---------- إضافة الغرف ----------
+  const input = $('roomsInput'), errEl = $('roomsErr');
+  function parseRooms(text){
+    const tokens = normalize(text).split(/[\s,،؛;\n\t]+/).filter(Boolean);
+    const found = [], bad = [];
+    tokens.forEach(tok => {
+      const rng = tok.match(/^(\d+)[-–—](\d+)$/);
+      if (rng) {
+        let a = +rng[1], b = +rng[2]; if (a > b) [a, b] = [b, a];
+        const inRange = [...VALID_ROOMS].filter(r => +r >= a && +r <= b);
+        if (inRange.length) found.push(...inRange); else bad.push(tok);
+        return;
+      }
+      const room = tok.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+      if (!room) return;
+      if (VALID_ROOMS.has(room)) found.push(room); else bad.push(room);
+    });
+    return { found, bad };
+  }
+  function addFromInput(){
+    const { found, bad } = parseRooms(input.value);
+    let dup = 0;
+    found.forEach(room => {
+      if (rows.some(r => r.room === room)) { dup++; return; }
+      rows.push({ room, name: def.name.trim(), qty: Math.min(def.qty, Math.max(1, avail(room))), time: def.time });
+    });
+    rows.sort((a, b) => a.room.localeCompare(b.room, undefined, { numeric: true }));
+    const msgs = [];
+    if (bad.length) msgs.push('غرف غير موجودة بالفندق: ' + bad.join('، '));
+    if (dup) msgs.push('غرف مضافة بالفعل: ' + dup);
+    errEl.textContent = msgs.join(' — ');
+    errEl.classList.toggle('show', msgs.length > 0);
+    input.value = bad.join(' ');   // نترك الأرقام الخاطئة لتصحيحها
+    render();
+    input.focus();
+  }
+  $('addBtn').addEventListener('click', addFromInput);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addFromInput(); } });
+  input.addEventListener('input', () => {
+    const n = normalize(input.value);
+    if (n !== input.value) input.value = n;
+  });
+
+  // ---------- العرض ----------
+  const rowsEl = $('rows'), submitBtn = $('submitBtn');
+  function bookable(){ return rows.filter(r => avail(r.room) > 0); }
+  function render(){
+    rows.forEach(r => { r.qty = Math.min(r.qty, Math.max(1, avail(r.room))); });
+    if (!rows.length) rowsEl.innerHTML = '<div class="empty">لم تتم إضافة غرف بعد</div>';
+    else rowsEl.innerHTML = rows.map((r, i) => {
+      const av = avail(r.room), ex = existing[r.room] || 0, full = av <= 0;
+      const note = full ? `اكتمل الحد الأقصى (${MAX_BOXES_PER_ROOM} بوكسات) — لن تُحجز`
+        : ex ? `محجوز مسبقًا ${ex} · المتاح ${av} من ${MAX_BOXES_PER_ROOM}` : '';
+      return `<div class="row${full ? ' full' : ''}" data-i="${i}">
+        <div class="r-top">
+          <span class="r-room">${esc(r.room)}</span>
+          <input type="text" class="r-name" data-act="name" value="${esc(r.name)}" placeholder="${esc(def.name.trim() || 'اسم النزيل (اختياري)')}">
+          <button type="button" class="r-x" data-act="del" aria-label="حذف">×</button>
+        </div>
+        <div class="r-bot">
+          <div class="mini">
+            <button type="button" data-act="minus"${full ? ' disabled' : ''}>−</button><b>${r.qty}</b>
+            <button type="button" data-act="plus"${full || r.qty >= av ? ' disabled' : ''}>+</button>
+          </div>
+          <select data-act="time"${full ? ' disabled' : ''}>${timeOpts(r.time)}</select>
+        </div>
+        ${note ? `<div class="r-note">${note}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    const ok = bookable(), boxes = ok.reduce((s, r) => s + r.qty, 0);
+    $('count').textContent = rows.length ? `${ok.length} غرفة · ${boxes} بوكس` : '';
+    submitBtn.disabled = busy || !ok.length;
+    submitBtn.textContent = busy ? 'جارٍ الحجز...' : ok.length ? `تأكيد حجز ${ok.length} غرفة (${boxes} بوكس)` : 'أضف غرفًا أولًا';
+    renderPicker();
+  }
+  rowsEl.addEventListener('click', e => {
+    const b = e.target.closest('button[data-act]'); if (!b) return;
+    const i = +b.closest('.row').dataset.i, r = rows[i], act = b.dataset.act;
+    if (act === 'del') rows.splice(i, 1);
+    else if (act === 'plus' && r.qty < avail(r.room)) r.qty++;
+    else if (act === 'minus' && r.qty > 1) r.qty--;
+    render();
+  });
+  rowsEl.addEventListener('change', e => {
+    if (e.target.dataset.act !== 'time') return;
+    rows[+e.target.closest('.row').dataset.i].time = e.target.value;
+  });
+  rowsEl.addEventListener('input', e => {
+    if (e.target.dataset.act !== 'name') return;
+    rows[+e.target.closest('.row').dataset.i].name = e.target.value;
+  });
+
+  // ---------- اختيار الغرف من جدول الأدوار ----------
+  const FLOORS = { 1: 'الدور الأول', 2: 'الدور الثاني', 3: 'الدور الثالث' };
+  const byFloor = f => [...VALID_ROOMS].filter(r => r[0] === String(f)).sort((a, b) => a - b);
+  const floorsEl = $('floors'), pickerEl = $('picker');
+
+  function renderPicker(){
+    floorsEl.innerHTML = [1, 2, 3].map(f => {
+      const n = [...selected].filter(r => r[0] === String(f)).length;
+      return `<button type="button" class="fl${openFloor === f ? ' open' : ''}" data-f="${f}">🏨 ${FLOORS[f]}<small>${byFloor(f).length} غرفة</small>${n ? `<span class="nb">${n}</span>` : ''}</button>`;
+    }).join('');
+    if (!openFloor) { pickerEl.classList.remove('show'); pickerEl.innerHTML = ''; return; }
+    const cells = byFloor(openFloor).map(r => {
+      const ex = existing[r] || 0, added = rows.some(x => x.room === r);
+      let cls = '', badge = '';
+      if (added) { cls = 'added'; badge = '<small>✓ مضافة</small>'; }
+      else if (ex >= MAX_BOXES_PER_ROOM) { cls = 'full'; badge = `<small>مكتملة</small>`; }
+      else if (ex > 0) { cls = 'part' + (selected.has(r) ? ' sel' : ''); badge = `<small>${ex} محجوز</small>`; }
+      else if (selected.has(r)) cls = 'sel';
+      return `<button type="button" class="rm ${cls}" data-room="${r}">${r}${badge}</button>`;
+    }).join('');
+    pickerEl.innerHTML = `<div class="rgrid">${cells}</div>
+      <div class="p-legend">اضغط على الغرفة لتحديدها. <b>أصفر</b> = فيه حجز مسبق (العدد المحجوز) · <b>أحمر</b> = مكتملة · <b>أخضر</b> = مضافة للقائمة</div>
+      <div class="p-actions"><button type="button" class="add-btn" id="pAdd"${selected.size ? '' : ' disabled'}>إضافة المحدد (${selected.size})</button>
+      ${selected.size ? '<button type="button" class="p-clear" id="pClear">مسح</button>' : ''}</div>`;
+    pickerEl.classList.add('show');
+  }
+  floorsEl.addEventListener('click', e => {
+    const b = e.target.closest('.fl'); if (!b) return;
+    const f = +b.dataset.f; openFloor = openFloor === f ? null : f; renderPicker();
+  });
+  pickerEl.addEventListener('click', e => {
+    const c = e.target.closest('.rm');
+    if (c) {
+      if (c.classList.contains('full') || c.classList.contains('added')) return;
+      const r = c.dataset.room; selected.has(r) ? selected.delete(r) : selected.add(r);
+      renderPicker(); return;
+    }
+    if (e.target.id === 'pClear') { selected.clear(); renderPicker(); return; }
+    if (e.target.id === 'pAdd') {
+      selected.forEach(room => {
+        if (!rows.some(r => r.room === room))
+          rows.push({ room, name: def.name.trim(), qty: Math.min(def.qty, Math.max(1, avail(room))), time: def.time });
+      });
+      rows.sort((a, b) => a.room.localeCompare(b.room, undefined, { numeric: true }));
+      selected.clear(); render();
+    }
+  });
+
+  // ---------- الإرسال ----------
+  function showNotice(text){ const n = $('notice'); n.className = 'notice show error'; n.textContent = text; }
+
+  submitBtn.addEventListener('click', async () => {
+    $('notice').className = 'notice';
+    if (!navigator.onLine) { showNotice('لا يوجد اتصال بالإنترنت — لم يتم إرسال الحجز.'); return; }
+    if (!dateEl.value) { showNotice('من فضلك اختر تاريخ التسليم.'); return; }
+    const dKey = dateEl.value;
+    busy = true; render();
+    try {
+      // فحص حديث من الخادم قبل الحفظ لتفادي تجاوز الحد الأقصى
+      const snap = await db.collection(COLLECTION).where('deliveryDate', '==', dKey).get();
+      const fresh = {};
+      snap.docs.forEach(d => { const b = d.data(); fresh[b.roomNumber] = (fresh[b.roomNumber] || 0) + (b.quantity || 0); });
+      existing = fresh;
+
+      const list = rows.filter(r => MAX_BOXES_PER_ROOM - (fresh[r.room] || 0) > 0);
+      const over = list.filter(r => r.qty > MAX_BOXES_PER_ROOM - (fresh[r.room] || 0));
+      if (over.length) {
+        showNotice('تغيّر المتاح لبعض الغرف أثناء الحجز: ' + over.map(r => r.room).join('، ') + ' — راجع الأعداد ثم أعد المحاولة.');
+        busy = false; render(); return;
+      }
+      if (!list.length) { showNotice('لا توجد غرف متاحة للحجز.'); busy = false; render(); return; }
+
+      const batch = db.batch();
+      list.forEach(r => {
+        const id = `${r.room}_${dKey}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+        batch.set(db.collection(COLLECTION).doc(id), {
+          roomNumber: r.room,
+          guestName: r.name.trim() || def.name.trim() || `نزيل غرفة ${r.room}`,
+          quantity: r.qty,
+          deliveryTime: r.time,
+          deliveryDate: dKey,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      });
+      await batch.commit();
+
+      const boxes = list.reduce((s, r) => s + r.qty, 0);
+      const skipped = rows.length - list.length;
+      $('mText').textContent = `تم حجز ${boxes} بوكس لـ ${list.length} غرفة — ${$('dlabel').textContent}` + (skipped ? ` (تم تخطي ${skipped} غرفة مكتملة)` : '');
+      $('mList').innerHTML = list.map(r => `🛏 غرفة <b>${esc(r.room)}</b> · ${r.qty} بوكس · ${fmtTime(r.time)}`).join('<br>');
+      $('modal').classList.add('show');
+      rows = [];
+      errEl.classList.remove('show');
+    } catch (err) {
+      console.error(err);
+      showNotice('حدث خطأ أثناء إرسال الحجز. من فضلك حاول مرة أخرى.' + (err && err.code ? ' (' + err.code + ')' : ''));
+    } finally {
+      busy = false; render();
+    }
+  });
+  $('mClose').addEventListener('click', () => { $('modal').classList.remove('show'); input.focus(); });
+
+  // ---------- الاتصال ----------
+  const conn = $('conn');
+  const syncConn = () => conn.classList.toggle('show', !navigator.onLine);
+  window.addEventListener('online', syncConn); window.addEventListener('offline', syncConn); syncConn();
+
+  watchDate();
+})();
+</script>
+</body>
+</html>
