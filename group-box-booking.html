@@ -121,6 +121,14 @@
   .p-actions .add-btn{flex:1;padding:11px;}
   .p-clear{padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--muted);
     font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+  .co-add{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .co-add .full{grid-column:1/-1;}
+  .co-qty{text-align:center;font-weight:800;font-size:18px !important;}
+  .co-row{display:flex;align-items:center;gap:8px;border:1.5px solid #d9c391;background:#fbf6ea;border-radius:14px;padding:10px;margin-top:9px;}
+  .co-info{flex:1;min-width:0;}
+  .co-info b{display:block;font-size:15px;color:var(--ink);overflow-wrap:anywhere;}
+  .co-info span{font-size:12.5px;color:var(--muted);}
+  .co-num{min-width:58px;text-align:center;padding:7px 6px;border-radius:10px;font-weight:800;font-size:18px;color:var(--gold-light);background:linear-gradient(180deg,#6e1a2f,var(--ink-2));}
 </style>
 </head>
 <body>
@@ -155,6 +163,27 @@
       <div class="stepper"><button type="button" id="defMinus">−</button><b id="defQty">1</b><button type="button" id="defPlus">+</button></div>
     </div>
     <button type="button" class="btn-line" id="applyAll">تطبيق الاسم والساعة والعدد على كل الغرف</button>
+  </div>
+
+  <div class="card">
+    <h2><span>🏢 حجز باسم شركة (بدون أرقام غرف)</span></h2>
+    <div class="co-add">
+      <div class="full">
+        <label class="l" for="coName">اسم الشركة</label>
+        <input type="text" id="coName" placeholder="مثال: شركة دمنهور" autocomplete="off">
+      </div>
+      <div>
+        <label class="l" for="coQty">عدد البوكسات (بدون حد أقصى)</label>
+        <input type="text" id="coQty" class="co-qty" inputmode="numeric" autocomplete="off" placeholder="15">
+      </div>
+      <div>
+        <label class="l" for="coTime">ساعة التسليم (موحدة)</label>
+        <select id="coTime"></select>
+      </div>
+    </div>
+    <button type="button" class="btn-line" id="coAdd">+ إضافة الشركة للحجز</button>
+    <div class="err" id="coErr"></div>
+    <div id="coList"></div>
   </div>
 
   <div class="card">
@@ -247,6 +276,7 @@
   let def = { qty: 1, time: '07:00', name: '' };
   let unsub = null, busy = false;
   let selected = new Set(), openFloor = null;
+  let companies = [];            // [{name,qty,time}] حجوزات شركات بدون غرف
 
   const avail = room => Math.max(0, MAX_BOXES_PER_ROOM - (existing[room] || 0));
 
@@ -256,6 +286,7 @@
     times.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
   const timeOpts = sel => times.map(t => `<option value="${t}"${t === sel ? ' selected' : ''}>${fmtTime(t)}</option>`).join('');
   $('defTime').innerHTML = timeOpts(def.time);
+  $('coTime').innerHTML = timeOpts(def.time);
   $('defName').addEventListener('input', e => { def.name = e.target.value; });
   $('defTime').addEventListener('change', e => { def.time = e.target.value; });
 
@@ -335,6 +366,35 @@
     if (n !== input.value) input.value = n;
   });
 
+  // ---------- حجز الشركات ----------
+  const coErr = $('coErr');
+  $('coQty').addEventListener('input', e => { const n = normalize(e.target.value).replace(/\D/g, ''); if (n !== e.target.value) e.target.value = n; });
+  function addCompany(){
+    const name = $('coName').value.trim(), qty = parseInt(normalize($('coQty').value), 10), time = $('coTime').value;
+    let msg = '';
+    if (!name) msg = 'اكتب اسم الشركة.';
+    else if (!qty || qty < 1) msg = 'اكتب عدد البوكسات (رقم أكبر من صفر).';
+    coErr.textContent = msg; coErr.classList.toggle('show', !!msg);
+    if (msg) return;
+    const same = companies.find(c => c.name === name && c.time === time);
+    if (same) same.qty += qty; else companies.push({ name, qty, time });
+    $('coName').value = ''; $('coQty').value = '';
+    render();
+  }
+  $('coAdd').addEventListener('click', addCompany);
+  $('coQty').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addCompany(); } });
+  $('coList').addEventListener('click', e => {
+    const b = e.target.closest('button[data-co]'); if (!b) return;
+    companies.splice(+b.dataset.co, 1); render();
+  });
+  function renderCompanies(){
+    $('coList').innerHTML = companies.map((c, i) => `<div class="co-row">
+        <span class="co-num">${c.qty}</span>
+        <div class="co-info"><b>${esc(c.name)}</b><span>${c.qty} بوكس · تسليم ${fmtTime(c.time)}</span></div>
+        <button type="button" class="r-x" data-co="${i}" aria-label="حذف">×</button>
+      </div>`).join('');
+  }
+
   // ---------- العرض ----------
   const rowsEl = $('rows'), submitBtn = $('submitBtn');
   function bookable(){ return rows.filter(r => avail(r.room) > 0); }
@@ -362,10 +422,15 @@
       </div>`;
     }).join('');
 
+    renderCompanies();
     const ok = bookable(), boxes = ok.reduce((s, r) => s + r.qty, 0);
+    const coBoxes = companies.reduce((s, c) => s + c.qty, 0), total = boxes + coBoxes;
     $('count').textContent = rows.length ? `${ok.length} غرفة · ${boxes} بوكس` : '';
-    submitBtn.disabled = busy || !ok.length;
-    submitBtn.textContent = busy ? 'جارٍ الحجز...' : ok.length ? `تأكيد حجز ${ok.length} غرفة (${boxes} بوكس)` : 'أضف غرفًا أولًا';
+    const parts = [];
+    if (ok.length) parts.push(`${ok.length} غرفة`);
+    if (companies.length) parts.push(`${companies.length} شركة`);
+    submitBtn.disabled = busy || (!ok.length && !companies.length);
+    submitBtn.textContent = busy ? 'جارٍ الحجز...' : total ? `تأكيد الحجز: ${parts.join(' + ')} (${total} بوكس)` : 'أضف غرفًا أو شركة أولًا';
     renderPicker();
   }
   rowsEl.addEventListener('click', e => {
@@ -455,7 +520,7 @@
         showNotice('تغيّر المتاح لبعض الغرف أثناء الحجز: ' + over.map(r => r.room).join('، ') + ' — راجع الأعداد ثم أعد المحاولة.');
         busy = false; render(); return;
       }
-      if (!list.length) { showNotice('لا توجد غرف متاحة للحجز.'); busy = false; render(); return; }
+      if (!list.length && !companies.length) { showNotice('لا توجد غرف متاحة للحجز.'); busy = false; render(); return; }
 
       const batch = db.batch();
       list.forEach(r => {
@@ -470,12 +535,29 @@
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
       });
+      companies.forEach(c => {
+        const id = `company_${dKey}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+        batch.set(db.collection(COLLECTION).doc(id), {
+          roomNumber: c.name,
+          guestName: c.name,
+          companyName: c.name,
+          bookingType: 'company',
+          quantity: c.qty,
+          deliveryTime: c.time,
+          deliveryDate: dKey,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      });
       await batch.commit();
 
-      const boxes = list.reduce((s, r) => s + r.qty, 0);
+      const boxes = list.reduce((s, r) => s + r.qty, 0) + companies.reduce((s, c) => s + c.qty, 0);
       const skipped = rows.length - list.length;
-      $('mText').textContent = `تم حجز ${boxes} بوكس لـ ${list.length} غرفة — ${$('dlabel').textContent}` + (skipped ? ` (تم تخطي ${skipped} غرفة مكتملة)` : '');
-      $('mList').innerHTML = list.map(r => `🛏 غرفة <b>${esc(r.room)}</b> · ${r.qty} بوكس · ${fmtTime(r.time)}`).join('<br>');
+      const what = [list.length ? `${list.length} غرفة` : '', companies.length ? `${companies.length} شركة` : ''].filter(Boolean).join(' و');
+      $('mText').textContent = `تم حجز ${boxes} بوكس لـ ${what} — ${$('dlabel').textContent}` + (skipped ? ` (تم تخطي ${skipped} غرفة مكتملة)` : '');
+      $('mList').innerHTML = companies.map(c => `🏢 <b>${esc(c.name)}</b> · ${c.qty} بوكس · ${fmtTime(c.time)}`)
+        .concat(list.map(r => `🛏 غرفة <b>${esc(r.room)}</b> · ${r.qty} بوكس · ${fmtTime(r.time)}`)).join('<br>');
+      companies = [];
       $('modal').classList.add('show');
       rows = [];
       errEl.classList.remove('show');
