@@ -31,6 +31,9 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;
     box-shadow:0 14px 30px -22px rgba(94,21,39,.45);}
   .card h2{font-size:14.5px;margin:0 0 10px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .hdate{margin-top:8px;font-size:13px;color:var(--gold-light);}
+  .hdate b{color:#fff;}
+  .time-all{margin-bottom:12px;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   label.l{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:5px;}
   input[type=text],input[type=date],select{
@@ -121,10 +124,13 @@
   .p-actions .add-btn{flex:1;padding:11px;}
   .p-clear{padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--muted);
     font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+  .co-card{background:#e8f1e4;border-color:#b5cdae;box-shadow:0 14px 30px -22px rgba(63,107,79,.55);}
+  .co-card h2{color:#2f5a40;}
+  .co-card .btn-line{background:#d6e8d0;border-color:#8fb585;color:#2f5a40;}
   .co-add{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .co-add .full{grid-column:1/-1;}
   .co-qty{text-align:center;font-weight:800;font-size:18px !important;}
-  .co-row{display:flex;align-items:center;gap:8px;border:1.5px solid #d9c391;background:#fbf6ea;border-radius:14px;padding:10px;margin-top:9px;}
+  .co-row{display:flex;align-items:center;gap:8px;border:1.5px solid #b5cdae;background:#fbfef9;border-radius:14px;padding:10px;margin-top:9px;}
   .co-info{flex:1;min-width:0;}
   .co-info b{display:block;font-size:15px;color:var(--ink);overflow-wrap:anywhere;}
   .co-info span{font-size:12.5px;color:var(--muted);}
@@ -139,42 +145,20 @@
     <img src="001.png" alt="" onerror="this.style.display='none'">
     <span class="badge">نسخة العاملين</span>
     <h1>حجز بوكس الإفطار</h1>
+    <input type="hidden" id="date">
+    <div class="hdate">📅 تسليم <b id="dlabel"></b> · صباح اليوم التالي</div>
   </header>
 
-  <div class="card">
-    <div class="grid2">
-      <div>
-        <label class="l">تاريخ التسليم</label>
-        <input type="hidden" id="date">
-        <div class="dval" id="dlabel"></div>
-        <div class="dsub">صباح اليوم التالي</div>
-      </div>
-      <div>
-        <label class="l" for="defTime">الساعة (للغرف الجديدة)</label>
-        <select id="defTime"></select>
-      </div>
-    </div>
-    <div style="margin-top:10px">
-      <label class="l" for="defName">الاسم / الشركة (لكل الغرف)</label>
-      <input type="text" id="defName" placeholder="مثال: شركة النور" autocomplete="off">
-    </div>
-    <div style="margin-top:10px">
-      <label class="l">عدد البوكسات لكل غرفة (للغرف الجديدة)</label>
-      <div class="stepper"><button type="button" id="defMinus">−</button><b id="defQty">1</b><button type="button" id="defPlus">+</button></div>
-    </div>
-    <button type="button" class="btn-line" id="applyAll">تطبيق الاسم والساعة والعدد على كل الغرف</button>
-  </div>
-
-  <div class="card">
+  <div class="card co-card">
     <h2><span>🏢 حجز باسم شركة (بدون أرقام غرف)</span></h2>
     <div class="co-add">
       <div class="full">
         <label class="l" for="coName">اسم الشركة</label>
-        <input type="text" id="coName" placeholder="مثال: شركة دمنهور" autocomplete="off">
+        <input type="text" id="coName" maxlength="60" placeholder="مثال: شركة دمنهور" autocomplete="off">
       </div>
       <div>
         <label class="l" for="coQty">عدد البوكسات (بدون حد أقصى)</label>
-        <input type="text" id="coQty" class="co-qty" inputmode="numeric" autocomplete="off" placeholder="15">
+        <input type="text" id="coQty" class="co-qty" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="">
       </div>
       <div>
         <label class="l" for="coTime">ساعة التسليم (موحدة)</label>
@@ -188,14 +172,13 @@
 
   <div class="card">
     <h2>أرقام الغرف</h2>
+    <div class="time-all">
+      <label class="l" for="defTime">ساعة التسليم لكل الغرف</label>
+      <select id="defTime"></select>
+    </div>
     <div class="floors" id="floors"></div>
     <div class="picker" id="picker"></div>
-    <div class="add-row">
-      <input type="text" id="roomsInput" inputmode="numeric" autocomplete="off" placeholder="">
-      <button type="button" class="add-btn" id="addBtn">إضافة</button>
-    </div>
-    <div class="err" id="roomsErr"></div>
-    <div class="hint">أو اكتب كل الغرف بمسافة أو فاصلة بينها (أو الصق قائمة) ثم اضغط <b>إضافة</b>. ويمكنك كتابة نطاق مثل <b>201-205</b>.</div>
+    <div class="hint">اختر الدور ثم اضغط على أرقام الغرف، وبعدها اضغط <b>إضافة المحدد</b>.</div>
   </div>
 
   <div class="card">
@@ -285,10 +268,9 @@
   for (let m = DELIVERY_START_HOUR * 60; m <= DELIVERY_END_HOUR * 60; m += DELIVERY_STEP_MINUTES)
     times.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
   const timeOpts = sel => times.map(t => `<option value="${t}"${t === sel ? ' selected' : ''}>${fmtTime(t)}</option>`).join('');
-  $('defTime').innerHTML = timeOpts(def.time);
   $('coTime').innerHTML = timeOpts(def.time);
-  $('defName').addEventListener('input', e => { def.name = e.target.value; });
-  $('defTime').addEventListener('change', e => { def.time = e.target.value; });
+  $('defTime').innerHTML = timeOpts(def.time);
+  $('defTime').addEventListener('change', e => { def.time = e.target.value; rows.forEach(r => { r.time = def.time; }); render(); });
 
   // ---------- التاريخ ----------
   const dateEl = $('date');
@@ -314,57 +296,6 @@
     const k = dateKey(defaultTarget());
     if (dateEl.value !== k) { dateEl.value = k; watchDate(); }
   }, 30000);
-
-  // ---------- العدد الافتراضي ----------
-  $('defPlus').addEventListener('click', () => { if (def.qty < MAX_BOXES_PER_ROOM) $('defQty').textContent = ++def.qty; });
-  $('defMinus').addEventListener('click', () => { if (def.qty > 1) $('defQty').textContent = --def.qty; });
-  $('applyAll').addEventListener('click', () => {
-    rows.forEach(r => { if (def.name.trim()) r.name = def.name.trim(); r.time = def.time; r.qty = Math.min(def.qty, Math.max(1, avail(r.room))); });
-    render();
-  });
-
-  // ---------- إضافة الغرف ----------
-  const input = $('roomsInput'), errEl = $('roomsErr');
-  function parseRooms(text){
-    const tokens = normalize(text).split(/[\s,،؛;\n\t]+/).filter(Boolean);
-    const found = [], bad = [];
-    tokens.forEach(tok => {
-      const rng = tok.match(/^(\d+)[-–—](\d+)$/);
-      if (rng) {
-        let a = +rng[1], b = +rng[2]; if (a > b) [a, b] = [b, a];
-        const inRange = [...VALID_ROOMS].filter(r => +r >= a && +r <= b);
-        if (inRange.length) found.push(...inRange); else bad.push(tok);
-        return;
-      }
-      const room = tok.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
-      if (!room) return;
-      if (VALID_ROOMS.has(room)) found.push(room); else bad.push(room);
-    });
-    return { found, bad };
-  }
-  function addFromInput(){
-    const { found, bad } = parseRooms(input.value);
-    let dup = 0;
-    found.forEach(room => {
-      if (rows.some(r => r.room === room)) { dup++; return; }
-      rows.push({ room, name: def.name.trim(), qty: Math.min(def.qty, Math.max(1, avail(room))), time: def.time });
-    });
-    rows.sort((a, b) => a.room.localeCompare(b.room, undefined, { numeric: true }));
-    const msgs = [];
-    if (bad.length) msgs.push('غرف غير موجودة بالفندق: ' + bad.join('، '));
-    if (dup) msgs.push('غرف مضافة بالفعل: ' + dup);
-    errEl.textContent = msgs.join(' — ');
-    errEl.classList.toggle('show', msgs.length > 0);
-    input.value = bad.join(' ');   // نترك الأرقام الخاطئة لتصحيحها
-    render();
-    input.focus();
-  }
-  $('addBtn').addEventListener('click', addFromInput);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addFromInput(); } });
-  input.addEventListener('input', () => {
-    const n = normalize(input.value);
-    if (n !== input.value) input.value = n;
-  });
 
   // ---------- حجز الشركات ----------
   const coErr = $('coErr');
@@ -560,7 +491,6 @@
       companies = [];
       $('modal').classList.add('show');
       rows = [];
-      errEl.classList.remove('show');
     } catch (err) {
       console.error(err);
       showNotice('حدث خطأ أثناء إرسال الحجز. من فضلك حاول مرة أخرى.' + (err && err.code ? ' (' + err.code + ')' : ''));
@@ -568,7 +498,7 @@
       busy = false; render();
     }
   });
-  $('mClose').addEventListener('click', () => { $('modal').classList.remove('show'); input.focus(); });
+  $('mClose').addEventListener('click', () => { $('modal').classList.remove('show'); });
 
   // ---------- الاتصال ----------
   const conn = $('conn');
