@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" href="M.png">
 <link rel="apple-touch-icon" href="M.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#1c2541; --parchment:#f6f3ec; --card:#ffffff;
@@ -280,6 +280,130 @@
   .conn-banner.offline{background:#a13a3a;}
   .conn-banner.server{background:#8a5a15;}
   body.conn-visible header{margin-top:44px;}
+
+  /* ============ حجز بوكس الإفطار (مدمج من group-box-booking.html) ============ */
+  #gbkBtn{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 16h6'/%3E%3Cpath d='M19 13v6'/%3E%3Cpath d='M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14'/%3E%3Cpath d='m7.5 4.27 9 5.15'/%3E%3Cpath d='M3.29 7 12 12l8.71-5'/%3E%3Cpath d='M12 22V12'/%3E%3C/svg%3E");}
+  .btn.icon-only{padding:8px 12px;min-width:42px;}
+  @media (max-width: 760px){ .controls .btn.icon-only{flex:0 0 auto;} }
+  @media print{ #gbk, #gbkBtn{display:none !important;} }
+
+  #gbk{position:fixed;inset:0;z-index:10001;display:none;justify-content:center;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+    padding-bottom:40px;line-height:normal;font-family:'Cairo',sans-serif;
+    background:linear-gradient(180deg,#5e1527 0,#5e1527 170px,#f7f1e6 170px);background-attachment:local;}
+  #gbk.open{display:flex;}
+  #gbk .gb-close{position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;z-index:6;width:42px;height:42px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#f7f1e6;font-size:26px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation;}
+  #gbk .gb-close:hover{background:rgba(255,255,255,.22);}
+  #gbk{--ink:#5e1527;--ink-2:#3b0c18;--parchment:#f7f1e6;--card:#fffdf8;
+    --gold:#b8863b;--gold-light:#e4c98a;--clay:#a8543e;--line:#e4dcc9;
+    --muted:#7c7566;--text:#26221a;--ok:#3f6b4f;--bad:#b23b3b;}
+  #gbk *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  #gbk .wrap{width:100%;max-width:560px;padding:0 14px;}
+  #gbk .gb-head{text-align:center;padding:26px 10px 18px;color:var(--parchment);}
+  #gbk .gb-head img{width:56px;height:56px;object-fit:contain;border-radius:10px;display:block;margin:0 auto 8px;}
+  #gbk .badge{display:inline-block;font-size:12.5px;color:var(--gold-light);background:rgba(184,134,59,.14);
+    border:1px solid rgba(184,134,59,.45);padding:4px 12px;border-radius:20px;margin-bottom:8px;}
+  #gbk h1{font-family:'Amiri',serif;font-size:28px;margin:0;}
+  #gbk .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;
+    box-shadow:0 14px 30px -22px rgba(94,21,39,.45);}
+  #gbk .card h2{font-size:14.5px;margin:0 0 10px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  #gbk .hdate{margin-top:8px;font-size:13px;color:var(--gold-light);}
+  #gbk .hdate b{color:#fff;}
+  #gbk .time-all{margin-bottom:12px;}
+  #gbk .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  #gbk label.l{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:5px;}
+  #gbk input[type=text],#gbk input[type=date],#gbk select{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fffefb;
+    font-family:'Cairo',sans-serif;font-size:15.5px;color:var(--text);outline:none;}
+  #gbk input:focus,#gbk select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,134,59,.16);}
+  #gbk .dval{padding:9px 12px;border-radius:12px;background:#fbf3df;border:1.5px solid #e4d3a8;color:var(--ink);font-weight:800;font-size:15px;text-align:center;}
+  #gbk .dsub{font-size:11.5px;color:var(--muted);text-align:center;margin-top:4px;}
+  #gbk .stepper{display:flex;align-items:center;justify-content:center;gap:12px;border:1.5px solid var(--line);
+    border-radius:12px;background:#fffefb;padding:4px;height:46px;}
+  #gbk .stepper button,#gbk .mini button{border:0;border-radius:50%;background:linear-gradient(180deg,var(--gold-light),#d1a95c);
+    color:var(--ink-2);font-size:20px;line-height:1;cursor:pointer;touch-action:manipulation;}
+  #gbk .stepper button{width:36px;height:36px;}
+  #gbk .stepper b{min-width:24px;text-align:center;font-size:20px;font-family:'Amiri',serif;}
+  #gbk .btn-line{margin-top:10px;width:100%;padding:10px;border-radius:12px;border:1.5px dashed #d9c391;
+    background:#fbf3df;color:var(--ink);font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
+  #gbk .add-row{display:flex;gap:8px;}
+  #gbk .add-row input{flex:1;font-size:18px;font-weight:700;letter-spacing:1px;text-align:center;}
+  #gbk .add-btn{padding:0 20px;border:0;border-radius:12px;background:linear-gradient(180deg,#6e1a2f,var(--ink-2));
+    color:var(--gold-light);font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;cursor:pointer;}
+  #gbk .hint{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.7;}
+  #gbk .err{font-size:12.5px;color:var(--bad);margin-top:6px;font-weight:600;display:none;}
+  #gbk .err.show{display:block;}
+  #gbk .count{font-size:12.5px;font-weight:700;color:var(--gold);}
+  #gbk .empty{text-align:center;color:var(--muted);font-size:13.5px;padding:18px 6px;}
+  #gbk .row{border:1.5px solid var(--line);border-radius:14px;padding:10px;margin-bottom:9px;background:#fffefb;}
+  #gbk .row.full{border-color:#e2b3b3;background:#fdf3f3;}
+  #gbk .r-top{display:flex;align-items:center;gap:8px;}
+  #gbk .r-room{min-width:58px;text-align:center;padding:7px 6px;border-radius:10px;font-weight:800;font-size:18px;
+    color:var(--gold-light);background:linear-gradient(180deg,#6e1a2f,var(--ink-2));}
+  #gbk .r-name{flex:1;min-width:0;padding:9px 10px !important;font-size:14px !important;}
+  #gbk .r-x{width:34px;height:34px;border-radius:50%;border:0;background:#f1e8e8;color:var(--bad);font-size:20px;cursor:pointer;flex-shrink:0;}
+  #gbk .r-bot{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  #gbk .mini{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:3px 6px;background:#fff;}
+  #gbk .mini button{width:32px;height:32px;font-size:18px;}
+  #gbk .mini button:disabled{opacity:.3;}
+  #gbk .mini b{min-width:20px;text-align:center;font-size:18px;font-family:'Amiri',serif;}
+  #gbk .r-bot select{flex:1;padding:9px 10px;font-size:14px;}
+  #gbk .r-note{font-size:12px;color:var(--muted);margin-top:6px;}
+  #gbk .row.full .r-note{color:var(--bad);font-weight:700;}
+  #gbk .submit{position:sticky;bottom:12px;z-index:5;width:100%;padding:16px;border:0;border-radius:16px;
+    background:linear-gradient(180deg,#e9cf8f,#c9a04f);color:var(--ink-2);font-family:'Cairo',sans-serif;
+    font-weight:800;font-size:17px;cursor:pointer;box-shadow:0 14px 28px -10px rgba(184,134,59,.75),0 0 0 4px rgba(247,241,230,.95);}
+  #gbk .submit:disabled{opacity:.5;box-shadow:0 0 0 4px rgba(247,241,230,.95);}
+  #gbk .notice{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;font-size:13.5px;line-height:1.8;font-weight:600;}
+  #gbk .notice.show{display:block;}
+  #gbk .notice.error{background:#fbeaea;color:var(--bad);border:1px solid #efc4c4;}
+  #gbk .conn{display:none;background:var(--bad);color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:700;position:sticky;top:0;z-index:20;}
+  #gbk .conn.show{display:block;}
+  #gbk .overlay{position:fixed;inset:0;background:rgba(38,12,20,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:50;backdrop-filter:blur(4px);}
+  #gbk .overlay.show{display:flex;}
+  #gbk .modal{background:var(--card);border-radius:22px;padding:24px 20px;width:100%;max-width:380px;text-align:center;max-height:85vh;overflow:auto;}
+  #gbk .check{width:60px;height:60px;border-radius:50%;background:var(--ok);color:#fff;font-size:30px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;}
+  #gbk .modal h3{font-family:'Amiri',serif;font-size:22px;margin:0 0 6px;}
+  #gbk .modal p{margin:0 0 10px;font-size:14px;color:var(--muted);}
+  #gbk .m-list{text-align:right;font-size:13px;line-height:1.9;border-top:1px dashed var(--line);padding-top:8px;margin-bottom:14px;}
+  #gbk .modal button{width:100%;padding:13px;border:0;border-radius:12px;background:linear-gradient(180deg,#6e1a2f,var(--ink-2));color:var(--gold-light);font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;cursor:pointer;}
+  #gbk .floors{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+  #gbk .fl{position:relative;padding:11px 4px;border-radius:12px;border:1.5px solid var(--line);background:#fffefb;
+    font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;color:var(--ink);cursor:pointer;line-height:1.3;}
+  #gbk .fl small{display:block;font-weight:600;font-size:11px;color:var(--muted);}
+  #gbk .fl.open{background:linear-gradient(180deg,#6e1a2f,var(--ink-2));color:var(--gold-light);border-color:var(--ink-2);}
+  #gbk .fl.open small{color:#e8c9d0;}
+  #gbk .fl .nb{position:absolute;top:-7px;inset-inline-start:-4px;min-width:20px;height:20px;border-radius:10px;padding:0 5px;
+    background:var(--gold);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+  #gbk .picker{display:none;margin-bottom:12px;padding:10px;border:1.5px dashed #d9c391;border-radius:14px;background:#fbf6ea;}
+  #gbk .picker.show{display:block;}
+  #gbk .rgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+  #gbk .rm{position:relative;padding:10px 0;border-radius:10px;border:1.5px solid var(--line);background:#fff;
+    font-family:'Cairo',sans-serif;font-weight:700;font-size:15px;color:var(--text);cursor:pointer;touch-action:manipulation;}
+  #gbk .rm small{display:block;font-size:10px;font-weight:700;line-height:1;margin-top:1px;color:#8a6a2c;}
+  #gbk .rm.part{background:#fff4d6;border-color:#e4c98a;}
+  #gbk .rm.sel{background:linear-gradient(180deg,#6e1a2f,var(--ink-2));color:var(--gold-light);border-color:var(--ink-2);}
+  #gbk .rm.sel small{color:var(--gold-light);}
+  #gbk .rm.full{background:#f6e1e1;border-color:#e2b3b3;color:#a66;cursor:not-allowed;}
+  #gbk .rm.full small{color:var(--bad);}
+  #gbk .rm.added{background:#e5f1e8;border-color:#9fc4ab;color:var(--ok);cursor:default;}
+  #gbk .rm.added small{color:var(--ok);}
+  #gbk .p-legend{font-size:11.5px;color:var(--muted);margin:8px 0;line-height:1.8;}
+  #gbk .p-actions{display:flex;gap:8px;}
+  #gbk .p-actions .add-btn{flex:1;padding:11px;}
+  #gbk .p-clear{padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--muted);
+    font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+  #gbk .co-card{background:#e8f1e4;border-color:#b5cdae;box-shadow:0 14px 30px -22px rgba(63,107,79,.55);}
+  #gbk .co-card h2{color:#2f5a40;}
+  #gbk .co-card .btn-line{background:#d6e8d0;border-color:#8fb585;color:#2f5a40;}
+  #gbk .co-add{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  #gbk .co-add .full{grid-column:1/-1;}
+  #gbk .co-qty{text-align:center;font-weight:800;font-size:18px !important;}
+  #gbk .co-row{display:flex;align-items:center;gap:8px;border:1.5px solid #b5cdae;background:#fbfef9;border-radius:14px;padding:10px;margin-top:9px;}
+  #gbk .co-info{flex:1;min-width:0;}
+  #gbk .co-info b{display:block;font-size:15px;color:var(--ink);overflow-wrap:anywhere;}
+  #gbk .co-info span{font-size:12.5px;color:var(--muted);}
+  #gbk .co-num{min-width:58px;text-align:center;padding:7px 6px;border-radius:10px;font-weight:800;font-size:18px;color:var(--gold-light);background:linear-gradient(180deg,#6e1a2f,var(--ink-2));}
 </style>
 </head>
 <body>
@@ -292,6 +416,7 @@
     <span class="current-date-label" id="currentDateLabel">—</span>
     <button class="btn gold" id="printBtn">طباعة الكل</button>
     <button class="btn" id="shareBtn">مشاركة كصورة</button>
+    <button class="btn icon-only" id="gbkBtn" type="button" title="حجز بوكس إفطار" aria-label="حجز بوكس إفطار"></button>
   </div>
 </header>
 
@@ -411,6 +536,72 @@
       <button type="button" id="noteCancelBtn">إلغاء</button>
     </div>
   </div>
+</div>
+
+<!-- ============ حجز بوكس الإفطار (مدمج) ============ -->
+<div id="gbk" role="dialog" aria-modal="true" aria-label="حجز بوكس الإفطار" aria-hidden="true">
+<button type="button" class="gb-close" id="gbkClose" aria-label="إغلاق">×</button>
+<div class="wrap">
+  <div class="conn" id="conn">📡 لا يوجد اتصال بالإنترنت</div>
+
+  <div class="gb-head">
+    <img src="001.png" alt="" onerror="this.style.display='none'">
+    <span class="badge">نسخة العاملين</span>
+    <h1>حجز بوكس الإفطار</h1>
+    <input type="hidden" id="date">
+    <div class="hdate">📅 تسليم <b id="dlabel"></b> · صباح اليوم التالي</div>
+  </div>
+
+  <div class="card co-card">
+    <h2><span>🏢 حجز باسم شركة (بدون أرقام غرف)</span></h2>
+    <div class="co-add">
+      <div class="full">
+        <label class="l" for="coName">اسم الشركة</label>
+        <input type="text" id="coName" maxlength="60" placeholder="مثال: شركة دمنهور" autocomplete="off">
+      </div>
+      <div>
+        <label class="l" for="coQty">عدد البوكسات (بدون حد أقصى)</label>
+        <input type="text" id="coQty" class="co-qty" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="">
+      </div>
+      <div>
+        <label class="l" for="coTime">ساعة التسليم (موحدة)</label>
+        <select id="coTime"></select>
+      </div>
+    </div>
+    <button type="button" class="btn-line" id="coAdd">+ إضافة الشركة للحجز</button>
+    <div class="err" id="coErr"></div>
+    <div id="coList"></div>
+  </div>
+
+  <div class="card">
+    <h2>أرقام الغرف</h2>
+    <div class="time-all">
+      <label class="l" for="defTime">ساعة التسليم لكل الغرف</label>
+      <select id="defTime"></select>
+    </div>
+    <div class="floors" id="floors"></div>
+    <div class="picker" id="picker"></div>
+    <div class="hint">اختر الدور ثم اضغط على أرقام الغرف، وبعدها اضغط <b>إضافة المحدد</b>.</div>
+  </div>
+
+  <div class="card">
+    <h2><span>الغرف المضافة</span><span class="count" id="count"></span></h2>
+    <div id="rows"></div>
+  </div>
+
+  <button type="button" class="submit" id="submitBtn" disabled>أضف غرفًا أولًا</button>
+  <div class="notice" id="notice"></div>
+</div>
+
+<div class="overlay" id="modal">
+  <div class="modal">
+    <div class="check">✓</div>
+    <h3>تم تأكيد الحجز</h3>
+    <p id="mText"></p>
+    <div class="m-list" id="mList"></div>
+    <button type="button" id="mClose">تمام</button>
+  </div>
+</div>
 </div>
 
 <!-- Firebase -->
@@ -1231,6 +1422,329 @@
       `;
     }).join('');
   }
+</script>
+
+<!-- ============ منطق حجز بوكس الإفطار (مدمج) — يستخدم db و COLLECTION من الأعلى ============ -->
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const MAX_BOXES_PER_ROOM = 3;
+  const DELIVERY_START_HOUR = 3, DELIVERY_END_HOUR = 10.5, DELIVERY_STEP_MINUTES = 30;
+
+  const VALID_ROOMS = new Set([
+    '101','102','103','104','105','106','107','108','109','110','111','112','113','114','115','116','117','118','119','120',
+    '121','122','123','124','125','126','127','128','129','130','131','132','133','134','135','136','137','138','139','140','141','143',
+    '201','202','203','204','205','206','207','208','209','210','211','212','213','214','215','216','217','218','219','220',
+    '221','222','223','224','225','226','227','228','229','230','231','232','233','235','237','238','239','240',
+    '302','303','304','305','306','307','308','309','310','311','312','313','314','315','317','323','324','325','326','327',
+    '328','329','330','331','344','355','366','377','388','399'
+  ]);
+
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const pad = n => String(n).padStart(2, '0');
+  function dateKey(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  function fmtTime(v){
+    const [h, m] = v.split(':').map(Number);
+    return `${(h % 12) || 12}:${pad(m)} ${h < 12 ? 'ص' : 'م'}`;
+  }
+  function normalize(v){
+    return (v || '')
+      .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+      .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+  }
+
+  // التاريخ الافتراضي: نفس منطق نافذة الحجز في النسخة الأساسية (التوصيل صباح اليوم التالي)
+  function defaultTarget(){
+    const now = new Date(), t = new Date(now);
+    if (now.getHours() < 1) t.setDate(t.getDate() - 1);
+    t.setDate(t.getDate() + 1);
+    return t;
+  }
+
+  // ---------- الحالة ----------
+  let rows = [];                 // [{room,name,qty,time}]
+  let existing = {};             // رقم الغرفة -> عدد البوكسات المحجوزة مسبقًا لنفس اليوم
+  let def = { qty: 1, time: '07:00', name: '' };
+  let unsub = null, busy = false, isOpen = false;
+  let selected = new Set(), openFloor = null;
+  let companies = [];            // [{name,qty,time}] حجوزات شركات بدون غرف
+
+  const avail = room => Math.max(0, MAX_BOXES_PER_ROOM - (existing[room] || 0));
+
+  // ---------- الأوقات ----------
+  const times = [];
+  for (let m = DELIVERY_START_HOUR * 60; m <= DELIVERY_END_HOUR * 60; m += DELIVERY_STEP_MINUTES)
+    times.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
+  const timeOpts = sel => times.map(t => `<option value="${t}"${t === sel ? ' selected' : ''}>${fmtTime(t)}</option>`).join('');
+  $('coTime').innerHTML = timeOpts(def.time);
+  $('defTime').innerHTML = timeOpts(def.time);
+  $('defTime').addEventListener('change', e => { def.time = e.target.value; rows.forEach(r => { r.time = def.time; }); render(); });
+
+  // ---------- التاريخ ----------
+  const dateEl = $('date');
+  dateEl.value = dateKey(defaultTarget());
+  function dateLabel(){
+    const d = new Date(dateEl.value + 'T00:00:00');
+    $('dlabel').textContent = isNaN(d) ? '' : d.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  function watchDate(){
+    if (unsub) { unsub(); unsub = null; }
+    existing = {};
+    dateLabel();
+    if (!dateEl.value) { render(); return; }
+    unsub = db.collection(COLLECTION).where('deliveryDate', '==', dateEl.value).onSnapshot(snap => {
+      const next = {};
+      snap.docs.forEach(d => { const b = d.data(); next[b.roomNumber] = (next[b.roomNumber] || 0) + (b.quantity || 0); });
+      if (JSON.stringify(next) !== JSON.stringify(existing)) { existing = next; render(); }
+    }, () => {});
+    render();
+  }
+  // التاريخ ثابت (اليوم التالي) ويتحدّث تلقائيًا عند تغيّر نافذة الحجز
+  setInterval(() => {
+    if (!isOpen) return;
+    const k = dateKey(defaultTarget());
+    if (dateEl.value !== k) { dateEl.value = k; watchDate(); }
+  }, 30000);
+
+  // ---------- حجز الشركات ----------
+  const coErr = $('coErr');
+  $('coQty').addEventListener('input', e => { const n = normalize(e.target.value).replace(/\D/g, ''); if (n !== e.target.value) e.target.value = n; });
+  function addCompany(){
+    const name = $('coName').value.trim(), qty = parseInt(normalize($('coQty').value), 10), time = $('coTime').value;
+    let msg = '';
+    if (!name) msg = 'اكتب اسم الشركة.';
+    else if (!qty || qty < 1) msg = 'اكتب عدد البوكسات (رقم أكبر من صفر).';
+    coErr.textContent = msg; coErr.classList.toggle('show', !!msg);
+    if (msg) return;
+    const same = companies.find(c => c.name === name && c.time === time);
+    if (same) same.qty += qty; else companies.push({ name, qty, time });
+    $('coName').value = ''; $('coQty').value = '';
+    render();
+  }
+  $('coAdd').addEventListener('click', addCompany);
+  $('coQty').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addCompany(); } });
+  $('coList').addEventListener('click', e => {
+    const b = e.target.closest('button[data-co]'); if (!b) return;
+    companies.splice(+b.dataset.co, 1); render();
+  });
+  function renderCompanies(){
+    $('coList').innerHTML = companies.map((c, i) => `<div class="co-row">
+        <span class="co-num">${c.qty}</span>
+        <div class="co-info"><b>${esc(c.name)}</b><span>${c.qty} بوكس · تسليم ${fmtTime(c.time)}</span></div>
+        <button type="button" class="r-x" data-co="${i}" aria-label="حذف">×</button>
+      </div>`).join('');
+  }
+
+  // ---------- العرض ----------
+  const rowsEl = $('rows'), submitBtn = $('submitBtn');
+  function bookable(){ return rows.filter(r => avail(r.room) > 0); }
+  function render(){
+    rows.forEach(r => { r.qty = Math.min(r.qty, Math.max(1, avail(r.room))); });
+    if (!rows.length) rowsEl.innerHTML = '<div class="empty">لم تتم إضافة غرف بعد</div>';
+    else rowsEl.innerHTML = rows.map((r, i) => {
+      const av = avail(r.room), ex = existing[r.room] || 0, full = av <= 0;
+      const note = full ? `اكتمل الحد الأقصى (${MAX_BOXES_PER_ROOM} بوكسات) — لن تُحجز`
+        : ex ? `محجوز مسبقًا ${ex} · المتاح ${av} من ${MAX_BOXES_PER_ROOM}` : '';
+      return `<div class="row${full ? ' full' : ''}" data-i="${i}">
+        <div class="r-top">
+          <span class="r-room">${esc(r.room)}</span>
+          <input type="text" class="r-name" data-act="name" value="${esc(r.name)}" placeholder="${esc(def.name.trim() || 'اسم النزيل (اختياري)')}">
+          <button type="button" class="r-x" data-act="del" aria-label="حذف">×</button>
+        </div>
+        <div class="r-bot">
+          <div class="mini">
+            <button type="button" data-act="minus"${full ? ' disabled' : ''}>−</button><b>${r.qty}</b>
+            <button type="button" data-act="plus"${full || r.qty >= av ? ' disabled' : ''}>+</button>
+          </div>
+          <select data-act="time"${full ? ' disabled' : ''}>${timeOpts(r.time)}</select>
+        </div>
+        ${note ? `<div class="r-note">${note}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    renderCompanies();
+    const ok = bookable(), boxes = ok.reduce((s, r) => s + r.qty, 0);
+    const coBoxes = companies.reduce((s, c) => s + c.qty, 0), total = boxes + coBoxes;
+    $('count').textContent = rows.length ? `${ok.length} غرفة · ${boxes} بوكس` : '';
+    const parts = [];
+    if (ok.length) parts.push(`${ok.length} غرفة`);
+    if (companies.length) parts.push(`${companies.length} شركة`);
+    submitBtn.disabled = busy || (!ok.length && !companies.length);
+    submitBtn.textContent = busy ? 'جارٍ الحجز...' : total ? `تأكيد الحجز: ${parts.join(' + ')} (${total} بوكس)` : 'أضف غرفًا أو شركة أولًا';
+    renderPicker();
+  }
+  rowsEl.addEventListener('click', e => {
+    const b = e.target.closest('button[data-act]'); if (!b) return;
+    const i = +b.closest('.row').dataset.i, r = rows[i], act = b.dataset.act;
+    if (act === 'del') rows.splice(i, 1);
+    else if (act === 'plus' && r.qty < avail(r.room)) r.qty++;
+    else if (act === 'minus' && r.qty > 1) r.qty--;
+    render();
+  });
+  rowsEl.addEventListener('change', e => {
+    if (e.target.dataset.act !== 'time') return;
+    rows[+e.target.closest('.row').dataset.i].time = e.target.value;
+  });
+  rowsEl.addEventListener('input', e => {
+    if (e.target.dataset.act !== 'name') return;
+    rows[+e.target.closest('.row').dataset.i].name = e.target.value;
+  });
+
+  // ---------- اختيار الغرف من جدول الأدوار ----------
+  const FLOORS = { 1: 'الدور الأول', 2: 'الدور الثاني', 3: 'الدور الثالث' };
+  const byFloor = f => [...VALID_ROOMS].filter(r => r[0] === String(f)).sort((a, b) => a - b);
+  const floorsEl = $('floors'), pickerEl = $('picker');
+
+  function renderPicker(){
+    floorsEl.innerHTML = [1, 2, 3].map(f => {
+      const n = [...selected].filter(r => r[0] === String(f)).length;
+      return `<button type="button" class="fl${openFloor === f ? ' open' : ''}" data-f="${f}">🏨 ${FLOORS[f]}<small>${byFloor(f).length} غرفة</small>${n ? `<span class="nb">${n}</span>` : ''}</button>`;
+    }).join('');
+    if (!openFloor) { pickerEl.classList.remove('show'); pickerEl.innerHTML = ''; return; }
+    const cells = byFloor(openFloor).map(r => {
+      const ex = existing[r] || 0, added = rows.some(x => x.room === r);
+      let cls = '', badge = '';
+      if (added) { cls = 'added'; badge = '<small>✓ مضافة</small>'; }
+      else if (ex >= MAX_BOXES_PER_ROOM) { cls = 'full'; badge = `<small>مكتملة</small>`; }
+      else if (ex > 0) { cls = 'part' + (selected.has(r) ? ' sel' : ''); badge = `<small>${ex} محجوز</small>`; }
+      else if (selected.has(r)) cls = 'sel';
+      return `<button type="button" class="rm ${cls}" data-room="${r}">${r}${badge}</button>`;
+    }).join('');
+    pickerEl.innerHTML = `<div class="rgrid">${cells}</div>
+      <div class="p-legend">اضغط على الغرفة لتحديدها. <b>أصفر</b> = فيه حجز مسبق (العدد المحجوز) · <b>أحمر</b> = مكتملة · <b>أخضر</b> = مضافة للقائمة</div>
+      <div class="p-actions"><button type="button" class="add-btn" id="pAdd"${selected.size ? '' : ' disabled'}>إضافة المحدد (${selected.size})</button>
+      ${selected.size ? '<button type="button" class="p-clear" id="pClear">مسح</button>' : ''}</div>`;
+    pickerEl.classList.add('show');
+  }
+  floorsEl.addEventListener('click', e => {
+    const b = e.target.closest('.fl'); if (!b) return;
+    const f = +b.dataset.f; openFloor = openFloor === f ? null : f; renderPicker();
+  });
+  pickerEl.addEventListener('click', e => {
+    const c = e.target.closest('.rm');
+    if (c) {
+      if (c.classList.contains('full') || c.classList.contains('added')) return;
+      const r = c.dataset.room; selected.has(r) ? selected.delete(r) : selected.add(r);
+      renderPicker(); return;
+    }
+    if (e.target.id === 'pClear') { selected.clear(); renderPicker(); return; }
+    if (e.target.id === 'pAdd') {
+      selected.forEach(room => {
+        if (!rows.some(r => r.room === room))
+          rows.push({ room, name: def.name.trim(), qty: Math.min(def.qty, Math.max(1, avail(room))), time: def.time });
+      });
+      rows.sort((a, b) => a.room.localeCompare(b.room, undefined, { numeric: true }));
+      selected.clear(); render();
+    }
+  });
+
+  // ---------- الإرسال ----------
+  function showNotice(text){ const n = $('notice'); n.className = 'notice show error'; n.textContent = text; }
+
+  submitBtn.addEventListener('click', async () => {
+    $('notice').className = 'notice';
+    if (!navigator.onLine) { showNotice('لا يوجد اتصال بالإنترنت — لم يتم إرسال الحجز.'); return; }
+    if (!dateEl.value) { showNotice('من فضلك اختر تاريخ التسليم.'); return; }
+    const dKey = dateEl.value;
+    busy = true; render();
+    try {
+      // فحص حديث من الخادم قبل الحفظ لتفادي تجاوز الحد الأقصى
+      const snap = await db.collection(COLLECTION).where('deliveryDate', '==', dKey).get();
+      const fresh = {};
+      snap.docs.forEach(d => { const b = d.data(); fresh[b.roomNumber] = (fresh[b.roomNumber] || 0) + (b.quantity || 0); });
+      existing = fresh;
+
+      const list = rows.filter(r => MAX_BOXES_PER_ROOM - (fresh[r.room] || 0) > 0);
+      const over = list.filter(r => r.qty > MAX_BOXES_PER_ROOM - (fresh[r.room] || 0));
+      if (over.length) {
+        showNotice('تغيّر المتاح لبعض الغرف أثناء الحجز: ' + over.map(r => r.room).join('، ') + ' — راجع الأعداد ثم أعد المحاولة.');
+        busy = false; render(); return;
+      }
+      if (!list.length && !companies.length) { showNotice('لا توجد غرف متاحة للحجز.'); busy = false; render(); return; }
+
+      const batch = db.batch();
+      list.forEach(r => {
+        const id = `${r.room}_${dKey}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+        batch.set(db.collection(COLLECTION).doc(id), {
+          roomNumber: r.room,
+          guestName: r.name.trim() || def.name.trim() || `نزيل غرفة ${r.room}`,
+          quantity: r.qty,
+          deliveryTime: r.time,
+          deliveryDate: dKey,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      });
+      companies.forEach(c => {
+        const id = `company_${dKey}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+        batch.set(db.collection(COLLECTION).doc(id), {
+          roomNumber: c.name,
+          guestName: c.name,
+          companyName: c.name,
+          bookingType: 'company',
+          quantity: c.qty,
+          deliveryTime: c.time,
+          deliveryDate: dKey,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      });
+      await batch.commit();
+
+      const boxes = list.reduce((s, r) => s + r.qty, 0) + companies.reduce((s, c) => s + c.qty, 0);
+      const skipped = rows.length - list.length;
+      const what = [list.length ? `${list.length} غرفة` : '', companies.length ? `${companies.length} شركة` : ''].filter(Boolean).join(' و');
+      $('mText').textContent = `تم حجز ${boxes} بوكس لـ ${what} — ${$('dlabel').textContent}` + (skipped ? ` (تم تخطي ${skipped} غرفة مكتملة)` : '');
+      $('mList').innerHTML = companies.map(c => `🏢 <b>${esc(c.name)}</b> · ${c.qty} بوكس · ${fmtTime(c.time)}`)
+        .concat(list.map(r => `🛏 غرفة <b>${esc(r.room)}</b> · ${r.qty} بوكس · ${fmtTime(r.time)}`)).join('<br>');
+      companies = [];
+      $('modal').classList.add('show');
+      rows = [];
+    } catch (err) {
+      console.error(err);
+      showNotice('حدث خطأ أثناء إرسال الحجز. من فضلك حاول مرة أخرى.' + (err && err.code ? ' (' + err.code + ')' : ''));
+    } finally {
+      busy = false; render();
+    }
+  });
+  $('mClose').addEventListener('click', () => { $('modal').classList.remove('show'); });
+
+  // ---------- الاتصال ----------
+  const conn = $('conn');
+  const syncConn = () => conn.classList.toggle('show', !navigator.onLine);
+  window.addEventListener('online', syncConn); window.addEventListener('offline', syncConn); syncConn();
+
+  // ---------- فتح/إغلاق اللوحة من أيقونة الهيدر ----------
+  const panel = $('gbk');
+  function openPanel(){
+    if (isOpen) return;
+    try { history.pushState({ gbk: 1 }, ''); } catch (e) {}
+    isOpen = true;
+    dateEl.value = dateKey(defaultTarget());
+    panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    panel.scrollTop = 0;
+    watchDate();
+  }
+  function closePanel(fromPop){
+    if (!isOpen) return;
+    isOpen = false;
+    $('modal').classList.remove('show');
+    if (unsub) { unsub(); unsub = null; }
+    panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    // لو اتقفلت بالزرار (مش بزر الرجوع) نشيل الخطوة اللي ضفناها في التاريخ
+    if (fromPop !== true && history.state && history.state.gbk) history.back();
+  }
+  // زر الرجوع في الموبايل/المتصفح يقفل اللوحة بدل الخروج من التطبيق
+  window.addEventListener('popstate', () => { if (isOpen) closePanel(true); });
+  $('gbkBtn').addEventListener('click', openPanel);
+  $('gbkClose').addEventListener('click', () => closePanel());
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || !isOpen) return;
+    if ($('modal').classList.contains('show')) $('modal').classList.remove('show'); else closePanel();
+  });
+})();
 </script>
 </body>
 </html>
