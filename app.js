@@ -3364,9 +3364,6 @@ ${acknowledgmentHtml}
                                 </div>
                             </div>
 
-                            <button onclick="toggleStatsModal()" class="hidden sm:inline-block p-2 sm:p-2.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all shrink-0" title="الإحصائيات">
-                                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-                            </button>
                             <button onclick="exportToExcel()" class="hidden sm:inline-block p-2 sm:p-2.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all shrink-0" title="تصدير (Excel)">
                                 <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
                             </button>
@@ -3435,10 +3432,6 @@ ${acknowledgmentHtml}
                             </div>
                             ` : ''}
                             ${state.currentUserEmail === ADMIN_EMAIL ? `
-                            <!-- زر تصدير نسخة احتياطية (أدمن فقط) -->
-                            <button onclick="exportBackup()" class="hidden sm:inline-block p-2 sm:p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all shrink-0" title="تصدير نسخة احتياطية (JSON)">
-                                <i data-lucide="hard-drive-download" class="w-5 h-5"></i>
-                            </button>
                             <!-- زر تصدير نسخة كاملة شاملة الأرشيف (أدمن فقط) -->
                             <button onclick="exportFullBackup()" class="hidden sm:inline-block p-2 sm:p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all shrink-0" title="تصدير نسخة كاملة شاملة الأرشيف (JSON)">
                                 <i data-lucide="database-backup" class="w-5 h-5"></i>
