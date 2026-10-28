@@ -3299,11 +3299,11 @@ ${acknowledgmentHtml}
                                     <i data-lucide="more-vertical" class="w-5 h-5"></i>
                                 </button>
                                 <div id="moreMenuDropdown" class="sync-dropdown hidden border border-slate-100">
-                                    <button onclick="toggleStatsModal(); toggleMoreMenu()">
-                                        <span class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                                            <i data-lucide="bar-chart-3" class="w-4 h-4 text-blue-600"></i>
+                                    <button onclick="toggleMoreMenu(); toggleTheme()">
+                                        <span class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                                            <i data-lucide="${isDarkMode() ? 'sun' : 'moon'}" class="w-4 h-4 text-slate-600"></i>
                                         </span>
-                                        الإحصائيات
+                                        ${isDarkMode() ? 'الوضع الفاتح' : 'الوضع الداكن'}
                                     </button>
                                     <button onclick="exportToExcel(); toggleMoreMenu()">
                                         <span class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
@@ -3348,12 +3348,6 @@ ${acknowledgmentHtml}
                                     </button>
                                     ` : ''}
                                     ${state.currentUserEmail === ADMIN_EMAIL ? `
-                                    <button onclick="exportBackup(); toggleMoreMenu()">
-                                        <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
-                                            <i data-lucide="hard-drive-download" class="w-4 h-4 text-indigo-600"></i>
-                                        </span>
-                                        تصدير نسخة احتياطية
-                                    </button>
                                     <button onclick="exportFullBackup(); toggleMoreMenu()">
                                         <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
                                             <i data-lucide="database-backup" class="w-4 h-4 text-indigo-600"></i>
@@ -3367,12 +3361,6 @@ ${acknowledgmentHtml}
                                         استيراد نسخة احتياطية
                                     </button>
                                     ` : ''}
-                                    <button onclick="toggleMoreMenu(); toggleTheme()">
-                                        <span class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-                                            <i data-lucide="${isDarkMode() ? 'sun' : 'moon'}" class="w-4 h-4 text-slate-600"></i>
-                                        </span>
-                                        ${isDarkMode() ? 'الوضع الفاتح' : 'الوضع الداكن'}
-                                    </button>
                                 </div>
                             </div>
 
