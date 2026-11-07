@@ -2507,6 +2507,15 @@ function renderBookingsPage(pageKey){
       <div class="table-wrap" id="bkTableWrap"></div>
       <div class="bk-cards" id="bkCardsWrap"></div>
     </div>
+    ${pageKey === 'confirmedBookings' ? `
+    <div class="panel" id="bkExpiredSection">
+      <div class="panel-head">
+        <div class="panel-title">🗄️ الحجوزات المنتهية (<span id="bkExpiredCount">0</span>)</div>
+      </div>
+      <p class="mini-note">تنتقل الحجوزات المؤكدة إلى هنا تلقائيا بعد مرور تاريخ المغادرة.</p>
+      <div class="table-wrap" id="bkExpiredTableWrap"></div>
+      <div class="bk-cards" id="bkExpiredCardsWrap"></div>
+    </div>` : ''}
   `;
 
   const rerender = () => {
@@ -2522,32 +2531,13 @@ function renderBookingsPage(pageKey){
   renderBookingsTable(pageKey);
 }
 
-function renderBookingsTable(pageKey){
-  const filt = bookingsFilterState[pageKey];
-  let list = Object.entries(cache.bookings || {});
+// حجز مؤكد انتهت إقامته (تاريخ المغادرة قبل اليوم) — ينتقل تلقائيا للقسم الخاص بالحجوزات المنتهية
+function isExpiredConfirmed(b){
+  return !!b && b.status === 'confirmed' && !!b.departureDate && b.departureDate < todayStr();
+}
 
-  if(filt.status !== 'all') list = list.filter(([,b]) => b.status === filt.status);
-  if(filt.arrivalDate) list = list.filter(([,b]) => b.arrivalDate === filt.arrivalDate);
-  if(filt.q){
-    const q = filt.q.toLowerCase();
-    list = list.filter(([id,b]) =>
-      (b.bookingNumber || '').toLowerCase().includes(q) ||
-      (id || '').toLowerCase().includes(q) ||
-      (b.customerName || '').toLowerCase().includes(q) ||
-      (b.phone || '').toLowerCase().includes(q)
-    );
-  }
-  list.sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0));
-
-  const wrap = document.getElementById('bkTableWrap');
-  const cardsWrap = document.getElementById('bkCardsWrap');
-  if(list.length === 0){
-    wrap.innerHTML = '<div class="empty-state">لا توجد نتائج</div>';
-    cardsWrap.innerHTML = '<div class="empty-state">لا توجد نتائج</div>';
-    return;
-  }
-
-  wrap.innerHTML = `
+function bookingsTableHtml(list){
+  return `
     <table class="data-table">
       <thead>
         <tr>
@@ -2564,7 +2554,7 @@ function renderBookingsTable(pageKey){
             <td>${b.arrivalDate}</td>
             <td>${b.departureDate}</td>
             <td>${roomsSummaryHtml(b.rooms)}</td>
-            <td><span class="pill ${statusPillClass(b.status)}">${statusLabel(b.status)}</span></td>
+            <td><span class="pill ${isExpiredConfirmed(b) ? 'pill-inactive' : statusPillClass(b.status)}">${isExpiredConfirmed(b) ? 'منتهي' : statusLabel(b.status)}</span></td>
             <td>${fmtTimestamp(b.createdAt)}</td>
             <td class="row-actions">
               <button class="link-btn" onclick="openBookingDetails('${id}')">عرض</button>
@@ -2574,15 +2564,17 @@ function renderBookingsTable(pageKey){
       </tbody>
     </table>
   `;
+}
 
-  cardsWrap.innerHTML = list.map(([id,b]) => `
+function bookingsCardsHtml(list){
+  return list.map(([id,b]) => `
     <div class="bk-card">
       <div class="bk-card-top">
         <div>
           <div class="bk-card-name">${escapeHtml(b.customerName)}</div>
           <div class="bk-card-phone">${phoneLinksHtml(b.phone)}</div>
         </div>
-        <span class="pill ${statusPillClass(b.status)}">${statusLabel(b.status)}</span>
+        <span class="pill ${isExpiredConfirmed(b) ? 'pill-inactive' : statusPillClass(b.status)}">${isExpiredConfirmed(b) ? 'منتهي' : statusLabel(b.status)}</span>
       </div>
       <div class="bk-card-num">#${escapeHtml(b.bookingNumber)}</div>
       <div class="bk-card-dates">
@@ -2597,6 +2589,60 @@ function renderBookingsTable(pageKey){
       </div>
     </div>
   `).join('');
+}
+
+function renderBookingsTable(pageKey){
+  const filt = bookingsFilterState[pageKey];
+  let list = Object.entries(cache.bookings || {});
+
+  if(filt.arrivalDate) list = list.filter(([,b]) => b.arrivalDate === filt.arrivalDate);
+  if(filt.q){
+    const q = filt.q.toLowerCase();
+    list = list.filter(([id,b]) =>
+      (b.bookingNumber || '').toLowerCase().includes(q) ||
+      (id || '').toLowerCase().includes(q) ||
+      (b.customerName || '').toLowerCase().includes(q) ||
+      (b.phone || '').toLowerCase().includes(q)
+    );
+  }
+  list.sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0));
+
+  const isConfirmedPage = pageKey === 'confirmedBookings';
+  let expiredList = [];
+  let mainList = list;
+  if(isConfirmedPage){
+    // الحجوزات المؤكدة المنتهية تُفصل تلقائيا عن القائمة الرئيسية
+    expiredList = list.filter(([,b]) => isExpiredConfirmed(b));
+    mainList = list.filter(([,b]) => !isExpiredConfirmed(b));
+  }
+  if(filt.status !== 'all') mainList = mainList.filter(([,b]) => b.status === filt.status);
+  // القسم الخاص بالمنتهية يظهر ما لم يكن الفلتر على "ملغي" فقط
+  const showExpired = isConfirmedPage && (filt.status === 'confirmed' || filt.status === 'all');
+
+  const wrap = document.getElementById('bkTableWrap');
+  const cardsWrap = document.getElementById('bkCardsWrap');
+  if(mainList.length === 0){
+    wrap.innerHTML = '<div class="empty-state">لا توجد نتائج</div>';
+    cardsWrap.innerHTML = '<div class="empty-state">لا توجد نتائج</div>';
+  }else{
+    wrap.innerHTML = bookingsTableHtml(mainList);
+    cardsWrap.innerHTML = bookingsCardsHtml(mainList);
+  }
+
+  const expSection = document.getElementById('bkExpiredSection');
+  if(expSection){
+    expSection.classList.toggle('hidden', !showExpired);
+    document.getElementById('bkExpiredCount').textContent = expiredList.length;
+    const eWrap = document.getElementById('bkExpiredTableWrap');
+    const eCards = document.getElementById('bkExpiredCardsWrap');
+    if(expiredList.length === 0){
+      eWrap.innerHTML = '<div class="empty-state">لا توجد حجوزات منتهية</div>';
+      eCards.innerHTML = '<div class="empty-state">لا توجد حجوزات منتهية</div>';
+    }else{
+      eWrap.innerHTML = bookingsTableHtml(expiredList);
+      eCards.innerHTML = bookingsCardsHtml(expiredList);
+    }
+  }
 }
 
 /* =====================================================================
