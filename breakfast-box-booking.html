@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" href="001.png">
 <link rel="apple-touch-icon" href="001.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#5e1527;
@@ -30,7 +30,7 @@
     background:
       radial-gradient(1200px 600px at 20% -10%, #7a1f35 0%, transparent 60%),
       linear-gradient(180deg, var(--ink) 0%, var(--ink) 220px, var(--parchment) 220px, var(--parchment) 100%);
-    font-family:'Cairo', sans-serif;
+    font-family:'Cairo','Noto Sans SC','Noto Sans Devanagari',sans-serif;
     color:var(--text);
     min-height:100vh;
     display:flex;
@@ -66,7 +66,7 @@
     margin-bottom:14px;
   }
   header h1{
-    font-family:'Amiri', serif;
+    font-family:'Amiri','Noto Sans SC','Noto Sans Devanagari',serif;
     font-size:32px;
     font-weight:700;
     margin:0 0 6px;
@@ -126,7 +126,7 @@
   .status-label{font-size:13px;color:var(--muted);}
   .status-value{font-size:17px;font-weight:700;color:var(--ink);}
   .countdown{
-    font-family:'Cairo',sans-serif;
+    font-family:'Cairo','Noto Sans SC','Noto Sans Devanagari',sans-serif;
     font-weight:800;
     font-size:19px;
     color:var(--clay);
@@ -153,7 +153,7 @@
     border:1.5px solid var(--line);
     border-radius:12px;
     background:var(--card);
-    font-family:'Cairo',sans-serif;
+    font-family:'Cairo','Noto Sans SC','Noto Sans Devanagari',sans-serif;
     font-size:16px;
     color:var(--text);
     outline:none;
@@ -233,7 +233,7 @@
     border-radius:14px;
     background:linear-gradient(180deg, #6e1a2f, var(--ink-2));
     color:var(--gold-light);
-    font-family:'Cairo',sans-serif;
+    font-family:'Cairo','Noto Sans SC','Noto Sans Devanagari',sans-serif;
     font-weight:800;
     font-size:16px;
     cursor:pointer;
@@ -425,7 +425,7 @@
     border:1.5px solid var(--gold);
     background:transparent;
     color:var(--gold);
-    font-family:'Cairo',sans-serif;
+    font-family:'Cairo','Noto Sans SC','Noto Sans Devanagari',sans-serif;
     font-size:13px;
     font-weight:700;
     cursor:pointer;
@@ -467,7 +467,7 @@
     border:1.5px solid #7a1f35;
     background:transparent;
     color:#7a1f35;
-    font-family:'Cairo',sans-serif;
+    font-family:'Cairo','Noto Sans SC','Noto Sans Devanagari',sans-serif;
     font-size:12.5px;
     font-weight:700;
     cursor:pointer;
@@ -490,7 +490,7 @@
     width:100%;
     padding:11px 16px;
     text-align:center;
-    font-family:'Cairo',sans-serif;
+    font-family:'Cairo','Noto Sans SC','Noto Sans Devanagari',sans-serif;
     font-weight:700;
     font-size:13.5px;
     line-height:1.5;
@@ -591,7 +591,7 @@
   }
   .stepper button:active{transform:scale(.9);background:linear-gradient(180deg,var(--gold-light),#d1a95c);}
   .stepper button:disabled{opacity:.35;box-shadow:none;}
-  .stepper .count{min-width:56px;font-size:34px;font-family:'Amiri',serif;}
+  .stepper .count{min-width:56px;font-size:34px;font-family:'Amiri','Noto Sans SC','Noto Sans Devanagari',serif;}
 
   /* محتويات البوكس كشرائح */
   .single-box-card{padding:12px;border-radius:16px;}
@@ -628,7 +628,7 @@
     box-shadow:0 0 0 8px #eef5ef;
   }
   .modal-overlay.show .modal-check{animation:checkPop .5s .15s var(--ease) both;}
-  .modal-title{font-family:'Amiri',serif;font-size:22px;}
+  .modal-title{font-family:'Amiri','Noto Sans SC','Noto Sans Devanagari',serif;font-size:22px;}
 
   @media (max-width:380px){
     .status-card{grid-template-columns:1fr;}
@@ -642,7 +642,7 @@
   .chips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
   .chip{
     padding:11px 4px;border-radius:12px;border:1.5px solid var(--line);background:#fffefb;
-    font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer;
+    font-family:'Cairo','Noto Sans SC','Noto Sans Devanagari',sans-serif;font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer;
     transition:all .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
   }
   .chip.on{background:linear-gradient(180deg,#6e1a2f,var(--ink-2));color:var(--gold-light);border-color:var(--ink-2);
@@ -659,10 +659,18 @@
   .summary .sm-t{font-size:12.5px;font-weight:800;color:var(--gold);margin-bottom:6px;letter-spacing:.3px;}
   .summary .sm-b{font-size:14.5px;line-height:1.9;color:var(--ink);}
   header{position:relative;}
+  .lang-bar{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:0 0 16px;}
+  header{padding-top:14px;}
+  html[lang="ar"] header h1{letter-spacing:0;}
+  body{background:
+      radial-gradient(900px 480px at 85% -8%, rgba(184,134,59,.22) 0%, transparent 60%),
+      radial-gradient(1100px 560px at 15% -10%, #862439 0%, transparent 62%),
+      linear-gradient(180deg, var(--ink) 0%, var(--ink) 285px, var(--parchment) 285px, var(--parchment) 100%);}
+  .lang-btn.on{background:var(--gold-light);color:var(--ink);border-color:var(--gold-light);}
   .lang-btn{
-    position:absolute;top:14px;inset-inline-start:0;padding:6px 14px;border-radius:999px;cursor:pointer;
+    padding:5px 11px;border-radius:999px;cursor:pointer;
     border:1px solid rgba(228,201,138,.5);background:rgba(255,255,255,.08);color:var(--gold-light);
-    font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;
+    font-family:'Cairo','Noto Sans SC','Noto Sans Devanagari',sans-serif;font-weight:700;font-size:13px;
   }
   html[dir=ltr] .field select{background-position:right 14px center;padding-left:14px;}
   html[dir=ltr] #roomNumber.valid{background-position:right 14px center;}
@@ -1013,6 +1021,8 @@
     return (value || '')
       .replace(/[٠-٩]/g, d => arabicIndic.indexOf(d))
       .replace(/[۰-۹]/g, d => persian.indexOf(d))
+      .replace(/[०-९]/g, d => '०१२३४५६७८९'.indexOf(d))   // الأرقام الهندية (ديفاناجاري)
+      .replace(/[０-９]/g, d => String.fromCharCode(d.charCodeAt(0) - 65248)) // أرقام صينية عريضة
       .replace(/[^0-9A-Za-z]/g, '') // إزالة المسافات وأي رموز أخرى
       .toUpperCase();
   }
@@ -1346,12 +1356,127 @@
   const $=id=>document.getElementById(id);
   const sel=$('deliveryTime'), room=$('roomNumber'), nameI=$('guestName'), qtyEl=$('qtyCount'), submit=$('submitBtn');
   const store={get(k){try{return localStorage.getItem(k)||''}catch(e){return ''}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-  let LANG=store.get('bb_lang')==='en'?'en':'ar';
-  const AR_T=formatTimeAr, AR_D=formatDateAr;
-  const EN_T=(h,m)=>((h%12)||12)+':'+String(m).padStart(2,'0')+' '+(h<12?'AM':'PM');
-  const EN_D=d=>d.toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long'});
-  const toEnTime=t=>t.replace(/(\d+:\d\d) ص/g,'$1 AM').replace(/(\d+:\d\d) م/g,'$1 PM');
   const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const AR_T=formatTimeAr, AR_D=formatDateAr;
+  const h12=h=>(h%12)||12, mm=m=>String(m).padStart(2,'0');
+  const dateFn=loc=>d=>d.toLocaleDateString(loc,{weekday:'long',day:'numeric',month:'long'});
+
+  /* =====================================================================
+     اللغات — لإضافة لغة جديدة: 1) أضف كودها في ORDER  2) أضف إعداداتها في LANGS
+     3) أضف عمودًا لها في TEXT  4) أضف قيمتها في RULES و HTMLS
+     ===================================================================== */
+  const ORDER=['ar','en','zh','hi'];   // ترتيب الأعمدة في TEXT وترتيب الأزرار
+  const LANGS={
+    ar:{logoAlt:'شعار الفندق',label:'عربي',dir:'rtl',time:AR_T,date:AR_D,selectTime:'اختر ساعة التسليم',pickTime:'من فضلك اختر ساعة التسليم.',roomPh:'مثال: 214',namePh:'الاسم بالكامل'},
+    en:{logoAlt:'Hotel logo',label:'EN',dir:'ltr',title:'Breakfast Box Booking',time:(h,m)=>h12(h)+':'+mm(m)+' '+(h<12?'AM':'PM'),date:dateFn('en-US'),
+        selectTime:'Select pickup time',pickTime:'Please choose a pickup time.',roomPh:'e.g. 214',namePh:'Full name',
+        summary:(r,n,q,t,d)=>`<div class="sm-t">YOUR BOOKING SUMMARY</div><div class="sm-b">🛏 Room <b>${r}</b> · 👤 ${n}</div><div class="sm-b">🥐 <b>${q}</b> box(es) · 🕗 <b>${t}</b></div><div class="sm-b">📅 ${d}</div>`},
+    zh:{logoAlt:'酒店标志',label:'中文',dir:'ltr',title:'早餐盒预订',time:(h,m)=>(h<12?'上午':'下午')+h12(h)+':'+mm(m),date:dateFn('zh-CN'),
+        selectTime:'选择取餐时间',pickTime:'请选择取餐时间。',roomPh:'例如：214',namePh:'姓名全称',
+        summary:(r,n,q,t,d)=>`<div class="sm-t">您的预订摘要</div><div class="sm-b">🛏 房间 <b>${r}</b> · 👤 ${n}</div><div class="sm-b">🥐 <b>${q}</b> 盒 · 🕗 <b>${t}</b></div><div class="sm-b">📅 ${d}</div>`},
+    hi:{logoAlt:'होटल का लोगो',label:'हिन्दी',dir:'ltr',title:'ब्रेकफास्ट बॉक्स बुकिंग',time:(h,m)=>h12(h)+':'+mm(m)+' '+(h<12?'पूर्वाह्न':'अपराह्न'),date:dateFn('hi-IN'),
+        selectTime:'पिकअप का समय चुनें',pickTime:'कृपया पिकअप का समय चुनें।',roomPh:'उदा: 214',namePh:'पूरा नाम',
+        summary:(r,n,q,t,d)=>`<div class="sm-t">आपकी बुकिंग का सारांश</div><div class="sm-b">🛏 कमरा <b>${r}</b> · 👤 ${n}</div><div class="sm-b">🥐 <b>${q}</b> बॉक्स · 🕗 <b>${t}</b></div><div class="sm-b">📅 ${d}</div>`}
+  };
+
+  /* نصوص ثابتة: كل صف = [عربي، إنجليزي، صيني، هندي] بنفس ترتيب ORDER */
+  const TEXT=[
+  [`تاريخ التسليم`,`Pickup date`,`取餐日期`,`पिकअप की तारीख`],
+  [`رقم الغرفة`,`Room number`,`房间号`,`कमरा नंबर`],
+  [`اسم النزيل`,`Guest name`,`客人姓名`,`मेहमान का नाम`],
+  [`عدد البوكسات`,`Number of boxes`,`盒数`,`बॉक्स की संख्या`],
+  [`(تأكد من عدد البوكسات المطلوبة)`,`(double-check the number of boxes)`,`（请确认所需盒数）`,`(कृपया बॉक्स की संख्या जाँच लें)`],
+  [`ساعة التسليم`,`Pickup time`,`取餐时间`,`पिकअप का समय`],
+  [`محتويات بوكس الإفطار`,`Box contents`,`早餐盒内容`,`बॉक्स में क्या है`],
+  [`جبن رومي`,`Roumy cheese`,`罗米奶酪`,`रूमी चीज़`],
+  [`جبنة بيضاء`,`White cheese`,`白奶酪`,`सफ़ेद चीज़`],
+  [`جبن شيدر`,`Cheddar`,`切达奶酪`,`चेडर`],
+  [`دانش، كرواسان، إنجليش كيك`,`Danish, croissant, English cake`,`丹麦酥、牛角包、英式蛋糕`,`डैनिश, क्रोइसां, इंग्लिश केक`],
+  [`بيض مسلوق`,`Boiled eggs`,`水煮蛋`,`उबले अंडे`],
+  [`فول`,`Foul (fava beans)`,`蚕豆泥（Foul）`,`फ़ूल (फ़ावा बीन्स)`],
+  [`زبادي`,`Yogurt`,`酸奶`,`दही`],
+  [`فاكهة الموسم`,`Seasonal fruit`,`时令水果`,`मौसमी फल`],
+  [`عيش كايزر + عيش شامي`,`Kaiser roll + pita`,`凯撒面包 + 皮塔饼`,`काइज़र रोल + पीटा ब्रेड`],
+  [`سلطة خضراء طازجة`,`Fresh green salad`,`新鲜蔬菜沙拉`,`ताज़ा हरा सलाद`],
+  [`مربى`,`Jam`,`果酱`,`जैम`],
+  [`عسل`,`Honey`,`蜂蜜`,`शहद`],
+  [`تأكيد الحجز`,`Confirm booking`,`确认预订`,`बुकिंग की पुष्टि करें`],
+  [`حفظ التعديل`,`Save changes`,`保存修改`,`बदलाव सहेजें`],
+  [`الحجز مغلق حاليًا`,`Booking closed`,`预订已关闭`,`बुकिंग बंद है`],
+  [`جارٍ الحجز...`,`Booking...`,`预订中…`,`बुकिंग हो रही है...`],
+  [`غير متصل بالإنترنت`,`Offline`,`离线`,`ऑफ़लाइन`],
+  [`تعذر الاتصال بالخادم`,`Server unreachable`,`无法连接服务器`,`सर्वर से संपर्क नहीं हो पा रहा`],
+  [`يُغلق الحجز خلال`,`Booking closes in`,`距预订截止还有`,`बुकिंग बंद होने में`],
+  [`يُفتح الحجز خلال`,`Booking opens in`,`距预订开放还有`,`बुकिंग खुलने में`],
+  [`تم تأكيد الحجز`,`Booking confirmed`,`预订已确认`,`बुकिंग की पुष्टि हो गई`],
+  [`تعديل الحجز`,`Edit booking`,`修改预订`,`बुकिंग बदलें`],
+  [`تم، خروج`,`Done, exit`,`完成，退出`,`हो गया, बाहर निकलें`],
+  [`إلغاء التعديل`,`Cancel edit`,`取消修改`,`बदलाव रद्द करें`],
+  [`سيتم تجهيز البوكس وتسليمه صباح يوم التسليم المذكور أعلاه`,`Your box will be prepared and ready for pickup on the morning of the pickup date above`,`早餐盒将于上述取餐日期的早晨准备好，供您取餐`,`बॉक्स ऊपर बताई गई पिकअप तारीख की सुबह तैयार रहेगा, आप इसे ले सकते हैं`],
+  [`التسليم صباح اليوم التالي، اختر الموعد المناسب لك ضمن ساعات الخدمة`,`Pickup next morning — choose the time that suits you within service hours`,`次日早晨取餐，请在服务时段内选择合适的时间`,`अगली सुबह पिकअप — सेवा समय में अपनी सुविधा का समय चुनें`],
+  [`⚠ رقم الغرفة غير موجود بالفندق — من فضلك تأكد من الرقم`,`⚠ Room number not found — please check it`,`⚠ 酒店无此房间号，请核对`,`⚠ यह कमरा नंबर होटल में नहीं है — कृपया जाँच लें`],
+  [`الحجز مغلق حاليًا. باب الحجز يُفتح يوميًا من الساعة 11:00 صباحًا وحتى الساعة 1:00 صباحًا من اليوم التالي.`,`Booking is currently closed. It opens daily from 11:00 AM until 1:00 AM the next day.`,`目前已关闭预订。每日上午 11:00 至次日凌晨 1:00 开放。`,`बुकिंग अभी बंद है। यह रोज़ सुबह 11:00 से अगले दिन रात 1:00 बजे तक खुलती है।`],
+  [`حجوزات هذه الغرفة لهذا اليوم:`,`Bookings for this room today:`,`本房间今日的预订：`,`इस कमरे की आज की बुकिंग:`],
+  [`لإضافة حجز جديد باسمك، املأ بياناتك بالأسفل. وللتعديل على حجز موجود تواصل مع الاستقبال.`,`To add a new booking under your name, fill in your details below. To change an existing one, contact reception.`,`如需以您的姓名新增预订，请填写下方信息。如需修改已有预订，请联系前台。`,`अपने नाम से नई बुकिंग जोड़ने के लिए नीचे जानकारी भरें। मौजूदा बुकिंग बदलने के लिए रिसेप्शन से संपर्क करें।`],
+  [`اكتمل الحد الأقصى لهذه الغرفة (3 بوكسات). للتعديل تواصل مع الاستقبال.`,`This room has reached the maximum (3 boxes). To change a booking, contact reception.`,`本房间已达上限（3 盒）。如需修改请联系前台。`,`इस कमरे की अधिकतम सीमा (3 बॉक्स) पूरी हो गई। बदलाव के लिए रिसेप्शन से संपर्क करें।`],
+  [`من فضلك أدخل رقم الغرفة واسم النزيل.`,`Please enter the room number and guest name.`,`请输入房间号和客人姓名。`,`कृपया कमरा नंबर और मेहमान का नाम दर्ज करें।`],
+  [`رقم الغرفة غير مسجل بالفندق. من فضلك تأكد من الرقم قبل إرسال الحجز.`,`Room number is not registered. Please check it before submitting.`,`房间号未登记，提交前请核对。`,`कमरा नंबर पंजीकृत नहीं है। भेजने से पहले कृपया जाँच लें।`],
+  [`يوجد حجز بنفس الاسم فى هذه الغرفة. للتعديل من فضلك تواصل مع الاستقبال.`,`A booking with this name already exists in this room. To change it, contact reception.`,`本房间已有同名预订。如需修改请联系前台。`,`इस कमरे में इसी नाम से बुकिंग पहले से है। बदलाव के लिए रिसेप्शन से संपर्क करें।`],
+  [`حدث خطأ أثناء إرسال الحجز. من فضلك حاول مرة أخرى.`,`Something went wrong while sending your booking. Please try again.`,`提交预订时出错，请重试。`,`बुकिंग भेजते समय त्रुटि हुई। कृपया दोबारा प्रयास करें।`],
+  [`📡 لا يوجد اتصال بالإنترنت — لا يمكن إتمام الحجز الآن`,`📡 No internet connection — booking is unavailable right now`,`📡 无网络连接，暂时无法预订`,`📡 इंटरनेट कनेक्शन नहीं है — अभी बुकिंग संभव नहीं`],
+  [`⚠️ تعذر الاتصال بخادم الحجوزات — جارٍ إعادة المحاولة...`,`⚠️ Cannot reach the booking server — retrying...`,`⚠️ 无法连接预订服务器，正在重试…`,`⚠️ बुकिंग सर्वर से संपर्क नहीं हो पा रहा — दोबारा कोशिश हो रही है...`],
+  [`حجز بوكس الإفطار`,`Breakfast Box Booking`,`早餐盒预订`,`ब्रेकफास्ट बॉक्स बुकिंग`],
+  [`لا يوجد اتصال بالإنترنت حاليًا. من فضلك تأكد من اتصالك وحاول مرة أخرى — لم يتم إرسال الحجز.`,`No internet connection right now. Please check your connection and try again — your booking was not sent.`,`当前无网络连接。请检查网络后重试——预订尚未提交。`,`अभी इंटरनेट कनेक्शन नहीं है। कृपया अपना कनेक्शन जाँचकर दोबारा कोशिश करें — बुकिंग भेजी नहीं गई।`],
+  [`تعذر الوصول لخادم الحجوزات حاليًا. من فضلك حاول مرة أخرى بعد قليل — لم يتم إرسال الحجز.`,`Cannot reach the booking server right now. Please try again shortly — your booking was not sent.`,`目前无法连接预订服务器，请稍后重试——预订尚未提交。`,`अभी बुकिंग सर्वर से संपर्क नहीं हो पा रहा। कृपया थोड़ी देर बाद दोबारा कोशिश करें — बुकिंग भेजी नहीं गई।`]
+  ];
+
+  /* نصوص فيها أرقام أو أسماء: التعبير النمطي + ترجمة كل لغة (نص أو دالة) */
+  const LT=t=>LANG==='ar'?t:t.replace(/(\d+):(\d\d) ([صم])/g,(m,h,mi,p)=>LANGS[LANG].time((+h%12)+(p==='م'?12:0),+mi));
+  const RULES=[
+   [/^الحد الأقصى للغرفة الواحدة: (\d+) بوكسات$/,{en:'Maximum per room: $1 boxes',zh:'每间客房最多：$1 盒',hi:'प्रति कमरा अधिकतम: $1 बॉक्स'}],
+   [/^المتاح لهذه الغرفة: (\d+) من (\d+) بوكسات$/,{en:'Available for this room: $1 of $2 boxes',zh:'本房间可订：$1/$2 盒',hi:'इस कमरे के लिए उपलब्ध: $2 में से $1 बॉक्स'}],
+   [/^اكتمل الحد الأقصى لهذه الغرفة \((\d+) بوكسات\)$/,{en:'This room has reached the maximum ($1 boxes)',zh:'本房间已达上限（$1 盒）',hi:'इस कमरे की अधिकतम सीमा पूरी हो गई ($1 बॉक्स)'}],
+   [/^(\d+) من (\d+) بوكسات$/,{en:'$1 of $2 boxes',zh:'$1/$2 盒',hi:'$2 में से $1 बॉक्स'}],
+   [/^(\d+) بوكس · (.+)$/,{en:(m,q,t)=>q+' box(es) · '+LT(t),zh:(m,q,t)=>q+' 盒 · '+LT(t),hi:(m,q,t)=>q+' बॉक्स · '+LT(t)}],
+   [/^أنت الآن تعدّل حجز: (.+)$/,{en:'You are editing the booking of: $1',zh:'您正在修改以下预订：$1',hi:'आप इस बुकिंग में बदलाव कर रहे हैं: $1'}],
+   [/^(?:تم تأكيد الحجز|تم تحديث الحجز) ✓ — (.+): (\d+) بوكس إفطار، الإستلام الساعة (.+) صباح (.+) من مطعم الجرين هاوس\.$/,{
+     en:(m,n,q,t,d)=>`Booking confirmed ✓ — ${n}: ${q} breakfast box(es), pickup at ${LT(t)} on the morning of ${d} from the Green House restaurant.`,
+     zh:(m,n,q,t,d)=>`预订已确认 ✓ — ${n}：${q} 份早餐盒，${d} ${LT(t)} 在 Green House 餐厅取餐。`,
+     hi:(m,n,q,t,d)=>`बुकिंग की पुष्टि हो गई ✓ — ${n}: ${q} ब्रेकफास्ट बॉक्स, ${d} को ${LT(t)} पर ग्रीन हाउस रेस्टोरेंट से पिकअप करें।`}],
+   [/^عذرًا، تم إغلاق باب الحجز للتو.*$/,{en:'Sorry, booking has just closed. It opens daily from 11:00 AM until 1:00 AM.',zh:'抱歉，预订刚刚截止。每日上午 11:00 至次日凌晨 1:00 开放预订。',hi:'क्षमा करें, बुकिंग अभी बंद हो गई है। यह रोज़ सुबह 11:00 से अगले दिन रात 1:00 बजे तक खुलती है।'}],
+   [/^المتاح لهذه الغرفة (\d+) بوكس فقط.*$/,{en:'Only $1 box(es) left for this room. Please reduce the quantity.',zh:'本房间仅剩 $1 盒，请减少数量。',hi:'इस कमरे के लिए केवल $1 बॉक्स बचे हैं। कृपया मात्रा कम करें।'}],
+   [/^هذه الغرفة وصلت للحد الأقصى.*$/,{en:'This room has already reached its maximum. To change a booking, contact reception.',zh:'本房间已达上限。如需更改预订，请联系前台。',hi:'इस कमरे की अधिकतम सीमा पूरी हो चुकी है। बुकिंग बदलने के लिए रिसेप्शन से संपर्क करें।'}]];
+  /* فقرات فيها تنسيق HTML */
+  const HTMLS=[
+   ['.pn-row:nth-child(1) > span:last-child',{
+     en:'Booking is open daily from <b>11:00 AM</b> until <b>1:00 AM</b> the next day. Pickup is from the <b>Green House</b> restaurant on the morning right after the booking day.',
+     zh:'每日 <b>上午 11:00</b> 至次日 <b>凌晨 1:00</b> 开放预订，请于预订日次日早晨前往 <b>Green House</b> 餐厅取餐。',
+     hi:'बुकिंग रोज़ <b>सुबह 11:00</b> से अगले दिन <b>रात 1:00</b> बजे तक खुली रहती है, और पिकअप बुकिंग के अगले दिन की सुबह <b>ग्रीन हाउस</b> रेस्टोरेंट से होगा।'}],
+   ['.pn-row.pn-warning > span:last-child',{
+     en:'If you book a <b>breakfast box</b>, guests may not use the <b>open buffet</b> on the same day.',
+     zh:'预订<b>早餐盒</b>的客人，当天不可使用<b>自助早餐</b>。',
+     hi:'यदि आप <b>ब्रेकफास्ट बॉक्स</b> बुक करते हैं, तो उसी दिन <b>ओपन बफे</b> का उपयोग नहीं किया जा सकता।'}]];
+
+  /* ---------- محرك الترجمة (واحد لكل اللغات) ---------- */
+  let LANG=ORDER.includes(store.get('bb_lang'))?store.get('bb_lang'):'ar';
+  const DICTS={};
+  ORDER.forEach((c,i)=>{DICTS[c]={};TEXT.forEach(r=>{DICTS[c][r[0]]=r[i];});});
+  const orig=new Map(),htmlOrig=[];
+  function trNode(n){
+    if(LANG==='ar')return;const raw=n.nodeValue,t=raw.trim();
+    if(!t||!/[\u0600-\u06FF]/.test(t))return;
+    let out=DICTS[LANG][t];
+    if(!out)for(const[re,v]of RULES){if(re.test(t)){out=t.replace(re,v[LANG]);break;}}
+    if(out){orig.set(n,raw);n.nodeValue=raw.replace(t,()=>out);}
+  }
+  function walk(root){
+    if(root.nodeType===3)return trNode(root);
+    if(root.nodeType!==1||/^(SCRIPT|STYLE)$/.test(root.tagName))return;
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode()))trNode(n);
+  }
+  new MutationObserver(ms=>{if(LANG==='ar')return;ms.forEach(m=>{
+    if(m.type==='characterData')trNode(m.target);else m.addedNodes.forEach(walk);});})
+   .observe(document.body,{childList:true,characterData:true,subtree:true});
 
   /* ---------- 1) ذاكرة الغرفة والاسم ---------- */
   try{localStorage.removeItem('bb_room');}catch(e){}
@@ -1370,15 +1495,15 @@
   /* ---------- 3) ملخص الحجز + علامة صحة الغرفة ---------- */
   const sm=document.createElement('div');sm.className='summary';submit.parentNode.insertBefore(sm,submit);
   function update(){
-    const r=normalizeRoomNumber(room.value),ok=isValidRoom(r),n=nameI.value.trim();
+    const r=normalizeRoomNumber(room.value),ok=isValidRoom(r),n=nameI.value.trim(),L=LANGS[LANG];
     room.classList.toggle('valid',ok);
     chips.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.v===sel.value));
-    const t=sel.value?((sel.options[sel.selectedIndex]||{}).textContent||''):'—',q=qtyEl.textContent,en=LANG==='en';
+    const t=sel.value?((sel.options[sel.selectedIndex]||{}).textContent||''):'—',q=qtyEl.textContent;
     let h='';
     if(ok&&n){
-      const d=en?EN_D(currentWindow.target):AR_D(currentWindow.target);
-      h=en?`<div class="sm-t">YOUR BOOKING SUMMARY</div><div class="sm-b">🛏 Room <b>${r}</b> · 👤 ${esc(n)}</div><div class="sm-b">🥐 <b>${q}</b> box(es) · 🕗 <b>${t}</b></div><div class="sm-b">📅 ${d}</div>`
-          :`<div class="sm-t">ملخص حجزك</div><div class="sm-b">🛏 غرفة <b>${r}</b> · 👤 ${esc(n)}</div><div class="sm-b">🥐 <b>${q}</b> بوكس · 🕗 <b>${t}</b></div><div class="sm-b">📅 ${d}</div>`;
+      const d=L.date(currentWindow.target);
+      h=L.summary?L.summary(r,esc(n),q,t,d)
+        :`<div class="sm-t">ملخص حجزك</div><div class="sm-b">🛏 غرفة <b>${r}</b> · 👤 ${esc(n)}</div><div class="sm-b">🥐 <b>${q}</b> بوكس · 🕗 <b>${t}</b></div><div class="sm-b">📅 ${d}</div>`;
     }
     if(sm._h!==h){sm._h=h;sm.innerHTML=h;}
     sm.classList.toggle('show',!!h);
@@ -1386,100 +1511,48 @@
   [room,nameI].forEach(el=>el.addEventListener('input',update));
   setInterval(update,400);
 
-  /* ---------- 5) English / عربي ---------- */
-  const DICT={'تاريخ التسليم':'Delivery date','رقم الغرفة':'Room number','اسم النزيل':'Guest name','عدد البوكسات':'Number of boxes',
-   '(تأكد من عدد البوكسات المطلوبة)':'(double-check the number of boxes)','ساعة التسليم':'Delivery time','محتويات بوكس الإفطار':'Box contents',
-   'جبن رومي':'Roumy cheese','جبنة بيضاء':'White cheese','جبن شيدر':'Cheddar','دانش، كرواسان، إنجليش كيك':'Danish, croissant, English cake',
-   'بيض مسلوق':'Boiled eggs','فول':'Foul (fava beans)','زبادي':'Yogurt','فاكهة الموسم':'Seasonal fruit','عيش كايزر + عيش شامي':'Kaiser roll + pita',
-   'سلطة خضراء طازجة':'Fresh green salad','مربى':'Jam','عسل':'Honey','تأكيد الحجز':'Confirm booking','حفظ التعديل':'Save changes',
-   'الحجز مغلق حاليًا':'Booking closed','جارٍ الحجز...':'Booking...','غير متصل بالإنترنت':'Offline','تعذر الاتصال بالخادم':'Server unreachable',
-   'يُغلق الحجز خلال':'Booking closes in','يُفتح الحجز خلال':'Booking opens in','تم تأكيد الحجز':'Booking confirmed','تعديل الحجز':'Edit booking',
-   'تم، خروج':'Done, exit','إلغاء التعديل':'Cancel edit',
-   'سيتم تجهيز البوكس وتسليمه صباح يوم التسليم المذكور أعلاه':'Your box will be prepared and delivered on the morning of the delivery date above',
-   'التسليم صباح اليوم التالي، اختر الموعد المناسب لك ضمن ساعات الخدمة':'Delivered next morning — pick the time that suits you',
-   '⚠ رقم الغرفة غير موجود بالفندق — من فضلك تأكد من الرقم':'⚠ Room number not found — please check it',
-   'الحجز مغلق حاليًا. باب الحجز يُفتح يوميًا من الساعة 11:00 صباحًا وحتى الساعة 1:00 صباحًا من اليوم التالي.':'Booking is currently closed. It opens daily from 11:00 AM until 1:00 AM the next day.',
-   'حجوزات هذه الغرفة لهذا اليوم:':'Bookings for this room today:',
-   'لإضافة حجز جديد باسمك، املأ بياناتك بالأسفل. وللتعديل على حجز موجود تواصل مع الاستقبال.':'To add a new booking under your name, fill in your details below. To change an existing one, contact reception.',
-   'اكتمل الحد الأقصى لهذه الغرفة (3 بوكسات). للتعديل تواصل مع الاستقبال.':'This room has reached the maximum (3 boxes). To change a booking, contact reception.',
-   'من فضلك أدخل رقم الغرفة واسم النزيل.':'Please enter the room number and guest name.',
-   'رقم الغرفة غير مسجل بالفندق. من فضلك تأكد من الرقم قبل إرسال الحجز.':'Room number is not registered. Please check it before submitting.',
-   'يوجد حجز بنفس الاسم فى هذه الغرفة. للتعديل من فضلك تواصل مع الاستقبال.':'A booking with this name already exists in this room. To change it, contact reception.',
-   'حدث خطأ أثناء إرسال الحجز. من فضلك حاول مرة أخرى.':'Something went wrong while sending your booking. Please try again.',
-   '📡 لا يوجد اتصال بالإنترنت — لا يمكن إتمام الحجز الآن':'📡 No internet connection — booking is unavailable right now',
-   '⚠️ تعذر الاتصال بخادم الحجوزات — جارٍ إعادة المحاولة...':'⚠️ Cannot reach the booking server — retrying...'};
-  const RULES=[
-   [/^الحد الأقصى للغرفة الواحدة: (\d+) بوكسات$/,'Maximum per room: $1 boxes'],
-   [/^المتاح لهذه الغرفة: (\d+) من (\d+) بوكسات$/,'Available for this room: $1 of $2 boxes'],
-   [/^اكتمل الحد الأقصى لهذه الغرفة \((\d+) بوكسات\)$/,'This room has reached the maximum ($1 boxes)'],
-   [/^(\d+) من (\d+) بوكسات$/,'$1 of $2 boxes'],
-   [/^(\d+) بوكس · (.+)$/,(m,q,t)=>q+' box(es) · '+toEnTime(t)],
-   [/^أنت الآن تعدّل حجز: (.+)$/,'You are editing the booking of: $1'],
-   [/^(?:تم تأكيد الحجز|تم تحديث الحجز) ✓ — (.+): (\d+) بوكس إفطار، الإستلام الساعة (.+) صباح (.+) من مطعم الجرين هاوس\.$/,
-     (m,n,q,t,d)=>`Booking confirmed ✓ — ${n}: ${q} breakfast box(es), pickup at ${toEnTime(t)} on the morning of ${d} from the Green House restaurant.`],
-   [/^عذرًا، تم إغلاق باب الحجز للتو.*$/,'Sorry, booking has just closed. It opens daily from 11:00 AM until 1:00 AM.'],
-   [/^المتاح لهذه الغرفة (\d+) بوكس فقط.*$/,'Only $1 box(es) left for this room. Please reduce the quantity.'],
-   [/^هذه الغرفة وصلت للحد الأقصى.*$/,'This room has already reached its maximum. To change a booking, contact reception.']];
-  const HTMLS=[['.pn-row:nth-child(1) > span:last-child','Booking is open daily from <b>11:00 AM</b> until <b>1:00 AM</b> the next day, with delivery the following morning.'],
-   ['.pn-row.pn-warning > span:last-child','If you book a <b>breakfast box</b>, guests may not use the <b>open buffet</b> on the same day.']];
-  const orig=new Map(),htmlOrig=[];
-  function trNode(n){
-    if(LANG!=='en')return;const raw=n.nodeValue,t=raw.trim();
-    if(!t||!/[\u0600-\u06FF]/.test(t))return;
-    let out=DICT[t];
-    if(!out)for(const[re,f]of RULES){if(re.test(t)){out=t.replace(re,f);break;}}
-    if(out){orig.set(n,raw);n.nodeValue=raw.replace(t,()=>out);}
-  }
-  function walk(root){
-    if(root.nodeType===3)return trNode(root);
-    if(root.nodeType!==1||/^(SCRIPT|STYLE)$/.test(root.tagName))return;
-    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode()))trNode(n);
-  }
-  new MutationObserver(ms=>{if(LANG!=='en')return;ms.forEach(m=>{
-    if(m.type==='characterData')trNode(m.target);else m.addedNodes.forEach(walk);});})
-   .observe(document.body,{childList:true,characterData:true,subtree:true});
-
-  const btn=document.createElement('button');btn.type='button';btn.className='lang-btn';
-  document.querySelector('header').appendChild(btn);
+  /* ---------- 4) تبديل اللغة ---------- */
+  const bar=document.createElement('div');bar.className='lang-bar';
+  ORDER.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='lang-btn';b.dataset.l=c;b.textContent=LANGS[c].label;bar.appendChild(b);});
+  bar.addEventListener('click',e=>{const b=e.target.closest('.lang-btn');if(b&&b.dataset.l!==LANG)setLang(b.dataset.l);});
+  const hdr=document.querySelector('header');hdr.insertBefore(bar,hdr.firstChild);
   const AR_TITLE=document.title;
   function repopulate(){
     const v=sel.value;populateDeliveryTimes();
     const ph=document.createElement('option');ph.value='';ph.disabled=true;
-    ph.textContent=LANG==='en'?'Select delivery time':'اختر ساعة التسليم';
+    ph.textContent=LANGS[LANG].selectTime;
     sel.insertBefore(ph,sel.firstChild);sel.value=v;buildChips();
   }
   sel.removeAttribute('required');
   document.addEventListener('submit',e=>{
     if(e.target.id!=='bookingForm'||sel.value)return;
     e.preventDefault();e.stopImmediatePropagation();
-    showNotice('error',LANG==='en'?'Please choose a delivery time.':'من فضلك اختر ساعة التسليم.');
+    showNotice('error',LANGS[LANG].pickTime);
     chips.scrollIntoView({behavior:'smooth',block:'center'});
     chips.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:300});
   },true);
   function setLang(l){
-    LANG=l;store.set('bb_lang',l);
-    const en=l==='en';
-    document.documentElement.lang=l;document.documentElement.dir=en?'ltr':'rtl';
-    formatTimeAr=en?EN_T:AR_T;formatDateAr=en?EN_D:AR_D;
-    btn.textContent=en?'عربي':'EN';document.title=en?'Breakfast Box Booking':AR_TITLE;
-    room.placeholder=en?'e.g. 214':'مثال: 214';nameI.placeholder=en?'Full name':'الاسم بالكامل';
-    if(en){
-      HTMLS.forEach(([q,h])=>{const el=document.querySelector(q);if(el){htmlOrig.push([el,el.innerHTML]);el.innerHTML=h;}});
-      repopulate();walk(document.body);
-    }else{
-      orig.forEach((r,n)=>{if(n.isConnected)n.nodeValue=r;});orig.clear();
-      htmlOrig.forEach(([el,h])=>{el.innerHTML=h;});htmlOrig.length=0;
-      repopulate();
-    }
+    if(!LANGS[l])l='ar';
+    LANG=l;store.set('bb_lang',l);const L=LANGS[l];
+    document.documentElement.lang=l;document.documentElement.dir=L.dir;
+    formatTimeAr=L.time;formatDateAr=L.date;
+    document.title=L.title||AR_TITLE;room.placeholder=L.roomPh;nameI.placeholder=L.namePh;
+    const lg=document.querySelector('header .logo');if(lg)lg.alt=L.logoAlt;
+    bar.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('on',b.dataset.l===l));
+    /* نرجع للنص العربي الأصلي أولًا، ثم نترجم للغة المطلوبة */
+    orig.forEach((r,n)=>{if(n.isConnected)n.nodeValue=r;});orig.clear();
+    htmlOrig.forEach(([el,h])=>{el.innerHTML=h;});htmlOrig.length=0;
+    if(l!=='ar')HTMLS.forEach(([q,o])=>{const el=document.querySelector(q);if(el){htmlOrig.push([el,el.innerHTML]);el.innerHTML=o[l];}});
+    repopulate();
+    if(l!=='ar')walk(document.body);
     refreshStatus();sm._h=null;update();
   }
-  btn.addEventListener('click',()=>setLang(LANG==='en'?'ar':'en'));
 
-  sel.value='';repopulate();
+  sel.value='';
   /* بعد كل حجز ناجح: نفضّي ساعة التسليم ليختارها النزيل من جديد */
   new MutationObserver(()=>{if($('confirmModal').classList.contains('show')){sel.value='';update();}})
     .observe($('confirmModal'),{attributes:true,attributeFilter:['class']});
-  if(LANG==='en')setLang('en');else{btn.textContent='EN';update();}
+  setLang(LANG);
 })();
 </script>
 </body>
