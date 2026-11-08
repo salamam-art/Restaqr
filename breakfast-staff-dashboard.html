@@ -185,6 +185,15 @@
   .note-actions .del{color:#a13a3a;border-color:#e8c4c4;}
   .note-actions button:disabled{opacity:.6;cursor:default;}
 
+  /* ---------- تعديل ساعة التسليم ---------- */
+  .time-edit{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-inline-start:6px;vertical-align:middle;padding:0;border-radius:10px;border:1.5px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,color .15s;}
+  .time-edit:hover{border-color:var(--gold);color:#7a5518;}
+  .time-edit::before{content:"";width:16px;height:16px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E") center/contain no-repeat;}
+  .booking-card-time-wrap{display:flex;align-items:center;gap:4px;}
+  .time-select{width:100%;min-height:48px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--line);background:#faf8f3;font-family:inherit;font-size:16px;font-weight:700;color:var(--text);}
+  .time-select:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(28,37,65,.12);}
+  @media print{ .time-edit{display:none !important;} }
+
   /* موبايل */
   @media (max-width: 760px){
     header{padding:14px 16px;}
@@ -539,6 +548,18 @@
   </div>
 </div>
 
+<div class="note-modal" id="timeModal" role="dialog" aria-modal="true" aria-labelledby="timeModalTitle">
+  <div class="note-dialog">
+    <h3 id="timeModalTitle">ساعة التسليم</h3>
+    <div class="note-sub" id="timeModalSub"></div>
+    <select id="timeSelect" class="time-select"></select>
+    <div class="note-actions">
+      <button type="button" class="save" id="timeSaveBtn">حفظ</button>
+      <button type="button" id="timeCancelBtn">إلغاء</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ حجز بوكس الإفطار (مدمج) ============ -->
 <div id="gbk" role="dialog" aria-modal="true" aria-label="حجز بوكس الإفطار" aria-hidden="true">
 <button type="button" class="gb-close" id="gbkClose" aria-label="إغلاق">×</button>
@@ -865,6 +886,61 @@
   document.getElementById('noteDeleteBtn').addEventListener('click', () => { if (confirm('حذف ملاحظة هذه الغرفة؟')) saveRoomNote(''); });
   document.getElementById('noteCancelBtn').addEventListener('click', closeNoteModal);
 
+  // ---------- تعديل ساعة التسليم (للحجز الواحد) ----------
+  function timeEditBtn(id) {
+    return `<button type="button" class="time-edit" data-id="${escapeHtml(id)}" title="تعديل ساعة التسليم" aria-label="تعديل ساعة التسليم"></button>`;
+  }
+  const TIME_START_MIN = 3 * 60, TIME_END_MIN = 10.5 * 60, TIME_STEP = 30;
+  function fmtTime12(v) {
+    const [h, m] = v.split(':').map(Number);
+    return `${(h % 12) || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'ص' : 'م'}`;
+  }
+  let timeEditId = null;
+  const timeModal = document.getElementById('timeModal');
+  const timeSelect = document.getElementById('timeSelect');
+
+  function openTimeModal(id) {
+    const b = allBookings.find(x => x.id === id);
+    if (!b) return;
+    timeEditId = id;
+    const cur = b.deliveryTime || '';
+    const opts = [];
+    for (let m = TIME_START_MIN; m <= TIME_END_MIN; m += TIME_STEP)
+      opts.push(`${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
+    if (cur && !opts.includes(cur)) { opts.push(cur); opts.sort(); }
+    timeSelect.innerHTML = opts.map(t => `<option value="${t}"${t === cur ? ' selected' : ''}>${fmtTime12(t)}</option>`).join('');
+    document.getElementById('timeModalTitle').textContent = '🕐 ساعة التسليم — ' + (b.roomNumber || '');
+    document.getElementById('timeModalSub').textContent = b.guestName || '';
+    timeModal.classList.add('show');
+  }
+  function closeTimeModal() { timeModal.classList.remove('show'); timeEditId = null; }
+
+  document.getElementById('timeSaveBtn').addEventListener('click', async () => {
+    const id = timeEditId, val = timeSelect.value;
+    if (!id || !val) { closeTimeModal(); return; }
+    const saveBtn = document.getElementById('timeSaveBtn');
+    saveBtn.disabled = true;
+    try {
+      await db.collection(COLLECTION).doc(id).update({
+        deliveryTime: val,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      closeTimeModal();
+    } catch (err) {
+      console.error(err);
+      alert('تعذّر تعديل ساعة التسليم. تأكد من الاتصال وقواعد Firestore ثم حاول مرة أخرى.');
+    } finally {
+      saveBtn.disabled = false;
+    }
+  });
+  document.getElementById('timeCancelBtn').addEventListener('click', closeTimeModal);
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.time-edit');
+    if (btn) { openTimeModal(btn.dataset.id); return; }
+    if (e.target === timeModal) closeTimeModal();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && timeModal.classList.contains('show')) closeTimeModal(); });
+
   // ---------- بيانات ----------
   let allBookings = [];
   let unsubscribe = null;
@@ -925,7 +1001,7 @@
         <td class="room-cell">${escapeHtml(r.roomNumber || '')}${multiTag(r, roomCounts)}</td>
         <td>${escapeHtml(r.guestName || '')}</td>
         <td class="qty-cell">${r.quantity || 1}</td>
-        <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}</td>
+        <td class="time-cell">${escapeHtml(r.deliveryTime || '—')}${timeEditBtn(r.id)}</td>
         <td class="booked-cell">${escapeHtml(formatBookedAt(r))}</td>
         <td class="note-cell">${noteBtn(r.roomNumber, roomNotes.has(r.roomNumber), false)}${roomNotes.has(r.roomNumber) ? `<div class="note-preview">${escapeHtml(roomNotes.get(r.roomNumber))}</div>` : ''}</td>
         <td>${r.delivered ? '<span class="status-badge ok">تم التسليم</span>' : ''}</td>
@@ -937,7 +1013,7 @@
       <div class="booking-card ${r.delivered ? 'delivered' : ''}" data-id="${r.id}">
         <div class="booking-card-header">
           <div class="booking-card-room">🚪 ${escapeHtml(r.roomNumber || '—')}${multiTag(r, roomCounts)}</div>
-          <div class="booking-card-time">🕐 ${escapeHtml(r.deliveryTime || '—')}</div>
+          <div class="booking-card-time-wrap"><div class="booking-card-time">🕐 ${escapeHtml(r.deliveryTime || '—')}</div>${timeEditBtn(r.id)}</div>
         </div>
         <div class="booking-card-body">
           <div class="booking-card-field">
