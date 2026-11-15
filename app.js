@@ -4793,33 +4793,76 @@ ${bookingPrintFooterHtml(printDate)}
             updatePrintRangePreview();
         }
 
+        let printRangeCurrent = []; // الحجوزات المعروضة حالياً في قايمة الاختيار
+
         function updatePrintRangePreview() {
             const from = document.getElementById('printRangeFrom').value;
             const to = document.getElementById('printRangeTo').value;
             const prev = document.getElementById('printRangePreview');
-            const btn = document.getElementById('printRangeConfirmBtn');
-            btn.disabled = true;
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
-            if (!from || !to) { prev.textContent = 'اختر تاريخ البداية والنهاية'; return; }
-            if (to < from) { prev.textContent = 'تاريخ النهاية قبل تاريخ البداية'; return; }
+            const wrap = document.getElementById('printRangeListWrap');
+            const listBox = document.getElementById('printRangeList');
+            printRangeCurrent = [];
+            listBox.innerHTML = '';
+            wrap.classList.add('hidden');
+            if (!from || !to) { prev.textContent = 'اختر تاريخ البداية والنهاية'; updatePrintRangeSelection(); return; }
+            if (to < from) { prev.textContent = 'تاريخ النهاية قبل تاريخ البداية'; updatePrintRangeSelection(); return; }
             const { list, skippedHidden } = getBookingsForPrintRange(from, to);
-            let msg = list.length ? ('عدد الحجوزات التي ستُطبع: ' + list.length) : 'لا توجد حجوزات في هذه الفترة';
+            printRangeCurrent = list;
+            let msg = list.length ? ('عدد الحجوزات في الفترة: ' + list.length) : 'لا توجد حجوزات في هذه الفترة';
             if (skippedHidden) msg += ' (تم استبعاد ' + skippedHidden + ' حجز مخفي التفاصيل)';
             prev.textContent = msg;
             if (list.length) {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                const fmt = d => d ? d.split('-').reverse().join('/') : '-';
+                listBox.innerHTML = list.map((b, i) => {
+                    const hall = findHall(b.hallId) || { name: b.hallId || 'غير معروف' };
+                    const r = getBookingGroupRange(b);
+                    const dateTxt = r.startDate === r.endDate ? fmt(r.startDate) : (fmt(r.startDate) + ' ← ' + fmt(r.endDate));
+                    const timeTxt = (b.startTime && b.endTime) ? (b.startTime + ' – ' + b.endTime) : (b.startTime || 'يوم كامل');
+                    return `<label class="flex items-center gap-3 bg-white border border-slate-200 rounded-xl p-3 cursor-pointer">
+                        <input type="checkbox" value="${i}" checked onchange="updatePrintRangeSelection()">
+                        <div class="min-w-0 flex-1">
+                            <div class="font-black text-[#6E1418] text-sm leading-snug break-words">${escapeHtml(b.companyName) || '-'}</div>
+                            <div class="text-[11px] font-bold text-slate-500 mt-0.5 break-words">${escapeHtml(hall.name)} • ${dateTxt} • ${escapeHtml(timeTxt)}</div>
+                        </div>
+                    </label>`;
+                }).join('');
+                wrap.classList.remove('hidden');
             }
+            updatePrintRangeSelection();
+        }
+
+        function getPrintRangeSelected() {
+            const boxes = Array.from(document.querySelectorAll('#printRangeList input[type="checkbox"]'));
+            return boxes.filter(x => x.checked).map(x => printRangeCurrent[Number(x.value)]).filter(Boolean);
+        }
+
+        function updatePrintRangeSelection() {
+            const boxes = Array.from(document.querySelectorAll('#printRangeList input[type="checkbox"]'));
+            const n = boxes.filter(x => x.checked).length;
+            const btn = document.getElementById('printRangeConfirmBtn');
+            document.getElementById('printRangeConfirmLabel').textContent = boxes.length ? ('طباعة المحدد (' + n + ')') : 'طباعة';
+            document.getElementById('printRangeSelCount').textContent = boxes.length ? ('محدد ' + n + ' من ' + boxes.length) : '';
+            document.getElementById('printRangeToggleAll').textContent = (boxes.length && n === boxes.length) ? 'إلغاء الكل' : 'تحديد الكل';
+            btn.disabled = n === 0;
+            btn.classList.toggle('opacity-50', n === 0);
+            btn.classList.toggle('cursor-not-allowed', n === 0);
+        }
+
+        function togglePrintRangeAll() {
+            const boxes = Array.from(document.querySelectorAll('#printRangeList input[type="checkbox"]'));
+            const allChecked = boxes.length > 0 && boxes.every(x => x.checked);
+            boxes.forEach(x => { x.checked = !allChecked; });
+            updatePrintRangeSelection();
         }
 
         function confirmPrintRange() {
             const from = document.getElementById('printRangeFrom').value;
             const to = document.getElementById('printRangeTo').value;
             if (!from || !to || to < from) { showToast('تأكد من اختيار فترة صحيحة', 'error'); return; }
-            const { list } = getBookingsForPrintRange(from, to);
-            if (!list.length) { showToast('لا توجد حجوزات في هذه الفترة', 'error'); return; }
+            const selected = getPrintRangeSelected();
+            if (!selected.length) { showToast('اختر حجزاً واحداً على الأقل', 'error'); return; }
             closePrintRangeModal();
-            printBookingsRange(list, from, to);
+            printBookingsRange(selected, from, to);
         }
 
         function printBookingsRange(list, from, to) {
